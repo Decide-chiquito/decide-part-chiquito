@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+{% block extrahead %}
+<link type="text/css" rel="stylesheet" href="{% static 'css/estilos.css' %}" />
+{% endblock extrahead %}
+
+
+
+{% block content %}
+<div class="title">
+    <header>
+        Decide
+    </header>
+    <div class="subtitle">
+        <p>
+            Bienvenido a Decide, el sistema de votaciones online implimentado por el grupo decide-part-chiquito.
+        </p>
+    </div>
+</div>
+ <div class="navigator">
+    <div class="info">
+        
+        <p>
+            Introduzca el id de la sección deseada en la casilla correspondiente y pulse sobre acceder para dirigirse a la misma:
+        </p>
+    </div>
+
+    <div class="row">
+        <label for="admin" class="label">admin</label>
+        <button class="button" onclick="go_to_route('/admin/')">Acceder</button>
+    </div>
+
+    <div class="row">
+        <label for="booth" class="label">booth</label>
+        <input type="number" id="booth" class="input" min="1">
+        <button class="button" onclick="go_to_route('/booth/', 'booth')">Acceder</button>
+    </div>
+
+    <div class="row">
+        <label for="visualizer" class="label">visualizer</label>
+        <input type="number" id="visualizer" class="input" min="1">
+        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
+    </div>
+    
+</div>
+<div class="urls-list">
+
+    <label class="poster">Para aquellos que necesiten o prefieran usar la navegación mediante urls, aqui les facilitamos los diferentes puntos de acceso:</label>
+   <ul>
+
+       {% for url in url_patterns %}
+       
+           <li><label class="label">{{ url.pattern }}</label></li>
+       
+       {% endfor %}
+
+   </ul>
+
+   <script>
+    // Agrega un evento click al botón
+    function go_to_route(url, id){
+        // La función que se ejecutará al hacer clic en el botón
+        
+
+        if (url != '/admin/') {
+            let inputValue = document.getElementById(id).value;
+            if(inputValue == ""){
+                alert("Por favor, introduzca un id válido");
+            } else {
+                window.location.href = url + inputValue;
+            }
+        } else {
+            window.location.href = url;
+        }
+    }
+</script>
+
+</div>
+{% endblock content %}
+
