@@ -15,6 +15,29 @@ class PostProcView(APIView):
 
         out.sort(key=lambda x: -x['postproc'])
         return Response(out)
+    
+    def dhondt(self,options):
+        res = []
+        seats = int(self.request.data.get('seats',100))
+        for x in options:
+            opt_res = {
+                'option': x['option'],
+                'number': x['number'],
+                'votes': x['votes'],
+                'modified_votes': x['votes'],
+                'dhondt': 0
+            }
+            res.append(opt_res)
+
+        for i in range(0,seats):
+            biggest_modified_votes = max(res,key=lambda x:x['modified_votes'])
+            index = res.index(biggest_modified_votes)
+            biggest_modified_votes['dhondt'] +=1
+            biggest_modified_votes['modified_votes'] = biggest_modified_votes['votes']/((biggest_modified_votes['votes']/biggest_modified_votes['modified_votes'])+1)
+            del res[index]
+            res.append(biggest_modified_votes)
+
+        return Response(res)
 
     def post(self, request):
         """
@@ -28,11 +51,11 @@ class PostProcView(APIView):
             }
            ]
         """
-
-        t = request.data.get('type', 'IDENTITY')
+        t = request.data.get('type')
         opts = request.data.get('options', [])
-
         if t == 'IDENTITY':
             return self.identity(opts)
+        elif t == 'DHONDT':
+            return self.dhondt(opts)
 
         return Response({})
