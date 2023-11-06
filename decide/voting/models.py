@@ -42,6 +42,15 @@ class Voting(models.Model):
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
 
+    VOTE_TYPES = (
+        ('IDENTITY','Identity'),
+        ('DHONDT',"D'Hondt"),
+    )
+
+    type = models.CharField(max_length=8,choices=VOTE_TYPES,default='IDENTITY')
+
+    seats = models.PositiveIntegerField(blank=True, null=True)
+
     def create_pubkey(self):
         if self.pub_key or not self.auths.count():
             return
@@ -84,7 +93,6 @@ class Voting(models.Model):
         shuffle_url = "/shuffle/{}/".format(self.id)
         decrypt_url = "/decrypt/{}/".format(self.id)
         auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
-
         # first, we do the shuffle
         data = { "msgs": votes }
         response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=data,
@@ -92,7 +100,6 @@ class Voting(models.Model):
         if response.status_code != 200:
             # TODO: manage error
             pass
-
         # then, we can decrypt that
         data = {"msgs": response.json()}
         response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=data,
@@ -101,11 +108,11 @@ class Voting(models.Model):
         if response.status_code != 200:
             # TODO: manage error
             pass
-
         self.tally = response.json()
         self.save()
 
         self.do_postproc()
+
 
     def do_postproc(self):
         tally = self.tally
@@ -113,8 +120,10 @@ class Voting(models.Model):
 
         opts = []
         for opt in options:
-            if isinstance(tally, list):
+            if self.type == 'IDENTITY':
                 votes = tally.count(opt.number)
+            elif self.type == 'DHONDT':
+                votes = tally.count(opt.number)  
             else:
                 votes = 0
             opts.append({
@@ -122,10 +131,8 @@ class Voting(models.Model):
                 'number': opt.number,
                 'votes': votes
             })
-
-        data = { 'type': 'IDENTITY', 'options': opts }
+        data = { 'type': self.type, 'options': opts, 'seats': self.seats }
         postp = mods.post('postproc', json=data)
-
         self.postproc = postp
         self.save()
 
