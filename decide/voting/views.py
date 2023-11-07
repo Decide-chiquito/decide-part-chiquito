@@ -10,6 +10,8 @@ from .serializers import SimpleVotingSerializer, VotingSerializer
 from base.perms import UserIsStaff
 from base.models import Auth
 
+from ..base.perms import UserIsAdmin
+
 
 class VotingView(generics.ListCreateAPIView):
     queryset = Voting.objects.all()
@@ -101,3 +103,9 @@ class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
             msg = 'Action not found, try with start, stop or tally'
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
+
+    def destroy(self, request, voting_id, *args, **kwars):
+        self.permission_classes = (UserIsAdmin,)
+        voting = get_object_or_404(Voting, pk=voting_id)
+        voting.delete()
+        return Response('Voting deleted', status=status.HTTP_204_NO_CONTENT)
