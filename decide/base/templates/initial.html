@@ -4,7 +4,7 @@
 
 {% load static %}
 {% block extrahead %}
-<link type="text/css" rel="stylesheet" href="{% static 'css/estilos.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" />
 {% endblock extrahead %}
 
 
@@ -35,13 +35,23 @@
 
     <div class="row">
         <label for="booth" class="label">booth</label>
-        <input type="number" id="booth" class="input" min="1">
+        <select id="booth" name="booth">
+            <option value="" selected>Seleccione una opción</option>
+            {% for voting in voting_enabled %}
+            <option value="{{voting.id}}">{{voting.name}}</option>
+            {% endfor %}
+        </select>
         <button class="button" onclick="go_to_route('/booth/', 'booth')">Acceder</button>
     </div>
 
     <div class="row">
         <label for="visualizer" class="label">visualizer</label>
-        <input type="number" id="visualizer" class="input" min="1">
+        <select id="visualizer" name="visualizer">
+            <option value="" selected>Seleccione una opción</option>
+            {% for voting in voting_finished %}
+            <option value="{{voting.id}}">{{voting.name}}</option>
+            {% endfor %}
+        </select>
         <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
     </div>
     
@@ -53,8 +63,9 @@
 
        {% for url in url_patterns %}
        
-           <li><label class="label">{{ url.pattern }}</label></li>
-       
+           {% if url != ""%}
+            <li><label class="label">{{ url }}</label></li>
+            {% endif %}
        {% endfor %}
 
    </ul>
@@ -67,8 +78,8 @@
 
         if (url != '/admin/') {
             let inputValue = document.getElementById(id).value;
-            if(inputValue == ""){
-                alert("Por favor, introduzca un id válido");
+            if(inputValue == null || inputValue == ""){
+                alert("Por favor, introduzca un valor válido");
             } else {
                 window.location.href = url + inputValue;
             }

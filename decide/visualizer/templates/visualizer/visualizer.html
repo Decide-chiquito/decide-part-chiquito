@@ -10,14 +10,14 @@
 {% block content %}
     <div id="app-visualizer">
         <!-- Navbar -->
-        <nav class="navbar navbar-dark bg-dark">
+        <nav class="title">
             <div class="container-fluid">
                 <h1 class="navbar-brand">Decide</h1>
             </div>
         </nav>
           
 
-        <div class="voting container">
+        <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
 
             <h2 v-if="!voting.start_date">Votación no comenzada</h2>
@@ -44,6 +44,12 @@
             </div>
 
         </div>
+
+        <div class="center">
+            <button class="btn btn-primary mt-3" v-on:click="comeBack">
+                {% trans "Volver" %}
+            </button>
+        </div>
     </div>
 {% endblock %}
 
@@ -62,8 +68,19 @@
                 return {
                     voting: voting
                 }
+            },
+
+            methods: {
+                comeBack() {
+                    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+                    window.location.href = baseUrl;
+                }
             }
         }).mount('#app-visualizer')
+
+        
     </script>
+
+    
 </body>
 {% endblock %}

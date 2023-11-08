@@ -101,3 +101,10 @@ p {
     background-color: white;
     box-shadow: 0 0 10px 5px rgba(200, 200, 200, 0.5);
 }
+
+select {
+    flex: 2;
+    margin-left: 10px;
+    margin-right: 10px;
+    max-width: 200px;
+}
