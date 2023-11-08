@@ -33,10 +33,12 @@ class PostProcView(APIView):
             biggest_modified_votes = max(res,key=lambda x:x['modified_votes'])
             index = res.index(biggest_modified_votes)
             biggest_modified_votes['dhondt'] +=1
-            biggest_modified_votes['modified_votes'] = biggest_modified_votes['votes']/((biggest_modified_votes['votes']/biggest_modified_votes['modified_votes'])+1)
+            biggest_modified_votes['modified_votes'] = biggest_modified_votes['votes']/(biggest_modified_votes['dhondt']+1)
             del res[index]
             res.append(biggest_modified_votes)
-
+        for a in res:
+            del a['modified_votes']
+        res.sort(key=lambda x: -x['dhondt'])
         return Response(res)
 
     def post(self, request):
