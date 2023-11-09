@@ -25,23 +25,24 @@
             <div v-else>
                 <h2 class="heading">Resultados:</h2>
 
-                <h3 v-if="voting.type == 'DHONDT'">Escaños: [[voting.seats]] </h3>
+                <h3 v-if="voting.type == 'DHONDT' || voting.type == 'WEBSTER'">Escaños: [[voting.seats]] </h3>
 
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Opción</th>
-                            <th v-if="voting.type != 'DHONDT'">Puntuación</th>
+                            <th v-if="voting.type != 'DHONDT' && voting.type != 'WEBSTER'">Puntuación</th>
                             <th>Votos</th>
-                            <th v-if="voting.type == 'DHONDT'">Escaños</th>
+                            <th v-if="voting.type == 'DHONDT' || voting.type == 'WEBSTER'">Escaños</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="opt in voting.postproc" :key="opt.number">
                             <th>[[opt.option]]</th>
-                            <td v-if="voting.type != 'DHONDT'">[[opt.postproc]]</td>
+                            <td v-if="voting.type != 'DHONDT' && voting.type != 'WEBSTER'">[[opt.postproc]]</td>
                             <td class="text-muted">[[opt.votes]]</td>
                             <td v-if="voting.type == 'DHONDT'">[[opt.dhondt]]</td>
+                            <td v-if="voting.type == 'WEBSTER'">[[opt.webster]]</td>
                         </tr>
                     </tbody>
                 </table>
