@@ -45,6 +45,7 @@ class Voting(models.Model):
     VOTE_TYPES = (
         ('IDENTITY','Identity'),
         ('DHONDT',"D'Hondt"),
+        ('WEBSTER',"Webster"),
     )
 
     type = models.CharField(max_length=8,choices=VOTE_TYPES,default='IDENTITY')
@@ -123,7 +124,9 @@ class Voting(models.Model):
             if self.type == 'IDENTITY':
                 votes = tally.count(opt.number)
             elif self.type == 'DHONDT':
-                votes = tally.count(opt.number)  
+                votes = tally.count(opt.number)
+            elif self.type == 'WEBSTER':
+                votes = tally.count(opt.number)    
             else:
                 votes = 0
             opts.append({

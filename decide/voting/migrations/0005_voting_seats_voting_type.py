@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='voting',
             name='type',
-            field=models.CharField(choices=[('IDENTITY', 'Identity'), ('DHONDT', "D'Hondt")], default='IDENTITY', max_length=8),
+            field=models.CharField(choices=[('IDENTITY', 'Identity'), ('DHONDT', "D'Hondt"), ('WEBSTER, "Webster"')], default='IDENTITY', max_length=8),
         ),
     ]
