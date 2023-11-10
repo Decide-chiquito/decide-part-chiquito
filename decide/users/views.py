@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
+from django.contrib.auth import authenticate, login
+
 
 class RegisterView(APIView):
     def get(self, request):
@@ -29,3 +31,26 @@ class RegisterView(APIView):
             return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'error': 'El nombre de usuario ya está en uso.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class LoginView(APIView):
+    template_name = 'users/login.html'
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return render(request, self.template_name, {'already_logged_in': True})
+        else:
+            return render(request, self.template_name, {'already_logged_in': False})
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return render(request, self.template_name, {'success_message': 'Inicio de sesión exitoso'})
+        else:
+            return render(request, self.template_name, {'error': 'Credenciales inválidas'})
