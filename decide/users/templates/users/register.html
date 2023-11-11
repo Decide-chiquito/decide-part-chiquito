@@ -1,28 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+{% block extrahead %}
     <title>Registro de Usuario</title>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f5f5f5;
-        }
-        .form-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #e5e5e5;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .form-container h2 {
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-5">
+    
+{% endblock extrahead %}
+
+{% block content %}
+<div class="title">
+    <header>
+        Decide
+    </header>
+</div>
+    <div class="navigator">
         <div class="form-container">
             <h2>Registro de Usuario</h2>
             {% if success_message %}
@@ -52,6 +45,5 @@
             </form>
         </div>
     </div>
-</body>
-</html>
+{% endblock content %}
        
