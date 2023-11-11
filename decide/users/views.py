@@ -38,10 +38,8 @@ class LoginView(APIView):
     template_name = 'users/login.html'
 
     def get(self, request):
-        if request.user.is_authenticated:
-            return render(request, self.template_name, {'already_logged_in': True})
-        else:
-            return render(request, self.template_name, {'already_logged_in': False})
+        user = request.user
+        return render(request, self.template_name, {'user': user})
 
     def post(self, request):
         username = request.POST.get('username')
