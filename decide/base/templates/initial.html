@@ -35,6 +35,11 @@
     </div>
 
     <div class="row">
+        <label for="register" class="label">register</label>
+        <button class="button" onclick="go_to_route('/users/register/')">Acceder</button>
+    </div>
+
+    <div class="row">
         <label for="booth" class="label">booth</label>
         <select id="booth" name="booth">
             <option value="" selected>Seleccione una opción</option>
@@ -75,9 +80,8 @@
     // Agrega un evento click al botón
     function go_to_route(url, id){
         // La función que se ejecutará al hacer clic en el botón
-        
 
-        if (url != '/admin/') {
+        if (url != '/admin/' && url != '/users/register/') {
             let inputValue = document.getElementById(id).value;
             if(inputValue == null || inputValue == ""){
                 alert("Por favor, introduzca un valor válido");
@@ -85,7 +89,9 @@
                 window.location.href = url + inputValue;
             }
         } else {
+            console.log(url);
             window.location.href = url;
+            
         }
     }
 </script>
