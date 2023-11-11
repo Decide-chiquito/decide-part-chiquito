@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 
 class RegisterView(APIView):
@@ -52,3 +52,8 @@ class LoginView(APIView):
             return render(request, self.template_name, {'success_message': 'Inicio de sesión exitoso'})
         else:
             return render(request, self.template_name, {'error': 'Credenciales inválidas'})
+
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return redirect('users:login')
