@@ -1,0 +1,17 @@
+Para ejecutar decide en vagrant, primero nos situaremos en el directorio vagrant del repositorio de decide.
+Ejecutamos:
+        vagrant up
+
+        Accedemos a http://localhost:8080/, accederemos a decide.
+        Los credenciales de administrador son: admin admin
+
+Para borrar todo cuando termines (consume mucho), dentro de la carpeta vagrant:
+        vagrant destroy
+        vagrant box remove ubuntu/jammy64
+
+Instalación Vagrant:
+        #Actualizar la lista de paquetes
+        sudo apt update
+
+        #Instalar vagrant, ansible y virtual box
+        sudo apt install vagrant ansible virtualbox

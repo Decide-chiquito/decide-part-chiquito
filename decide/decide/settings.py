@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'gateway',
     'livereload',
+    'users',
 ]
 
 REST_FRAMEWORK = {
@@ -69,6 +70,7 @@ MODULES = [
     'store',
     'visualizer',
     'voting',
+    'users',
 ]
 
 BASEURL = 'http://localhost:8000'
