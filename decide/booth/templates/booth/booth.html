@@ -71,7 +71,7 @@
                 <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
             </svg>
             <div class="ms-2">
-                ¡Debe iniciar sesión para poder acceder a la votación!
+                {% trans 'You must log in to be able to access the voting!' %}
             </div>
         </div>
         <div class="container-fluid">
@@ -115,10 +115,10 @@
         </div>
 
         <!-- Voting -->
-        <div v-if="!signup">
+        <div v-if="!signup" class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
-            <form v-for="opt in voting.question.options" :key="opt.number">
+            <form v-for="opt in voting.question.options" :key="opt.number" class="form-voting">
                 <div class="form-group">
                     <input type="radio" v-model="selected"
                                 :id="'q' + opt.number"
@@ -127,9 +127,14 @@
                         [[ opt.option ]]
                 </div>
             </form>
-            <button class="btn btn-primary mt-3" v-on:click="decideSend">
-                {% trans "Vote" %}
-            </button>
+            <div class="options">
+                <button class="btn btn-primary mt-3" v-on:click="decideSend">
+                    {% trans "Vote" %}
+                </button>
+                <button class="btn btn-primary mt-3" v-on:click="comeBack">
+                    {% trans "Volver" %}
+                </button>
+            </div>
         </div>
 
     </div>
@@ -157,7 +162,7 @@
 
     <script>
         const { createApp } = Vue
-        var voting = {{voting|safe}};
+        var voting = {{ voting|safe }};
         createApp({
             delimiters: ['[[', ']]'],
             data() {
@@ -285,7 +290,13 @@
                     this.alertLvl = lvl;
                     this.alertMsg = msg;
                     this.alertShow = true;
-                }
+                },
+
+                comeBack() {
+                    let baseUrl = '{{ request.scheme }}://{{ request.get_host }}';
+                    window.location.href = baseUrl;
+                },
+                
             },
         }).mount('#app-booth')
     </script>

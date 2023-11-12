@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+{% block extrahead %}
+<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" />
+{% endblock extrahead %}
+
+
+
+{% block content %}
+
+<div class="title">
+    <header>
+        Decide
+    </header>
+    <div class="subtitle">
+        <p>
+            Bienvenido a Decide, el sistema de votaciones online implimentado por el grupo decide-part-chiquito.
+        </p>
+    </div>
+</div>
+<div class="navigator">
+    <div class="info">
+        
+        <p>
+            Seleccine la opción deseada en la casilla correspondiente y pulse sobre acceder para dirigirse a la misma:
+        </p>
+    </div>
+
+    <div class="row">
+        <label for="admin" class="label">admin</label>
+        <button class="button" onclick="go_to_route('/admin/')">Acceder</button>
+    </div>
+
+    <div class="row">
+        <label for="register" class="label">register</label>
+        <button class="button" onclick="go_to_route('/users/register/')">Acceder</button>
+    </div>
+
+    <div class="row">
+        <label for="booth" class="label">booth</label>
+        <select id="booth" name="booth">
+            <option value="" selected>Seleccione una opción</option>
+            {% for voting in voting_enabled %}
+            <option value="{{voting.id}}">{{voting.name}}</option>
+            {% endfor %}
+        </select>
+        <button class="button" onclick="go_to_route('/booth/', 'booth')">Acceder</button>
+    </div>
+
+    <div class="row">
+        <label for="visualizer" class="label">visualizer</label>
+        <select id="visualizer" name="visualizer">
+            <option value="" selected>Seleccione una opción</option>
+            {% for voting in voting_finished %}
+            <option value="{{voting.id}}">{{voting.name}}</option>
+            {% endfor %}
+        </select>
+        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
+    </div>
+    
+</div>
+<div class="urls-list">
+
+    <label class="poster">Para aquellos que necesiten o prefieran usar la navegación mediante urls, aqui les facilitamos los diferentes puntos de acceso:</label>
+   <ul>
+
+       {% for url in url_patterns %}
+       
+           {% if url != ""%}
+            <li><label class="label">{{ url }}</label></li>
+            {% endif %}
+       {% endfor %}
+
+   </ul>
+
+   <script>
+    // Agrega un evento click al botón
+    function go_to_route(url, id){
+        // La función que se ejecutará al hacer clic en el botón
+
+        if (url != '/admin/' && url != '/users/register/') {
+            let inputValue = document.getElementById(id).value;
+            if(inputValue == null || inputValue == ""){
+                alert("Por favor, introduzca un valor válido");
+            } else {
+                window.location.href = url + inputValue;
+            }
+        } else {
+            console.log(url);
+            window.location.href = url;
+            
+        }
+    }
+</script>
+
+</div>
+{% endblock content %}
+
