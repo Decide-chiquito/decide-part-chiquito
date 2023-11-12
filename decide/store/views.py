@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 import django_filters.rest_framework
@@ -80,3 +81,29 @@ class StoreView(generics.ListAPIView):
         v.save()
 
         return  Response({})
+
+class StoreDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Vote.objects.all()
+    serializer_class = VoteSerializer
+    permission_classes = (UserIsStaff,)
+
+    def retrieve(self, request, vote_id, *args, **kwargs):
+        vote = get_object_or_404(Vote, pk=vote_id)
+        return Response(VoteSerializer(vote).data)
+
+    def update(self, request, vote_id, *args, **kwargs):
+        vote = get_object_or_404(Vote, pk=vote_id)
+        a = request.data.get('a')
+        b = request.data.get('b')
+        if a:
+            vote.a = a
+        if b:
+            vote.b = b
+        vote.save()
+        return Response(VoteSerializer(vote).data)
+
+    def delete(self, request, vote_id, *args, **kwargs):
+        vote = get_object_or_404(Vote, pk=vote_id)
+        vote.delete()
+        return Response({})
+

@@ -11,12 +11,3 @@ class UserIsStaff(permissions.BasePermission):
         response = mods.post('authentication/getuser', json={'token': request.auth.key},
                 response=True)
         return response.json().get('is_staff', False)
-
-class UserIsAdmin(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        if not request.auth:
-            return False
-        response = mods.post('authentication/getuser', json={'token': request.auth.key},
-                response=True)
-        return response.json().get('is_superuser', False)

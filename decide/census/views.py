@@ -11,7 +11,6 @@ from rest_framework.status import (
 )
 
 from .models import Census
-from ..base.perms import UserIsAdmin
 
 
 class CensusCreate(generics.ListCreateAPIView):
@@ -34,7 +33,7 @@ class CensusCreate(generics.ListCreateAPIView):
         return Response({'voters': voters})
 
 
-class CensusDetail(generics.RetrieveDestroyAPIView):
+class CensusDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, voting_id, *args, **kwargs):
         voters = request.data.get('voters')
@@ -50,10 +49,7 @@ class CensusDetail(generics.RetrieveDestroyAPIView):
             return Response('Invalid voter', status=ST_401)
         return Response('Valid voter')
 
-class CensusUpdate(generics.UpdateAPIView):
-    permission_classes = (UserIsAdmin,)
-
-    def update(self, request, voting_id, *args, **kwargs):
+    def put(self, request, voting_id, *args, **kwargs):
         voters = request.data.get('voters')
         census = Census.objects.filter(voting_id=voting_id)
         census.delete()

@@ -10,8 +10,6 @@ from .serializers import SimpleVotingSerializer, VotingSerializer
 from base.perms import UserIsStaff
 from base.models import Auth
 
-from ..base.perms import UserIsAdmin
-
 
 class VotingView(generics.ListCreateAPIView):
     queryset = Voting.objects.all()
@@ -35,7 +33,7 @@ class VotingView(generics.ListCreateAPIView):
         self.check_permissions(request)
         for data in ['name', 'desc', 'question', 'question_opt']:
             if not data in request.data:
-                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"missing": data}, status=status.HTTP_400_BAD_REQUEST)
 
         question = Question(desc=request.data.get('question'))
         question.save()
@@ -53,7 +51,7 @@ class VotingView(generics.ListCreateAPIView):
         return Response({}, status=status.HTTP_201_CREATED)
 
 
-class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
+class VotingAction(generics.UpdateAPIView):
     queryset = Voting.objects.all()
     serializer_class = VotingSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
@@ -104,8 +102,39 @@ class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
 
+class VotingStaff(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Voting.objects.all()
+    serializer_class = VotingSerializer
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    permission_classes = (UserIsStaff,)
+
+    def put(self, request, voting_id, *args, **kwargs):
+        voting = get_object_or_404(Voting, pk=voting_id)
+        if 'name' in request.data:
+            voting.name = request.data.get('name')
+        if 'desc' in request.data:
+            voting.desc = request.data.get('desc')
+        if 'question' in request.data:
+            question = Question(desc=request.data.get('question'))
+            question.save()
+            voting.question = question
+        if 'question_opt' in request.data:
+            voting.question_opt.clear()
+            for idx, q_opt in enumerate(request.data.get('question_opt')):
+                opt = QuestionOption(question=voting.question, option=q_opt, number=idx)
+                opt.save()
+                voting.question_opt.add(opt)
+
+        voting.save()
+
+        return Response("Voting updated", status=status.HTTP_200_OK)
+
+
     def destroy(self, request, voting_id, *args, **kwars):
-        self.permission_classes = (UserIsAdmin,)
         voting = get_object_or_404(Voting, pk=voting_id)
         voting.delete()
         return Response('Voting deleted', status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, voting_id, *args, **kwars):
+        voting = get_object_or_404(Voting, pk=voting_id)
+        return Response(VotingSerializer(voting).data, status=status.HTTP_200_OK)
