@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
+from django.utils.translation import gettext as _
 
 from .models import Question, QuestionOption, Voting
 from .serializers import SimpleVotingSerializer, VotingSerializer
@@ -67,37 +68,37 @@ class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
         st = status.HTTP_200_OK
         if action == 'start':
             if voting.start_date:
-                msg = 'Voting already started'
+                msg = _('Voting already started')
                 st = status.HTTP_400_BAD_REQUEST
             else:
                 voting.start_date = timezone.now()
                 voting.save()
-                msg = 'Voting started'
+                msg = _('Voting started')
         elif action == 'stop':
             if not voting.start_date:
-                msg = 'Voting is not started'
+                msg = _('Voting is not started')
                 st = status.HTTP_400_BAD_REQUEST
             elif voting.end_date:
-                msg = 'Voting already stopped'
+                msg = _('Voting already stopped')
                 st = status.HTTP_400_BAD_REQUEST
             else:
                 voting.end_date = timezone.now()
                 voting.save()
-                msg = 'Voting stopped'
+                msg = _('Voting stopped')
         elif action == 'tally':
             if not voting.start_date:
-                msg = 'Voting is not started'
+                msg = _('Voting is not started')
                 st = status.HTTP_400_BAD_REQUEST
             elif not voting.end_date:
-                msg = 'Voting is not stopped'
+                msg = _('Voting is not stopped')
                 st = status.HTTP_400_BAD_REQUEST
             elif voting.tally:
-                msg = 'Voting already tallied'
+                msg = _('Voting already tallied')
                 st = status.HTTP_400_BAD_REQUEST
             else:
                 voting.tally_votes(request.auth.key)
-                msg = 'Voting tallied'
+                msg = _('Voting tallied')
         else:
-            msg = 'Action not found, try with start, stop or tally'
+            msg = _('Action not found, try with start, stop or tally')
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)

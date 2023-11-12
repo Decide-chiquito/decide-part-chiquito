@@ -17,7 +17,7 @@
     </header>
     <div class="subtitle">
         <p>
-            Bienvenido a Decide, el sistema de votaciones online implimentado por el grupo decide-part-chiquito.
+            {% trans 'Welcome to Decide, the online voting system implemented by decide-part-chiquito group'%}
         </p>
     </div>
 </div>
@@ -25,46 +25,46 @@
     <div class="info">
         
         <p>
-            Seleccine la opción deseada en la casilla correspondiente y pulse sobre acceder para dirigirse a la misma:
+            {% trans 'Choose the desired option in the corresponding box and click on Access to go to it'%}
         </p>
     </div>
 
     <div class="row">
-        <label for="admin" class="label">admin</label>
-        <button class="button" onclick="go_to_route('/admin/')">Acceder</button>
+        <label for="admin" class="label">{% trans 'Admin'%}</label>
+        <button class="button" onclick="go_to_route('/admin/')">{% trans 'Access'%}</button>
     </div>
 
     <div class="row">
         <label for="register" class="label">register</label>
-        <button class="button" onclick="go_to_route('/users/register/')">Acceder</button>
+        <button class="button" onclick="go_to_route('/users/register/')">{% trans 'hola'%}</button>
     </div>
 
     <div class="row">
         <label for="booth" class="label">booth</label>
         <select id="booth" name="booth">
-            <option value="" selected>Seleccione una opción</option>
+            <option value="" selected>{% trans 'Choose one option'%}</option>
             {% for voting in voting_enabled %}
             <option value="{{voting.id}}">{{voting.name}}</option>
             {% endfor %}
         </select>
-        <button class="button" onclick="go_to_route('/booth/', 'booth')">Acceder</button>
+        <button class="button" onclick="go_to_route('/booth/', 'booth')">{% trans "Access" %}</button>
     </div>
 
     <div class="row">
-        <label for="visualizer" class="label">visualizer</label>
+        <label for="visualizer" class="label">{% trans 'visualizer'%}</label>
         <select id="visualizer" name="visualizer">
-            <option value="" selected>Seleccione una opción</option>
+            <option value="" selected>{% trans "Choose a option" %}</option>
             {% for voting in voting_finished %}
             <option value="{{voting.id}}">{{voting.name}}</option>
             {% endfor %}
         </select>
-        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
+        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">{% trans 'Access'%}</button>
     </div>
     
 </div>
 <div class="urls-list">
 
-    <label class="poster">Para aquellos que necesiten o prefieran usar la navegación mediante urls, aqui les facilitamos los diferentes puntos de acceso:</label>
+    <label class="poster">{% trans 'For those who need or prefer to use URL-based navigation, here we provide the different access points:'%}</label>
    <ul>
 
        {% for url in url_patterns %}
