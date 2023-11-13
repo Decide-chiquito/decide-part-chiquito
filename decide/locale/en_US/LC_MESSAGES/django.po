@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-12 21:13+0100\n"
+"POT-Creation-Date: 2023-11-13 08:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,231 +21,227 @@ msgstr ""
 msgid ""
 "Welcome to Decide, the online voting system implemented by decide-part-"
 "chiquito group"
-msgstr ""
+msgstr "Bienvenido a Decide, el sistema de votos online implementado por el grupo decide-part-chiquito"
 
 #: base/templates/initial.html:28
 msgid ""
 "Choose the desired option in the corresponding box and click on Access to go "
 "to it"
-msgstr ""
+msgstr "Selecciona la opción deseada en la casilla correspondiente y clickea para acceder"
 
 #: base/templates/initial.html:33
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
-#: base/templates/initial.html:34 base/templates/initial.html:50
-#: base/templates/initial.html:61
+#: base/templates/initial.html:34 base/templates/initial.html:39
+#: base/templates/initial.html:50 base/templates/initial.html:61
 msgid "Access"
-msgstr ""
-
-#: base/templates/initial.html:39
-msgid "hola"
-msgstr ""
+msgstr "Acceso"
 
 #: base/templates/initial.html:45
 msgid "Choose one option"
-msgstr ""
+msgstr "Selecciona una opción"
 
 #: base/templates/initial.html:54
 msgid "visualizer"
-msgstr ""
+msgstr "visualizer"
 
 #: base/templates/initial.html:56
 msgid "Choose a option"
-msgstr ""
+msgstr "Selecciona una opción"
 
 #: base/templates/initial.html:67
 msgid ""
 "For those who need or prefer to use URL-based navigation, here we provide "
 "the different access points:"
-msgstr ""
+msgstr "Para aquellos que necesiten o prefieran usar la navegación mediante url, aqui proporcionamos diferentes puntos de acceso"
 
 #: booth/templates/booth/booth.html:24 users/templates/users/login.html:29
 msgid "Logout"
-msgstr ""
+msgstr "Cerrar sesión"
 
 #: booth/templates/booth/booth.html:29 booth/templates/booth/booth.html:84
 #: booth/templates/booth/booth.html:110 users/templates/users/login.html:22
 #: users/templates/users/login.html:47
 msgid "Login"
-msgstr ""
+msgstr "Inicio de sesion"
 
 #: booth/templates/booth/booth.html:75
 msgid "You must log in to be able to access the voting!"
-msgstr ""
+msgstr "Tu debes de iniciar sesión para ser capaz de accerder a la votación"
 
 #: booth/templates/booth/booth.html:91 users/templates/users/register.html:29
 #: visualizer/templates/visualizer/visualizer.html:29
 msgid "Username"
-msgstr ""
+msgstr "Nombre de usuario"
 
 #: booth/templates/booth/booth.html:101 users/templates/users/login.html:43
 #: users/templates/users/register.html:33
 #: visualizer/templates/visualizer/visualizer.html:33
 msgid "Password"
-msgstr ""
+msgstr "Contraseña"
 
 #: booth/templates/booth/booth.html:133
 msgid "Vote"
-msgstr ""
+msgstr "Votacion"
 
 #: booth/templates/booth/booth.html:136
 msgid "Volver"
-msgstr ""
+msgstr "Volver"
 
 #: booth/templates/booth/booth.html:240 booth/templates/booth/booth.html:251
 #: booth/templates/booth/booth.html:287
 msgid "Error: "
-msgstr ""
+msgstr "Error"
 
 #: booth/templates/booth/booth.html:283
 msgid "Congratulations. Your vote has been sent"
-msgstr ""
+msgstr "Enhorabuena. Tu voto ha sido enviado"
 
 #: census/views.py:29
 msgid "Error try to create census"
-msgstr ""
+msgstr "Error al crear censo"
 
 #: census/views.py:30
 msgid "Census created"
-msgstr ""
+msgstr "Censo creado"
 
 #: census/views.py:44
 msgid "Voters deleted from census"
-msgstr ""
+msgstr "Votantes eliminados del censo"
 
 #: census/views.py:51
 msgid "Invalid voter"
-msgstr ""
+msgstr "Votante invaliddo"
 
 #: census/views.py:52
 msgid "Valid voter"
-msgstr ""
+msgstr "Votante valido"
 
 #: decide/settings.py:161
 msgid "Spanish"
-msgstr ""
+msgstr "Español"
 
 #: decide/settings.py:162
 msgid "English"
-msgstr ""
+msgstr "Ingles"
 
 #: users/templates/users/login.html:24
 msgid "¿Don´t have account?"
-msgstr ""
+msgstr "¿No tienes cuenta?"
 
 #: users/templates/users/login.html:24 users/templates/users/register.html:44
 #: visualizer/templates/visualizer/visualizer.html:44
 msgid "Sign up"
-msgstr ""
+msgstr "Registrarse"
 
 #: users/templates/users/login.html:38
 msgid "Username:"
-msgstr ""
+msgstr "Nombre de usuario:"
 
 #: users/templates/users/register.html:20
 #: visualizer/templates/visualizer/visualizer.html:20
 msgid "user registration"
-msgstr ""
+msgstr "registro de usuario"
 
 #: users/templates/users/register.html:37
 #: visualizer/templates/visualizer/visualizer.html:37
 msgid "Confirm password"
-msgstr ""
+msgstr "Confirma contraseña"
 
 #: users/templates/users/register.html:41
 #: visualizer/templates/visualizer/visualizer.html:41
 msgid "email(optional)"
-msgstr ""
+msgstr "Correo electronico (opcional)"
 
 #: users/views.py:22
 msgid "Username and password are required."
-msgstr ""
+msgstr "Nombre de usuario y contraseña necesario"
 
 #: users/views.py:25
 msgid "The passwords do not match."
-msgstr ""
+msgstr "Las contraseñas no coinciden"
 
 #: users/views.py:30
 msgid "Successful registration. You are now registered."
-msgstr ""
+msgstr "Registro con exito. Tu estas ahora registrado"
 
 #: users/views.py:33
 msgid "The username is already in use."
-msgstr ""
+msgstr "El nombre de usuario esta ya en uso"
 
 #: users/views.py:52
 msgid "successful login"
-msgstr ""
+msgstr "Inicio de sesion exitoso"
 
 #: users/views.py:54
 msgid "invalid credentials"
-msgstr ""
+msgstr "Credenciales invalidas"
 
 #: voting/admin.py:62
 msgid "Select exactly 2 votes."
-msgstr ""
+msgstr "Selecciona exactamente 2 votos"
 
 #: voting/admin.py:66
 msgid "The select votes are the same."
-msgstr ""
+msgstr "La votaciones seleccionadas son las mismas"
 
 #: voting/admin.py:72
 msgid "Both votes have a census"
-msgstr ""
+msgstr "Ambas votaciones tienen un censo"
 
 #: voting/admin.py:74
 msgid "The census of both votes are empty"
-msgstr ""
+msgstr "El censo de ambas botaciones esta vacio"
 
 #: voting/admin.py:79 voting/admin.py:84
 msgid "census successfully copied from {} to {}."
-msgstr ""
+msgstr "Censo copiado con exito de {} a {}"
 
 #: voting/admin.py:86
 msgid "Errorr in copying the census: {}"
-msgstr ""
+msgstr "Error copiando el censo: {}"
 
 #: voting/admin.py:88
 msgid "Copy the census to other voting"
-msgstr ""
+msgstr "Copiando el censo a otra votacion"
 
 #: voting/admin.py:100
 msgid "name"
-msgstr ""
+msgstr "nombre"
 
 #: voting/views.py:71
 msgid "Voting already started"
-msgstr ""
+msgstr "Votación ya iniciada"
 
 #: voting/views.py:76
 msgid "Voting started"
-msgstr ""
+msgstr "Votación iniciada"
 
 #: voting/views.py:79 voting/views.py:90
 msgid "Voting is not started"
-msgstr ""
+msgstr "Votación no esta empezada"
 
 #: voting/views.py:82
 msgid "Voting already stopped"
-msgstr ""
+msgstr "Votación ya detenida"
 
 #: voting/views.py:87
 msgid "Voting stopped"
-msgstr ""
+msgstr "Votación detenida"
 
 #: voting/views.py:93
 msgid "Voting is not stopped"
-msgstr ""
+msgstr "Votación no esta detenida"
 
 #: voting/views.py:96
 msgid "Voting already tallied"
-msgstr ""
+msgstr "Votación ya contabilizada"
 
 #: voting/views.py:100
 msgid "Voting tallied"
-msgstr ""
+msgstr "Votación contabilizada"
 
 #: voting/views.py:102
 msgid "Action not found, try with start, stop or tally"
-msgstr ""
+msgstr "Acción no encontrada intenta con start,stop or tally"

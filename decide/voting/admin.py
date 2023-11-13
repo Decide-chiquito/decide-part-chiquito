@@ -97,7 +97,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 class VotingAdmin(admin.ModelAdmin):
-    list_display = _('name', 'start_date', 'end_date','type','seats')
+    list_display = ('name', 'start_date', 'end_date','type','seats')
     readonly_fields = ('start_date', 'end_date', 'pub_key',
                        'tally', 'postproc')
     date_hierarchy = 'start_date'
