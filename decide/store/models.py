@@ -1,5 +1,6 @@
 from django.db import models
 from base.models import BigBigField
+from auditlog.registry import auditlog
 
 
 class Vote(models.Model):
@@ -13,3 +14,6 @@ class Vote(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.voting_id, self.voter_id)
+
+auditlog.register(Vote, serialize_data=True,)
+

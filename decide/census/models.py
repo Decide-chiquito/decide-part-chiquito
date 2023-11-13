@@ -1,4 +1,5 @@
 from django.db import models
+from auditlog.registry import auditlog
 
 
 class Census(models.Model):
@@ -8,3 +9,5 @@ class Census(models.Model):
 
     class Meta:
         unique_together = (('voting_id', 'voter_id'),)
+
+auditlog.register(Census, serialize_data=True,)

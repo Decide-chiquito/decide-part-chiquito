@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'gateway',
     'livereload',
     'users',
+    'auditlog',
 ]
 
 REST_FRAMEWORK = {
@@ -87,6 +88,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
+    'auditlog.middleware.AuditlogMiddleware',
 ]
 
 ROOT_URLCONF = 'decide.urls'
@@ -142,6 +144,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+#AUTH_USER_MODEL = 'users.User'
+
+AUDITLOG = {
+    'LOG_ENTRY_MODEL': 'base.models.CustomLogEntry',
+}
 
 
 # Internationalization

@@ -3,6 +3,8 @@ from django.db.models import JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from auditlog.registry import auditlog
+
 from base import mods
 from base.models import Auth, Key
 
@@ -141,3 +143,8 @@ class Voting(models.Model):
 
     def __str__(self):
         return self.name
+
+
+auditlog.register(Question, serialize_data=True,)
+auditlog.register(QuestionOption, serialize_data=True,)
+auditlog.register(Voting, serialize_data=True,)
