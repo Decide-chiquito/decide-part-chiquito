@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
+from unfold.admin import ModelAdmin
 
 from .models import QuestionOption
 from .models import Question
@@ -31,20 +32,18 @@ class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
 
 
-class QuestionAdmin(admin.ModelAdmin):
+@admin.register(Question)
+class QuestionAdmin(ModelAdmin):
     inlines = [QuestionOptionInline]
 
 
-class VotingAdmin(admin.ModelAdmin):
+@admin.register(Voting)
+class VotingAdmin(ModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
     readonly_fields = ('start_date', 'end_date', 'pub_key',
                        'tally', 'postproc')
     date_hierarchy = 'start_date'
     list_filter = (StartedFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
 
-    actions = [ start, stop, tally ]
-
-
-admin.site.register(Voting, VotingAdmin)
-admin.site.register(Question, QuestionAdmin)
+    actions = [start, stop, tally]
