@@ -52,15 +52,15 @@ class StoreView(generics.ListAPIView):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         # validating voter
-        if request.auth:
-            token = request.auth.key
-        else:
-            token = "NO-AUTH-VOTE"
-        voter = mods.post('authentication', entry_point='/getuser/', json={'token': token})
-        voter_id = voter.get('id', None)
-        if not voter_id or voter_id != uid:
-            # print("por aqui 59")
-            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+        # if request.auth:
+        #     token = request.auth.key
+        # else:
+        #     token = "NO-AUTH-VOTE"
+        # voter = mods.post('authentication', entry_point='/getuser/', json={'token': token})
+        # voter_id = voter.get('id', None)
+        # if not voter_id or voter_id != uid:
+        #     # print("por aqui 59")
+        #     return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
         # the user is in the census
         perms = mods.get('census/{}'.format(vid), params={'voter_id': uid}, response=True)
