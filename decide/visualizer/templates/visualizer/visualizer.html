@@ -5,6 +5,11 @@
     <link type="text/css" rel="stylesheet"
          href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="{% static "booth/style.css" %}" />
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -15,9 +20,8 @@
                 <h1 class="navbar-brand">Decide</h1>
             </div>
         </nav>
-          
-
-        <div class="voting container">
+        <!-- Graph -->
+        <div class="voting">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
 
             <h2 v-if="!voting.start_date">Votación no comenzada</h2>
@@ -42,8 +46,41 @@
                     </tbody>
                 </table>
             </div>
-
+            <div id="container"></div>
         </div>
+        <component :is="'script'">
+            var voting = {{voting|safe}};
+            const data = voting.postproc.map(x => [x.option, x.votes]);
+
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: '[[ voting.name ]]',
+                },
+                subtitle: {
+                    text:""
+                },
+                xAxis: {
+                    categories: [...new Set(data.map(x => x[0]))]
+                },
+                yAxis: {
+                    allowDecimals: false,
+                    min: 0,
+                    title: {
+                        text: 'Votos'
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    },
+                },
+                series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
+            });
+        </component>
     </div>
 {% endblock %}
 
@@ -65,5 +102,4 @@
             }
         }).mount('#app-visualizer')
     </script>
-</body>
 {% endblock %}
