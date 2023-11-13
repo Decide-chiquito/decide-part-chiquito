@@ -50,6 +50,7 @@ class CensusDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response('Valid voter')
 
     def put(self, request, voting_id, *args, **kwargs):
+        self.permission_classes = (UserIsStaff,)
         voters = request.data.get('voters')
         census = Census.objects.filter(voting_id=voting_id)
         census.delete()

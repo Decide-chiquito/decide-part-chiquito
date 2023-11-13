@@ -83,13 +83,11 @@ class StoreView(generics.ListAPIView):
         return  Response({})
 
 class StoreDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Vote.objects.all()
-    serializer_class = VoteSerializer
     permission_classes = (UserIsStaff,)
 
     def retrieve(self, request, vote_id, *args, **kwargs):
         vote = get_object_or_404(Vote, pk=vote_id)
-        return Response(VoteSerializer(vote).data)
+        return Response(VoteSerializer(vote).data, status=status.HTTP_200_OK)
 
     def update(self, request, vote_id, *args, **kwargs):
         vote = get_object_or_404(Vote, pk=vote_id)
@@ -100,10 +98,10 @@ class StoreDetail(generics.RetrieveUpdateDestroyAPIView):
         if b:
             vote.b = b
         vote.save()
-        return Response(VoteSerializer(vote).data)
+        return Response("Vote updated", status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, vote_id, *args, **kwargs):
         vote = get_object_or_404(Vote, pk=vote_id)
         vote.delete()
-        return Response({})
+        return Response("Vote deleted", status=status.HTTP_204_NO_CONTENT)
 

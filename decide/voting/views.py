@@ -15,7 +15,7 @@ class VotingView(generics.ListCreateAPIView):
     queryset = Voting.objects.all()
     serializer_class = VotingSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('id', )
+    filterset_fields = ('id',)
 
     def get(self, request, *args, **kwargs):
         idpath = kwargs.get('voting_id')
@@ -41,11 +41,11 @@ class VotingView(generics.ListCreateAPIView):
             opt = QuestionOption(question=question, option=q_opt, number=idx)
             opt.save()
         voting = Voting(name=request.data.get('name'), desc=request.data.get('desc'),
-                question=question)
+                        question=question)
         voting.save()
 
         auth, _ = Auth.objects.get_or_create(url=settings.BASEURL,
-                                          defaults={'me': True, 'name': 'test auth'})
+                                             defaults={'me': True, 'name': 'test auth'})
         auth.save()
         voting.auths.add(auth)
         return Response({}, status=status.HTTP_201_CREATED)
@@ -102,13 +102,14 @@ class VotingAction(generics.UpdateAPIView):
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
 
+
 class VotingStaff(generics.RetrieveUpdateDestroyAPIView):
     queryset = Voting.objects.all()
     serializer_class = VotingSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     permission_classes = (UserIsStaff,)
 
-    def put(self, request, voting_id, *args, **kwargs):
+    def update(self, request, voting_id, *args, **kwargs):
         voting = get_object_or_404(Voting, pk=voting_id)
         if 'name' in request.data:
             voting.name = request.data.get('name')
@@ -128,7 +129,6 @@ class VotingStaff(generics.RetrieveUpdateDestroyAPIView):
         voting.save()
 
         return Response("Voting updated", status=status.HTTP_200_OK)
-
 
     def destroy(self, request, voting_id, *args, **kwars):
         voting = get_object_or_404(Voting, pk=voting_id)

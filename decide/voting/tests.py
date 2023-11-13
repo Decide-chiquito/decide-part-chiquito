@@ -272,6 +272,31 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
+    def test_retrieve_voting(self):
+        voting = self.create_voting()
+        self.login()
+        response = self.client.get('/voting/{}/staff/'.format(voting.pk))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], voting.name)
+
+    def test_delete_voting(self):
+        voting = self.create_voting()
+        self.login()
+        response = self.client.delete('/voting/{}/staff/'.format(voting.pk))
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Voting.objects.filter(pk=voting.pk).count(), 0)
+
+    def test_update_voting_staff(self):
+        voting = self.create_voting()
+        self.login()
+        data = { 'name': 'Updated' }
+        voting.name = 'Updated'
+        response = self.client.put('/voting/{}/staff/'.format(voting.pk), data, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'Updated')
+
+
+
 class LogInSuccessTests(StaticLiveServerTestCase):
 
     def setUp(self):
