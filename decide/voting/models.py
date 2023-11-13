@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from auditlog.registry import auditlog
+from auditlog.models import AuditlogHistoryField
 
 from base import mods
 from base.models import Auth, Key
@@ -11,6 +12,7 @@ from base.models import Auth, Key
 
 class Question(models.Model):
     desc = models.TextField()
+    history = AuditlogHistoryField()
 
     def __str__(self):
         return self.desc
@@ -20,6 +22,7 @@ class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
+    history = AuditlogHistoryField()
 
     def save(self):
         if not self.number:
@@ -43,6 +46,7 @@ class Voting(models.Model):
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
+    history = AuditlogHistoryField()
 
     VOTE_TYPES = (
         ('IDENTITY','Identity'),
