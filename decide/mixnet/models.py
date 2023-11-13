@@ -6,14 +6,14 @@ from base import mods
 from base.models import Auth, Key
 from base.serializers import AuthSerializer
 from django.conf import settings
-
+from django.utils.translation import gettext_lazy as _
 
 # number of bits for the key, all auths should use the same number of bits
 B = settings.KEYBITS
 
 
 class Mixnet(models.Model):
-    voting_id = models.PositiveIntegerField()
+    voting_id = models.PositiveIntegerField(verbose_name=_("voting_id"))
     auth_position = models.PositiveIntegerField(default=0)
     auths = models.ManyToManyField(Auth, related_name="mixnets")
     key = models.ForeignKey(Key, blank=True, null=True,
