@@ -9,5 +9,6 @@ urlpatterns = [
     path('login/', obtain_auth_token),
     path('logout/', LogoutView.as_view()),
     path('getuser/', GetUserView.as_view()),
-    path('register/', RegisterView.as_view())
+    path('register/', RegisterView.as_view()),
+    path('', include('social_django.urls', namespace='social')), 
 ]
