@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
+from unfold.admin import ModelAdmin
+
 from .models import QuestionOption
 from .models import Question
 from .models import Voting
@@ -103,17 +105,20 @@ class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
 
 
-class QuestionAdmin(admin.ModelAdmin):
+@admin.register(Question)
+class QuestionAdmin(ModelAdmin):
     inlines = [QuestionOptionInline]
 
 
-class VotingAdmin(admin.ModelAdmin):
+@admin.register(Voting)
+class VotingAdmin(ModelAdmin):
     list_display = ('name', 'start_date', 'end_date','type','seats')
+
     readonly_fields = ('start_date', 'end_date', 'pub_key',
                        'tally', 'postproc')
     date_hierarchy = 'start_date'
     list_filter = (StartedFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
 
     actions = [ start, stop, tally, export_to_csv, copy_census_to_another_voting]
 
@@ -151,7 +156,3 @@ class VotingAdmin(admin.ModelAdmin):
         form = CsvImportForm()
         data = {"form": form}
         return render(request, "csv_upload.html", data)
-
-
-admin.site.register(Voting, VotingAdmin)
-admin.site.register(Question, QuestionAdmin)
