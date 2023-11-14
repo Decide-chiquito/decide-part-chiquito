@@ -18,6 +18,6 @@ def send_email(request):
             return redirect('/')
     else:
         form = EmailForm()
-
-    return render(request, 'email_form_page.html', {'form': form})
+    
+    return render(request, 'mailer/email_form_page.html', {'form': form})
 
