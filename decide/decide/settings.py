@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'livereload',
     'users',
     'social_django',
+    'mailer',
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '591203465714-9ng1mqkp902c0gkjmkun63ctsapvofgp.apps.googleusercontent.com'
@@ -211,3 +212,9 @@ if os.path.exists("config.jsonnet"):
 
 
 INSTALLED_APPS = INSTALLED_APPS + MODULES
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'decide202324@gmail.com'
+EMAIL_HOST_PASSWORD = 'hulp rfpq boxy otqa'
