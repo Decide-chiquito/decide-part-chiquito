@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.urls import get_resolver
-
 from voting.models import Voting
-# Create your views here.
 
 
 def welcome(request):
@@ -13,4 +11,7 @@ def welcome(request):
     context['voting_enabled'] = voting_enabled
     context['voting_finished'] = voting_finished
 
-    return render(request, 'initial.html', context)
+    if (request.user_agent.is_mobile):
+        return render(request, 'initial_mobile.html', context)
+    else:
+        return render(request, 'initial.html', context)
