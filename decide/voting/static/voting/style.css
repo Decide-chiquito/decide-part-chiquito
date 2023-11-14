@@ -1,0 +1,20 @@
+
+
+.upload-csv {
+    margin:1%;
+    padding:1%;
+    text-align: center;
+}
+
+.upload-csv button{
+    margin:10px;
+}
+
+.csv-description {
+    margin: auto;
+    text-align: center;
+}
+
+.csv-description p{
+    text-align: justify;
+}
