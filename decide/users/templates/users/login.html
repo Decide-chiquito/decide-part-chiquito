@@ -1,4 +1,6 @@
-{% extends "base.html" %}
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]{% extends "base.html" %}
 {% load i18n static %}
 
 {% load static %}
@@ -17,14 +19,14 @@
     <div class="container">
         <div class="card form-container">
             <div class="card-body">
-                <h2 class="card-title">Iniciar Sesión</h2>
+                <h2 class="card-title">{% trans "Login" %}</h2>
                 {% if not user.is_authenticated %}
-                    <p class="card-text">¿No tienes una cuenta? <a href="{% url 'users:register' %}">Regístrate</a></p>
+                    <p class="card-text">{% trans "¿Don´t have account?" %}<a href="{% url 'users:register' %}">{% trans "Sign up" %}</a></p>
                 {% endif %}
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'users:logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-link">Cerrar Sesión</button>
+                        <button type="submit" class="btn btn-link">{% trans "Logout" %}</button>
                     </form>
                 {% endif %}
                 {% if not user.is_authenticated %}
@@ -33,16 +35,16 @@
                         {% csrf_token %}
 
                         <div class="form-group">
-                            <label for="username">Nombre de usuario:</label>
+                            <label for="username">{% trans "Username:" %}</label>
                             <input type="text" name="username" class="form-control" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="password">Contraseña:</label>
+                            <label for="password">{% trans "Password" %}</label>
                             <input type="password" name="password" class="form-control" required>
                         </div>
                         <div class="login-button" style="display: flex; justify-content: space-between;">
-                            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                            <button type="submit" class="btn btn-primary">{% trans "Login" %}</button>
                             <a href="{% url 'social:begin' 'google-oauth2' %}" style="margin-top: 15px;">Iniciar sesión con Google</a>
                         </div>
                     </form>

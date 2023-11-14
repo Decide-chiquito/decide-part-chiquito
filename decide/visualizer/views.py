@@ -9,14 +9,16 @@ from base import mods
 class VisualizerView(TemplateView):
     template_name = 'visualizer/visualizer.html'
 
-    # def get_template_names(self):
 
-    #     if self.request.device["is_mobile"]:
-    #         self.template_name = 'visualizer/visualizer_mobile.html'
-    #     else:
-    #         self.template_name = 'visualizer/visualizer.html'
+    def get_template_names(self):
+
+        if self.request.user_agent.is_mobile:
+            self.template_name = 'visualizer/visualizer_mobile.html'
+        else:
+            self.template_name = 'visualizer/visualizer.html'
+
         
-    #     return [self.template_name]
+        return [self.template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

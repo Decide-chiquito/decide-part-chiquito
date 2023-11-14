@@ -17,7 +17,7 @@
 </div>
     <div class="navigator">
         <div class="form-container">
-            <h2>Registro de Usuario</h2>
+            <h2>{% trans "user registration" %}</h2>
             {% if success_message %}
             <div class="alert alert-success">
                 {{ success_message }}
@@ -26,22 +26,22 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="id_username">Nombre de usuario</label>
+                    <label for="id_username">{% trans "Username" %}</label>
                     <input type="text" id="id_username" name="username" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="id_password">Contraseña</label>
+                    <label for="id_password">{% trans "Password" %}</label>
                     <input type="password" id="id_password" name="password" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="id_confirm_password">Confirmar Contraseña</label>
+                    <label for="id_confirm_password">{% trans "Confirm password" %}</label>
                     <input type="password" id="id_confirm_password" name="confirm_password" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="id_email">Correo electrónico (opcional)</label>
+                    <label for="id_email">{% trans "email(optional)" %}</label>
                     <input type="email" id="id_email" name="email" class="form-control">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                <button type="submit" class="btn btn-primary btn-block">{% trans "Sign up" %}</button>
             </form>
         </div>
     </div>
