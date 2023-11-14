@@ -11,7 +11,6 @@ class VisualizerView(TemplateView):
 
 
     def get_template_names(self):
-        print(self.request)
 
         if self.request.user_agent.is_mobile:
             self.template_name = 'visualizer/visualizer_mobile.html'
