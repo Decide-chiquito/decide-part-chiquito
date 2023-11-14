@@ -1,0 +1,52 @@
+Para ejecutar decide en docker, primero nos situaremos en el directorio docker del repositorio de decide. 
+        Una vez situados en ese directorio, ejecutaremos:
+                docker compose up
+
+        Accedemos a http://10.5.0.1:8000
+        Los credenciales de administrador son: ??
+
+Para borrar todo cuando termines (consume mucho):
+        docker rm $(docker ps -aq)
+        docker rmi $(docker images -aq)
+
+Instalación Docker
+        Instrucciones para instalar sobre Ubuntu 22.04 (Jammy Jellyfish):
+
+        #Actualizar la lista de paquetes
+        sudo apt update
+
+        #Instalar algunos prerrequisitos que permitan a apt usar paquetes a través de HTTPS
+        sudo apt install apt-transport-https ca-certificates curl software-properties-common
+
+        #Añadir la clave GPG del repositorio oficial de Docker al sistema
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+        #Añadir el repositorio de Docker a las fuentes de apt
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+        #Actualizar la lista de paquetes existente para que se reconozca el repositorio añadido:
+        sudo apt update
+
+        #Instalar Docker
+        sudo apt install docker-ce
+
+        #Verificar que Docker está instalado, el demonio iniciado y el proceso habilitado para iniciarse al arrancar. 
+        sudo systemctl status docker
+
+        #Por defecto, Docker debe usarse con el usuario root o con un usuario entre del grupo docker, que es creado durante la instalación de Docker. Si intentamos utilizar el comando "docker" sin sudo, obtendremos un mensaje informativo comunicando que no se encuentra el servicio docker. 
+
+        #Añadir nuestro usuario al grupo docker (a veces, se necesita reiniciar la sesión/equipo para que este cambio tenga efecto)
+        sudo usermod -aG docker ${USER}
+        su - ${USER}
+
+Instalar Docker-Compose:
+        #Para asegurar que tengamos la versión más actualizada y estable de Docker Compose, nos la traeremos desde su repositorio de GitHub oficial
+        
+        mkdir -p ~/.docker/cli-plugins/
+        curl -SL https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+        
+        #Otorgamos permisos para que el comando docker compose sea ejecutable
+        chmod +x ~/.docker/cli-plugins/docker-compose
+    
+        #Para verificar que la instalación fue existosa, ejecutamos:
+        docker compose version
