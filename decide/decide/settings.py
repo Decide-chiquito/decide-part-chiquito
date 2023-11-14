@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'livereload',
     'users',
     'social_django',
-    'mobiledetect'
+    'django_user_agents',
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '591203465714-9ng1mqkp902c0gkjmkun63ctsapvofgp.apps.googleusercontent.com'
@@ -100,7 +100,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
     'social_django.middleware.SocialAuthExceptionMiddleware',
-    'mobiledetect.middleware.DetectMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'decide.urls'
