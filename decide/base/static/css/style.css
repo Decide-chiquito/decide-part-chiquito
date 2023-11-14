@@ -86,14 +86,23 @@ p {
     color: white;
     height: 35px;
     border-radius: 5px;
-    margin: 10px;
-
+    margin: 0;
+    padding: 20px 30px;
+    text-align: justify;
+    text-justify: center;
+    font-size: 15px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .urls-list {
     border: 1px solid white;
     display: flex;
     flex-direction: column;
+    align-content: center;
     border-radius: 10px;
     display: flex;
     align-items: start;

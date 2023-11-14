@@ -26,6 +26,11 @@
     </div>
 
     <div class="row">
+        <label for="mailer" class="label">send email</label>
+        <button class="button" onclick="go_to_route('/mailer/')">Acceder</button>
+    </div>
+
+    <div class="row">
         <label for="booth" class="label">booth</label>
         <select id="booth" name="booth">
             <option value="" selected>Seleccione una opción</option>
@@ -67,7 +72,7 @@
     function go_to_route(url, id){
         // La función que se ejecutará al hacer clic en el botón
 
-        if (url != '/admin/' && url != '/users/register/') {
+        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/') {
             let inputValue = document.getElementById(id).value;
             if(inputValue == null || inputValue == ""){
                 alert("Por favor, introduzca un valor válido");
