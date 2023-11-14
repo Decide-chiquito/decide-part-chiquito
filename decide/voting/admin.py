@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from census.models import Census
 #UPLOAD CSV
 from django.urls import path
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django import forms
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -22,7 +22,7 @@ from rest_framework.status import (
         HTTP_409_CONFLICT as ST_409
 )
 from django.db.utils import IntegrityError
-
+from django.contrib.auth.decorators import user_passes_test
 
 
 def start(modeladmin, request, queryset):
@@ -109,7 +109,6 @@ class QuestionOptionInline(admin.TabularInline):
 class QuestionAdmin(ModelAdmin):
     inlines = [QuestionOptionInline]
 
-
 @admin.register(Voting)
 class VotingAdmin(ModelAdmin):
     list_display = ('name', 'start_date', 'end_date','type','seats')
@@ -122,7 +121,6 @@ class VotingAdmin(ModelAdmin):
 
     actions = [ start, stop, tally, export_to_csv, copy_census_to_another_voting]
 
-    #UPLOAD CSV
     def get_urls(self):
         urls = super().get_urls()
         new_urls = [path('upload-csv/', self.upload_csv),]
@@ -134,8 +132,10 @@ class VotingAdmin(ModelAdmin):
             csv_file = request.FILES["csv_upload"]
             
             if not csv_file.name.endswith('.csv'):
-                messages.warning(request, 'The wrong file type was uploaded')
-                return HttpResponseRedirect(request.path_info)
+                form = CsvImportForm()
+                data = {"form": form,
+                        "error": "El archivo no es un csv"}
+                return render(request, "csv_upload.html", data)
             
             file_data = csv_file.read().decode("utf-8")
             csv_data = file_data.split("\n")
@@ -151,7 +151,8 @@ class VotingAdmin(ModelAdmin):
                             census.save()
                     except IntegrityError:
                         pass
-            return HttpResponseRedirect(reverse('admin:index'))
+            #Se han añadido X census
+            return redirect('/admin/census/census/')
 
         form = CsvImportForm()
         data = {"form": form}

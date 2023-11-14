@@ -7,7 +7,8 @@ from base import mods
 
 
 class VisualizerView(TemplateView):
-    template_name = ''
+    template_name = 'visualizer/visualizer.html'
+
 
     def get_template_names(self):
         print(self.request)
@@ -16,6 +17,7 @@ class VisualizerView(TemplateView):
             self.template_name = 'visualizer/visualizer_mobile.html'
         else:
             self.template_name = 'visualizer/visualizer.html'
+
         
         return [self.template_name]
 

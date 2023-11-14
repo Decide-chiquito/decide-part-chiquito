@@ -7,9 +7,7 @@ def welcome(request):
     url_patterns = get_resolver(None).url_patterns
     context = {'url_patterns': {str(i.pattern) for i in url_patterns if str(i.pattern) != ''}}
     voting_enabled = Voting.objects.filter(start_date__isnull=False).filter( end_date=None)
-    print(voting_enabled)
     voting_finished = Voting.objects.filter(start_date__isnull=False).filter( end_date__isnull=False)
-    print(voting_finished)
     context['voting_enabled'] = voting_enabled
     context['voting_finished'] = voting_finished
 
