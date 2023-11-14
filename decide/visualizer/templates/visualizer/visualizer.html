@@ -53,9 +53,17 @@
                     </tbody>
                 </table>
             </div>
-            <div id="container"></div>
+            <div v-if="voting.type == 'IDENTITY'" >
+                <div id="container"></div>
+            </div>
+            <div v-if="voting.type == 'DHONDT'">
+                <div id="container2"></div>
+            </div>
+            <div v-if="voting.type == 'WEBSTER'">
+                <div id="container3"></div>
+            </div>
         </div>
-
+        
         <component :is="'script'">
             var voting = {{voting|safe}};
             const data = voting.postproc.map(x => [x.option, x.votes]);
@@ -88,6 +96,105 @@
                 },
                 series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
             });
+        </component>
+
+        <component :is="'script'">
+            const chartData = voting.postproc.map(opt => ({
+                name: opt.option,
+                y: opt.dhondt,  
+              }));
+            Highcharts.chart('container2', {
+                chart: {
+                  plotBackgroundColor: null,
+                  plotBorderWidth: 0,
+                  plotShadow: false
+                },
+                title: {
+                  text: 'Reparto de escaños',
+                  align: 'center',
+                  verticalAlign: 'middle',
+                  y: 60
+                },
+                tooltip: {
+                  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                accessibility: {
+                  point: {
+                    valueSuffix: '%'
+                  }
+                },
+                plotOptions: {
+                  pie: {
+                    dataLabels: {
+                      enabled: true,
+                      distance: -50,
+                      style: {
+                        fontWeight: 'bold',
+                        color: 'white'
+                      }
+                    },
+                    startAngle: -90,
+                    endAngle: 90,
+                    center: ['50%', '75%'],
+                    size: '110%'
+                  }
+                },
+                series: [{
+                  type: 'pie',
+                  name: 'Reparto de escaños',
+                  innerSize: '50%',
+                  data: chartData,
+                }]
+              })
+        </component>
+        <component :is="'script'">
+            const chartData2 = voting.postproc.map(opt => ({
+                name: opt.option,
+                y: opt.webster ? Number(opt.webster) : 0,
+              }));
+            Highcharts.chart('container3', {
+                chart: {
+                  plotBackgroundColor: null,
+                  plotBorderWidth: 0,
+                  plotShadow: false
+                },
+                title: {
+                  text: 'Reparto de escaños de webster',
+                  align: 'center',
+                  verticalAlign: 'middle',
+                  y: -120
+                },
+                tooltip: {
+                  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                accessibility: {
+                  point: {
+                    valueSuffix: '%'
+                  }
+                },
+                plotOptions: {
+                  pie: {
+                    dataLabels: {
+                      enabled: true,
+                      distance: -50,
+                      style: {
+                        fontWeight: 'bold',
+                        color: 'white'
+                      }
+                    },
+                    startAngle: -90,
+                    endAngle: 90,
+                    center: ['50%', '75%'],
+                    size: '110%'
+                  }
+                },
+                series: [{
+                  type: 'pie',
+                  name: 'Reparto de escaños de webster',
+                  innerSize: '50%',
+                  data: chartData2,
+                }]
+              })
         </component>
 
 
