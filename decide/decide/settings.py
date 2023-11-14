@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     'livereload',
     'users',
     'social_django',
+    'django_user_agents',
+
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '591203465714-9ng1mqkp902c0gkjmkun63ctsapvofgp.apps.googleusercontent.com'
@@ -100,6 +103,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
+
 ]
 
 ROOT_URLCONF = 'decide.urls'
@@ -162,7 +167,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-US'
+LANGUAGE_CODE = 'en-ES'
 
 TIME_ZONE = 'Europe/Madrid'
 
