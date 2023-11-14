@@ -26,7 +26,7 @@ class RegisterView(APIView):
         
         try:
             user = User.objects.create_user(username, password=password, email=email)
-            token, _ = Token.objects.get_or_create(user=user)
+            token, created = Token.objects.get_or_create(user=user)
             success_message = _('Successful registration. You are now registered.')
             return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
         except IntegrityError:
