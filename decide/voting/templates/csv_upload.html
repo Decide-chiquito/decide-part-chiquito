@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <br action="." method="POST" enctype="multipart/form-data">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <button type="submit">Upload File</button>
+            <h4>El formato de csv aceptado es en el que la primera fila es la cabecera y las siguientes filas son los censos. Cuando hay mas de un posible votador para una votacion se separan por comas. Ejemplo:
+            </h4>
+            <textarea name="textarea" rows="4" cols="50">votingID;voterID
+2;2
+1;"2,3"
+            </textarea>  
+        </form>
+    </div>
+{% endblock %}

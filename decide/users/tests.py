@@ -1,5 +1,6 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -64,3 +65,34 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
         self.assertIn('Las contraseñas no coinciden.', response.data['error'])
+
+class LoginLogoutViewTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.login_url = reverse('users:login')
+
+    def test_get_login_view(self):
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
+
+    def test_login_success(self):
+        data = {'username': 'testuser', 'password': 'testpassword'}
+        response = self.client.post(self.login_url, data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/')
+
+    def test_login_failure(self):
+        data = {'username': 'testuser', 'password': 'wrongpassword'}
+        response = self.client.post(self.login_url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
+        self.assertIn('error', response.context)
+        self.assertEqual(response.context['error'], 'Credenciales inválidas')
+
+    def test_logout(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('users:logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/')

@@ -49,11 +49,11 @@ class LoginView(APIView):
 
         if user is not None:
             login(request, user)
-            return render(request, self.template_name, {'success_message': _('successful login')})
+            return redirect('/')
         else:
             return render(request, self.template_name, {'error': _('invalid credentials')})
 
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
-        return redirect('users:login')
+        return redirect('/')

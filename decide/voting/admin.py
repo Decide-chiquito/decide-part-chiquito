@@ -1,17 +1,30 @@
 from django.contrib import admin
 from django.utils import timezone
+from unfold.admin import ModelAdmin
 
 from .models import QuestionOption
 from .models import Question
 from .models import Voting
 from django.contrib import messages
 from .filters import StartedFilter
-
 import csv
 from django.http import HttpResponse
 from django.utils.translation import gettext as _
 
 from census.models import Census
+#UPLOAD CSV
+from django.urls import path
+from django.shortcuts import render
+from django import forms
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from rest_framework.response import Response
+from rest_framework.status import (
+        HTTP_409_CONFLICT as ST_409
+)
+from django.db.utils import IntegrityError
+
 
 
 def start(modeladmin, request, queryset):
@@ -87,25 +100,61 @@ def copy_census_to_another_voting(self, request, queryset):
 
     copy_census_to_another_voting.short_description = _("Copy the census to other voting")
 
+class CsvImportForm(forms.Form):
+    csv_upload = forms.FileField()
 
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
 
 
-class QuestionAdmin(admin.ModelAdmin):
+@admin.register(Question)
+class QuestionAdmin(ModelAdmin):
     inlines = [QuestionOptionInline]
 
 
-class VotingAdmin(admin.ModelAdmin):
+@admin.register(Voting)
+class VotingAdmin(ModelAdmin):
     list_display = ('name', 'start_date', 'end_date','type','seats')
+
     readonly_fields = ('start_date', 'end_date', 'pub_key',
                        'tally', 'postproc')
     date_hierarchy = 'start_date'
     list_filter = (StartedFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
 
     actions = [ start, stop, tally, export_to_csv, copy_census_to_another_voting]
 
+    #UPLOAD CSV
+    def get_urls(self):
+        urls = super().get_urls()
+        new_urls = [path('upload-csv/', self.upload_csv),]
+        return new_urls + urls
 
-admin.site.register(Voting, VotingAdmin)
-admin.site.register(Question, QuestionAdmin)
+    def upload_csv(self, request):
+
+        if request.method == "POST":
+            csv_file = request.FILES["csv_upload"]
+            
+            if not csv_file.name.endswith('.csv'):
+                messages.warning(request, 'The wrong file type was uploaded')
+                return HttpResponseRedirect(request.path_info)
+            
+            file_data = csv_file.read().decode("utf-8")
+            csv_data = file_data.split("\n")
+            csv_data = csv_data[1:]
+            data = []
+            for census in csv_data:
+                census = census.split(";")
+                if len(census) == 2:
+                    try:
+                        voting_id = int(census[0].strip().replace("\r",""))
+                        for voter in census[1].strip().replace("\r","").replace('"',"").split(","):
+                            census = Census(voting_id=voting_id, voter_id=voter)
+                            census.save()
+                    except IntegrityError:
+                        pass
+            return HttpResponseRedirect(reverse('admin:index'))
+
+        form = CsvImportForm()
+        data = {"form": form}
+        return render(request, "csv_upload.html", data)
