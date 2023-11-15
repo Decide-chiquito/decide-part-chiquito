@@ -1,9 +1,16 @@
-from django.test import TestCase, Client
+from base.tests import BaseTestCase
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import TestCase
 from django.urls import reverse
-from rest_framework.authtoken.models import Token
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APIClient
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
 
 class RegisterViewTest(TestCase):
     def setUp(self):
@@ -13,7 +20,6 @@ class RegisterViewTest(TestCase):
         response = self.client.get('/users/register/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/register.html')
-
 
     def test_register(self):
         data = {'username': 'voter_correct',
@@ -54,7 +60,6 @@ class RegisterViewTest(TestCase):
         self.assertIn('error', response.data)
         self.assertIn('Username and password are required.', response.data['error'])
 
-
     def test_register_distinct_password(self):
         data = {'username': 'user1',
                 'password': '1234',
@@ -65,6 +70,7 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
         self.assertIn('The passwords do not match.', response.data['error'])
+
 
 class LoginLogoutViewTests(TestCase):
     def setUp(self):
@@ -96,3 +102,47 @@ class LoginLogoutViewTests(TestCase):
         response = self.client.post(reverse('users:logout'))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/')
+
+
+class RequestPasswordResetViewTests(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+        self.password = "Hola$1234"
+        self.noadmin = User.objects.filter(username="noadmin").first()
+        self.noadmin.set_password('1234')
+        self.noadmin.email = 'noadmin@gmail.com'
+        self.noadmin.save()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_request_password_reset(self):
+        self.driver.get(f"{self.live_server_url}/users/login/")
+        self.driver.set_window_size(1850, 1016)
+        self.driver.find_element(By.LINK_TEXT, "¿Olvidó su contraseña?").click()
+        self.driver.find_element(By.ID, "id_email").click()
+        self.driver.find_element(By.ID, "id_email").send_keys(self.noadmin.email)
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
+
+    def test_change_password(self):
+        token = default_token_generator.make_token(self.noadmin)
+        uid = urlsafe_base64_encode(force_bytes(self.noadmin.pk))
+        self.driver.get(f"{self.live_server_url}/users/change-password/{uid}/{token}/")
+        self.driver.set_window_size(1850, 1016)
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys(self.password)
+        self.driver.find_element(By.ID, "id_confirm_password").click()
+        self.driver.find_element(By.ID, "id_confirm_password").send_keys(self.password)
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        self.noadmin = User.objects.filter(username="noadmin").first()
+        self.assertTrue(self.noadmin.check_password(self.password))
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")

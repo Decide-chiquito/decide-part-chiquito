@@ -7,7 +7,6 @@ LOCALE_PATHS = [
 {% block extrahead %}
     <title>Iniciar Sesión</title>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    
 {% endblock extrahead %}
 
 {% block content %}
@@ -45,6 +44,7 @@ LOCALE_PATHS = [
                         </div>
                         <div class="login-button" style="display: flex; justify-content: space-between;">
                             <button type="submit" class="btn btn-primary">{% trans "Login" %}</button>
+                            <a href="{% url 'users:password_reset' %}" style="margin-top: 15px;">¿Olvidó su contraseña?</a>
                             <a href="{% url 'social:begin' 'google-oauth2' %}" style="margin-top: 15px;">Iniciar sesión con Google</a>
                         </div>
                     </form>
