@@ -1,20 +1,15 @@
 import datetime
 import random
+
+from base.tests import BaseTestCase
+from census.models import Census
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.test import TestCase
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
+from voting.models import Question
+from voting.models import Voting
 
 from .models import Vote
 from .serializers import VoteSerializer
-from base import mods
-from base.models import Auth
-from base.tests import BaseTestCase
-from census.models import Census
-from mixnet.models import Key
-from voting.models import Question
-from voting.models import Voting
 
 
 class StoreTextCase(BaseTestCase):
@@ -193,3 +188,29 @@ class StoreTextCase(BaseTestCase):
         self.voting.save()
         response = self.client.post('/store/', data, format='json')
         self.assertEqual(response.status_code, 401)
+
+    def test_retrieve_vote(self):
+        self.gen_votes()
+        self.login()
+        vote = Vote.objects.first()
+        response = self.client.get('/store/{}/'.format(vote.pk), format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["a"], vote.a)
+
+    def test_update_votes(self):
+        self.gen_votes()
+        self.login()
+        vote = Vote.objects.first()
+        new_data = {
+            "a": vote.a +1,
+            "b": vote.b +1
+        }
+        response = self.client.put('/store/{}/'.format(vote.pk), new_data, format='json')
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_vote(self):
+        self.gen_votes()
+        self.login()
+        vote = Vote.objects.first()
+        response = self.client.delete('/store/{}/'.format(vote.pk), format='json')
+        self.assertEqual(response.status_code, 204)
