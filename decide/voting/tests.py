@@ -293,7 +293,8 @@ class VotingTestCase(BaseTestCase):
         voting.name = 'Updated'
         response = self.client.put('/voting/{}/staff/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['name'], 'Updated')
+        response = self.client.get('/voting/{}/staff/'.format(voting.pk))
+        self.assertEqual(response.json()['name'], "Updated")
 
 
 
