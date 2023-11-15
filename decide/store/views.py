@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 import django_filters.rest_framework
@@ -52,15 +53,15 @@ class StoreView(generics.ListAPIView):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         # validating voter
-        if request.auth:
-            token = request.auth.key
-        else:
-            token = "NO-AUTH-VOTE"
-        voter = mods.post('authentication', entry_point='/getuser/', json={'token': token})
-        voter_id = voter.get('id', None)
-        if not voter_id or voter_id != uid:
-            # print("por aqui 59")
-            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+        # if request.auth:
+        #     token = request.auth.key
+        # else:
+        #     token = "NO-AUTH-VOTE"
+        # voter = mods.post('authentication', entry_point='/getuser/', json={'token': token})
+        # voter_id = voter.get('id', None)
+        # if not voter_id or voter_id != uid:
+        #     # print("por aqui 59")
+        #     return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
         # the user is in the census
         perms = mods.get('census/{}'.format(vid), params={'voter_id': uid}, response=True)
@@ -80,3 +81,27 @@ class StoreView(generics.ListAPIView):
         v.save()
 
         return  Response({})
+
+class StoreDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (UserIsStaff,)
+
+    def retrieve(self, request, vote_id, *args, **kwargs):
+        vote = get_object_or_404(Vote, pk=vote_id)
+        return Response(VoteSerializer(vote).data, status=status.HTTP_200_OK)
+
+    def update(self, request, vote_id, *args, **kwargs):
+        vote = get_object_or_404(Vote, pk=vote_id)
+        a = request.data.get('a')
+        b = request.data.get('b')
+        if a:
+            vote.a = a
+        if b:
+            vote.b = b
+        vote.save()
+        return Response("Vote updated", status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, vote_id, *args, **kwargs):
+        vote = get_object_or_404(Vote, pk=vote_id)
+        vote.delete()
+        return Response("Vote deleted", status=status.HTTP_204_NO_CONTENT)
+

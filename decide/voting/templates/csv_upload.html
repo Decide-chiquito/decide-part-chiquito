@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href='{% static "booth/style.css" %}' />
+    <link type="text/css" rel="stylesheet" href='{% static "voting/style.css" %}' />
+{% endblock %}
+
+{% block content %}
+    <div id="app-visualizer">
+        <!-- Navbar -->
+        <nav class="title">
+            <div class="container-fluid">
+                <h1 class="navbar-brand">Decide</h1>
+            </div>
+        </nav>
+          
+
+        <div class="navigator">
+            <h1>Importar el censo desde un CSV</h1>
+            <div class="upload-csv">
+                <form action="." method="POST" enctype="multipart/form-data">
+                    {{ form.as_p }}
+                    {% csrf_token %}
+                    <div style="color: red;">
+                        {{ error }}
+                    </div>
+                    <button type="submit">Upload File</button>
+                </form>
+            </div>
+            
+            <div class="csv-description">
+                <h4>Formato aceptado:</h4>
+                <p>La primera fila es la cabecera y las siguientes filas son los censos. </p>
+                <p>Los distintos votadores de una votacion se separan por comas</p>
+                <p>Ejemplo:</p>
+                <textarea name="textarea" rows="4" cols="30">votingID;voterID
+2;2
+1;"2,3"
+                </textarea>  
+            </div>
+        </div>
+
+        <div class="center">
+            <button class="btn btn-primary mt-3" v-on:click="comeBack">
+                {% trans "Volver" %}
+            </button>
+        </div>
+    </div>
+{% endblock %}

@@ -14,21 +14,27 @@
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-primary">
         <div class="container-fluid">
-            <div class="navbar-brand" >Decide</div>
+            <div class="navbar-brand" >Opciones</div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item" v-if="!signup">
-                        <button v-on:click="decideLogout" class="btn btn-secondary">{% trans "Logout" %}</button>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <form method="post" action="{% url 'users:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary" style="text-decoration: none; color: white;">Logout</button>
+                        </form>
                     </li>
-                    <li class="nav-item" v-if="signup">
+                    {% else %}
+                    <li class="nav-item">
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            Login
-                        </button>
+                        <a href="/users/login/" class="btn btn-secondary"  style="text-decoration: none; color: white;">
+                            {% trans "Login" %}
+                        </a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -64,61 +70,25 @@
     </div>
 
     <div class="voting" >
-        <div class="alert alert-primary d-flex align-items-center me-5" role="alert" :variant="alertLvl" dismissible v-if="signup">
+        {% if not user.is_authenticated %}
+        <div class="alert alert-primary d-flex align-items-center me-5" role="alert" :variant="alertLvl" dismissible>
             {% comment %} <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg> {% endcomment %}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
                 <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
             </svg>
             <div class="ms-2">
-                ¡Debe iniciar sesión para poder acceder a la votación!
+                {% trans 'You must log in to be able to access the voting!' %}
             </div>
         </div>
-        <div class="container-fluid">
-            <!-- Modal -->
-            <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="registerModalLabel">Login</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Register -->
-                            <form @submit="onSubmitLogin" v-if="signup">
-                                <div class="form-group mt-2">
-                                    <label for="username">{% trans "Username" %}</label>:
-                                    <input
-                                        class="ml-2 form-control"
-                                        id="username"
-                                        type="text"
-                                        v-model="form.username"
-                                        autocomplete="username"
-                                        required />
-                                </div>
-                                <div class="form-group mt-1">
-                                    <label for="password">{% trans "Password" %}</label>:
-                                    <input
-                                        class = "form-control"
-                                        id="password"
-                                        type="password"
-                                        autocomplete="current-password"
-                                        v-model="form.password"
-                                        required />
-                                </div>
-                                <button class="btn btn-primary mt-3" type="submit" data-bs-dismiss="modal">{% trans "Login" %}</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endif %}
 
         <!-- Voting -->
-        <div v-if="!signup">
+        {% if user.is_authenticated %}
+        <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
-            <form v-for="opt in voting.question.options" :key="opt.number">
+            <form v-for="opt in voting.question.options" :key="opt.number" class="form-voting">
                 <div class="form-group">
                     <input type="radio" v-model="selected"
                                 :id="'q' + opt.number"
@@ -127,10 +97,16 @@
                         [[ opt.option ]]
                 </div>
             </form>
-            <button class="btn btn-primary mt-3" v-on:click="decideSend">
-                {% trans "Vote" %}
-            </button>
+            <div class="options">
+                <button class="btn btn-primary mt-3" v-on:click="decideSend">
+                    {% trans "Vote" %}
+                </button>
+                <button class="btn btn-primary mt-3" v-on:click="comeBack">
+                    {% trans "Volver" %}
+                </button>
+            </div>
         </div>
+        {% endif %}
 
     </div>
 
@@ -151,30 +127,24 @@
     <script src="{% static "crypto/elgamal.js" %}"></script>
 
     <!-- Vuejs -->
-    <script src="https://unpkg.com/vue@latest"</script>
+    <script src="https://unpkg.com/vue@latest"></script>
     <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
     <script src="https://unpkg.com/bootstrap@5.2.2/dist/js/bootstrap.js"></script>
-
     <script>
         const { createApp } = Vue
-        var voting = {{voting|safe}};
+        var voting = {{ voting|safe }};
         createApp({
             delimiters: ['[[', ']]'],
             data() {
                 return {
                     voting: voting,
                     selected: "",
-                    signup: true,
                     successVote: false,
                     alertShow: false,
                     alertMsg: "",
                     alertLvl: "info",
                     token: null,
                     user: null,
-                    form: {
-                        username: '',
-                        password: ''
-                    },
                     bigpk: {
                         p: BigInt.fromJSONObject(voting.pub_key.p.toString()),
                         g: BigInt.fromJSONObject(voting.pub_key.g.toString()),
@@ -184,7 +154,7 @@
                 }
             },
             beforeMount() {
-                this.init()
+                this.init();
                 ElGamal.BITS = this.keybits;
             },
             methods: {
@@ -192,8 +162,8 @@
                     var cookies = document.cookie.split("; ");
                     cookies.forEach((c) => {
                         var cs = c.split("=");
-                        if (cs[0] == 'decide' && cs[1]) {
-                            this.token = cs[1];
+                        if (cs[0] == 'sessionid' && cs[1]) {
+                            this.token = '{{ request.session.session_key|safe }}';
                             this.getUser();
                         }
                     });
@@ -221,41 +191,6 @@
                             }
                         });
                 },
-                onSubmitLogin(evt) {
-                    evt.preventDefault();
-                    this.postData("{% url "gateway" "authentication" "/login/" %}", this.form)
-                        .then(data => {
-                            document.cookie = 'decide='+data.token+';';
-                            this.token = data.token;
-                            this.getUser();
-                            this.alertShow = false;
-                        })
-                        .catch(error => {
-                            this.showAlert("danger", '{% trans "Error: " %}' + error);
-                        });
-                },
-                getUser(evt) {
-                    var data = {token: this.token};
-                    this.postData("{% url "gateway" "authentication" "/getuser/" %}", data)
-                        .then(data => {
-                            this.user = data;
-                            this.signup = false;
-                            this.alertShow = false;
-                        }).catch(error => {
-                            this.showAlert("danger", '{% trans "Error: " %}' + error);
-                        });
-                },
-                decideLogout(evt) {
-                    evt.preventDefault();
-                    var data = {token: this.token};
-                    this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
-                    this.token = null;
-                    this.user = null;
-                    this.alertShow = false;
-                    document.cookie = 'decide=;';
-                    this.signup = true;
-                    this.successVote = false;
-                },
                 decideEncrypt() {
                     var bigmsg = BigInt.fromJSONObject(this.selected.toString());
                     var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
@@ -267,8 +202,8 @@
                     var data = {
                         vote: {a: v.alpha.toString(), b: v.beta.toString()},
                         voting: this.voting.id,
-                        voter: this.user.id,
-                        token: this.token
+                        voter: {{user.id}},
+                        token: '{{request.session.session_key|safe}}',
                     }
                     this.postData("{% url "gateway" "store" "/" %}", data)
                         .then(data => {
@@ -285,9 +220,14 @@
                     this.alertLvl = lvl;
                     this.alertMsg = msg;
                     this.alertShow = true;
-                }
+                },
+
+                comeBack() {
+                    let baseUrl = '{{ request.scheme }}://{{ request.get_host }}';
+                    window.location.href = baseUrl;
+                },
+                
             },
         }).mount('#app-booth')
     </script>
-</body>
 {% endblock %}

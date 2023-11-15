@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="navigator">
+    <div class="info">
+        
+        <p>
+            {% trans 'Choose the desired option in the corresponding box and click on Access to go to it'%}
+        </p>
+    </div>
+
+    <div class="row">
+        <label for="admin" class="label">{% trans 'Admin'%}</label>
+        <button class="button" onclick="go_to_route('/admin/')">{% trans 'Access'%}</button>
+    </div>
+
+    <div class="row">
+        <label for="register" class="label">register</label>
+        <button class="button" onclick="go_to_route('/users/register/')">{% trans 'Access'%}</button>
+    </div>
+
+    <div class="row">
+        <label for="mailer" class="label">send email</label>
+        <button class="button" onclick="go_to_route('/mailer/')">Acceder</button>
+    </div>
+
+    <div class="row">
+        <label for="booth" class="label">booth</label>
+        <select id="booth" name="booth">
+            <option value="" selected>{% trans 'Choose one option'%}</option>
+            {% for voting in voting_enabled %}
+            <option value="{{voting.id}}">{{voting.name}}</option>
+            {% endfor %}
+        </select>
+        <button class="button" onclick="go_to_route('/booth/', 'booth')">{% trans "Access" %}</button>
+    </div>
+
+    <div class="row">
+        <label for="visualizer" class="label">{% trans 'visualizer'%}</label>
+        <select id="visualizer" name="visualizer">
+            <option value="" selected>{% trans "Choose a option" %}</option>
+            {% for voting in voting_finished %}
+            <option value="{{voting.id}}">{{voting.name}}</option>
+            {% endfor %}
+        </select>
+        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">{% trans 'Access'%}</button>
+    </div>
+
+    <div class="row">
+        <label for="census" class="label">census</label>
+        <a href="./admin/voting/voting/upload-csv/">
+            <button class="button">Importar</button>
+        </a>
+    </div>
+    
+</div>
+<div class="urls-list">
+
+    <label class="poster">{% trans 'For those who need or prefer to use URL-based navigation, here we provide the different access points:'%}</label>
+   <ul>
+
+       {% for url in url_patterns %}
+       
+           {% if url != ""%}
+            <li><label class="label">{{ url }}</label></li>
+            {% endif %}
+       {% endfor %}
+
+   </ul>
+
+   <script>
+    // Agrega un evento click al botón
+    function go_to_route(url, id){
+        // La función que se ejecutará al hacer clic en el botón
+
+        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/') {
+            let inputValue = document.getElementById(id).value;
+            if(inputValue == null || inputValue == ""){
+                alert("Por favor, introduzca un valor válido");
+            } else {
+                window.location.href = url + inputValue;
+            }
+        } else {
+            console.log(url);
+            window.location.href = url;
+            
+        }
+    }
+</script>
+
+</div>
+{% endblock content %}
+
