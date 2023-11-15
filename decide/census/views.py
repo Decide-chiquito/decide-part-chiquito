@@ -1,16 +1,16 @@
-from django.db.utils import IntegrityError
+from base.perms import UserIsStaff
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
+from django.utils.translation import gettext as _
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import (
-        HTTP_201_CREATED as ST_201,
-        HTTP_204_NO_CONTENT as ST_204,
-        HTTP_400_BAD_REQUEST as ST_400,
-        HTTP_401_UNAUTHORIZED as ST_401,
-        HTTP_409_CONFLICT as ST_409
+    HTTP_201_CREATED as ST_201,
+    HTTP_204_NO_CONTENT as ST_204,
+    HTTP_401_UNAUTHORIZED as ST_401,
+    HTTP_409_CONFLICT as ST_409
 )
 
-from base.perms import UserIsStaff
 from .models import Census
 
 
@@ -25,8 +25,8 @@ class CensusCreate(generics.ListCreateAPIView):
                 census = Census(voting_id=voting_id, voter_id=voter)
                 census.save()
         except IntegrityError:
-            return Response('Error try to create census', status=ST_409)
-        return Response('Census created', status=ST_201)
+            return Response(_('Error try to create census'), status=ST_409)
+        return Response(_('Census created'), status=ST_201)
 
     def list(self, request, *args, **kwargs):
         voting_id = request.GET.get('voting_id')
@@ -34,13 +34,13 @@ class CensusCreate(generics.ListCreateAPIView):
         return Response({'voters': voters})
 
 
-class CensusDetail(generics.RetrieveDestroyAPIView):
+class CensusDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, voting_id, *args, **kwargs):
         voters = request.data.get('voters')
         census = Census.objects.filter(voting_id=voting_id, voter_id__in=voters)
         census.delete()
-        return Response('Voters deleted from census', status=ST_204)
+        return Response(_('Voters deleted from census'), status=ST_204)
 
     def retrieve(self, request, voting_id, *args, **kwargs):
         voter = request.GET.get('voter_id')
@@ -49,3 +49,13 @@ class CensusDetail(generics.RetrieveDestroyAPIView):
         except ObjectDoesNotExist:
             return Response('Invalid voter', status=ST_401)
         return Response('Valid voter')
+
+    def put(self, request, voting_id, *args, **kwargs):
+        self.permission_classes = (UserIsStaff,)
+        voters = request.data.get('voters')
+        census = Census.objects.filter(voting_id=voting_id)
+        census.delete()
+        for voter in voters:
+            census = Census(voting_id=voting_id, voter_id=voter)
+            census.save()
+        return Response('Census updated', status=ST_201)

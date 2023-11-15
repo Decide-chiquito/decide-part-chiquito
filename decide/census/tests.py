@@ -82,6 +82,14 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(0, Census.objects.count())
 
+    def test_update_census(self):
+        self.login()
+        data = {'voters': [2]}
+        response = self.client.put('/census/{}/'.format(1), data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual("Census updated", response.json())
+
+
 
 class CensusTest(StaticLiveServerTestCase):
     def setUp(self):

@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'admin_auto_filters',
     'corsheaders',
     'django_filters',
     'rest_framework',
@@ -49,7 +51,19 @@ INSTALLED_APPS = [
     'livereload',
     'users',
     'auditlog',
+    'social_django',
+    'mailer',
+    'django_user_agents',
+
 ]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '591203465714-9ng1mqkp902c0gkjmkun63ctsapvofgp.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_URL_NAMESPACE = "social"
+LOGIN_URL = '/authentication/complete/google-oauth2/'
+LOGOUT_URL = '/logout/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -61,6 +75,8 @@ REST_FRAMEWORK = {
 
 AUTHENTICATION_BACKENDS = [
     'base.backends.AuthBackend',
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 MODULES = [
@@ -88,7 +104,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
+<<<<<<< HEAD
     'auditlog.middleware.AuditlogMiddleware',
+=======
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
+
+>>>>>>> develop
 ]
 
 ROOT_URLCONF = 'decide.urls'
@@ -104,6 +126,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -155,7 +179,7 @@ AUDITLOG = {
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-US'
+LANGUAGE_CODE = 'en-ES'
 
 TIME_ZONE = 'Europe/Madrid'
 
@@ -204,3 +228,9 @@ if os.path.exists("config.jsonnet"):
 
 
 INSTALLED_APPS = INSTALLED_APPS + MODULES
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'decide202324@gmail.com'
+EMAIL_HOST_PASSWORD = 'hulp rfpq boxy otqa'
