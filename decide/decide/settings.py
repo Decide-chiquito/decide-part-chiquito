@@ -104,13 +104,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
-<<<<<<< HEAD
     'auditlog.middleware.AuditlogMiddleware',
-=======
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
 
->>>>>>> develop
 ]
 
 ROOT_URLCONF = 'decide.urls'
