@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
+from unfold.admin import ModelAdmin
+
 from .models import QuestionOption
 from .models import Question
 from .models import Voting
@@ -7,10 +9,12 @@ from django.contrib import messages
 from .filters import StartedFilter
 import csv
 from django.http import HttpResponse
+from django.utils.translation import gettext as _
+
 from census.models import Census
 #UPLOAD CSV
 from django.urls import path
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django import forms
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -20,7 +24,7 @@ from rest_framework.status import (
         HTTP_409_CONFLICT as ST_409
 )
 from django.db.utils import IntegrityError
-
+from django.contrib.auth.decorators import user_passes_test
 
 
 def start(modeladmin, request, queryset):
@@ -68,33 +72,33 @@ def export_to_csv(ModelAdmin, request, queryset):
     
 def copy_census_to_another_voting(self, request, queryset):
     if queryset.count() != 2:
-        self.message_user(request, "Seleccione exactamente 2 votaciones.", level=messages.ERROR)
+        self.message_user(request, _("Select exactly 2 votes."), level=messages.ERROR)
     else:
         voting1, voting2 = queryset
         if voting1.id == voting2.id:
-            self.message_user(request, "Las votaciones seleccionadas son las mismas.", level=messages.ERROR)
+            self.message_user(request, _("The select votes are the same."), level=messages.ERROR)
         else:
             try:
                 census1 = Census.objects.filter(voting_id=voting1.id)
                 census2 = Census.objects.filter(voting_id=voting2.id)
                 if (len(census1)>0 and len(census2)>0):
-                    self.message_user(request, "Ambas votaciones tienen censo", level=messages.ERROR)
+                    self.message_user(request, _("Both votes have a census"), level=messages.ERROR)
                 elif(len(census1) == 0 and len(census2) == 0):
-                    self.message_user(request, "El censo de ambas votaciones está vacio", level=messages.ERROR)
+                    self.message_user(request, _("The census of both votes are empty"), level=messages.ERROR)
                 elif(len(census1)>len(census2)):
                     census_to_copy = Census.objects.filter(voting_id=voting1.id)
                     for census_entry in census_to_copy:
                         Census.objects.create(voting_id=voting2.id, voter_id=census_entry.voter_id)
-                    self.message_user(request, "Censo copiado con éxito de {} a {}.".format(voting1.name, voting2.name), level=messages.SUCCESS)
+                    self.message_user(request, _("census successfully copied from {} to {}.").format(voting1.name, voting2.name), level=messages.SUCCESS)
                 else:
                     census_to_copy = Census.objects.filter(voting_id=voting2.id)
                     for census_entry in census_to_copy:
                         Census.objects.create(voting_id=voting1.id, voter_id=census_entry.voter_id)
-                    self.message_user(request, "Censo copiado con éxito de {} a {}.".format(voting2.name, voting1.name), level=messages.SUCCESS)
+                    self.message_user(request, _("census successfully copied from {} to {}.").format(voting2.name, voting1.name), level=messages.SUCCESS)
             except Exception as e:
-                self.message_user(request, "Error al copiar el censo: {}".format(str(e)), level=messages.ERROR)
+                self.message_user(request, _("Errorr in copying the census: {}").format(str(e)), level=messages.ERROR)
 
-    copy_census_to_another_voting.short_description = "Copiar censo a otra votación"
+    copy_census_to_another_voting.short_description = _("Copy the census to other voting")
 
 class CsvImportForm(forms.Form):
     csv_upload = forms.FileField()
@@ -103,21 +107,22 @@ class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
 
 
-class QuestionAdmin(admin.ModelAdmin):
+@admin.register(Question)
+class QuestionAdmin(ModelAdmin):
     inlines = [QuestionOptionInline]
 
-
-class VotingAdmin(admin.ModelAdmin):
+@admin.register(Voting)
+class VotingAdmin(ModelAdmin):
     list_display = ('name', 'start_date', 'end_date','type','seats')
+
     readonly_fields = ('start_date', 'end_date', 'pub_key',
                        'tally', 'postproc')
     date_hierarchy = 'start_date'
     list_filter = (StartedFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
 
     actions = [ start, stop, tally, export_to_csv, copy_census_to_another_voting]
 
-    #UPLOAD CSV
     def get_urls(self):
         urls = super().get_urls()
         new_urls = [path('upload-csv/', self.upload_csv),]
@@ -129,8 +134,10 @@ class VotingAdmin(admin.ModelAdmin):
             csv_file = request.FILES["csv_upload"]
             
             if not csv_file.name.endswith('.csv'):
-                messages.warning(request, 'The wrong file type was uploaded')
-                return HttpResponseRedirect(request.path_info)
+                form = CsvImportForm()
+                data = {"form": form,
+                        "error": "El archivo no es un csv"}
+                return render(request, "csv_upload.html", data)
             
             file_data = csv_file.read().decode("utf-8")
             csv_data = file_data.split("\n")
@@ -146,12 +153,9 @@ class VotingAdmin(admin.ModelAdmin):
                             census.save()
                     except IntegrityError:
                         pass
-            return HttpResponseRedirect(reverse('admin:index'))
+            #Se han añadido X census
+            return redirect('/admin/census/census/')
 
         form = CsvImportForm()
         data = {"form": form}
         return render(request, "csv_upload.html", data)
-
-
-admin.site.register(Voting, VotingAdmin)
-admin.site.register(Question, QuestionAdmin)

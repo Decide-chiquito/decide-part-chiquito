@@ -1,6 +1,7 @@
 from base.perms import UserIsStaff
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
+from django.utils.translation import gettext as _
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -24,8 +25,8 @@ class CensusCreate(generics.ListCreateAPIView):
                 census = Census(voting_id=voting_id, voter_id=voter)
                 census.save()
         except IntegrityError:
-            return Response('Error try to create census', status=ST_409)
-        return Response('Census created', status=ST_201)
+            return Response(_('Error try to create census'), status=ST_409)
+        return Response(_('Census created'), status=ST_201)
 
     def list(self, request, *args, **kwargs):
         voting_id = request.GET.get('voting_id')
@@ -39,7 +40,7 @@ class CensusDetail(generics.RetrieveUpdateDestroyAPIView):
         voters = request.data.get('voters')
         census = Census.objects.filter(voting_id=voting_id, voter_id__in=voters)
         census.delete()
-        return Response('Voters deleted from census', status=ST_204)
+        return Response(_('Voters deleted from census'), status=ST_204)
 
     def retrieve(self, request, voting_id, *args, **kwargs):
         voter = request.GET.get('voter_id')

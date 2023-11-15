@@ -27,6 +27,7 @@ urlpatterns = [
     path('doc/', schema_view),
     path('gateway/', include('gateway.urls')),
     path('users/', include('users.urls')),
+    path('mailer/', include('mailer.urls')),
     path('', include('base.urls')),
 
 ]

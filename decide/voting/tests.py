@@ -251,10 +251,10 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already stopped')
 
-        #data = {'action': 'tally'}
-        #response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        #self.assertEqual(response.status_code, 200)
-        #self.assertEqual(response.json(), 'Voting tallied')
+        data = {'action': 'tally'}
+        response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), 'Voting tallied')
 
         # STATUS VOTING: tallied
         data = {'action': 'start'}
@@ -267,10 +267,10 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already stopped')
 
-        #data = {'action': 'tally'}
-        #response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        #self.assertEqual(response.status_code, 400)
-        #self.assertEqual(response.json(), 'Voting already tallied')
+        data = {'action': 'tally'}
+        response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), 'Voting already tallied')
 
     def test_retrieve_voting(self):
         voting = self.create_voting()
