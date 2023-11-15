@@ -1,5 +1,4 @@
 from base.tests import BaseTestCase
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase

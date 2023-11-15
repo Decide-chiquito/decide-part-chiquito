@@ -1,11 +1,7 @@
 from django import forms
 
-
 class EmailForm(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'usuario@dominio.com'}))
-
-from django import forms
-
 
 class PasswordForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': '********'}))
