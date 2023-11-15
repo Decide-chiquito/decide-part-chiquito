@@ -42,7 +42,7 @@
                         </div>
                         <div class="login-button" style="display: flex; justify-content: space-between;">
                             <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                            <a href="{% url 'users:begin' 'password_reset' %}" style="margin-top: 15px;">¿Olvidó su contraseña?</a>
+                            <a href="{% url 'users:password_reset' %}" style="margin-top: 15px;">¿Olvidó su contraseña?</a>
                             <a href="{% url 'social:begin' 'google-oauth2' %}" style="margin-top: 15px;">Iniciar sesión con Google</a>
                         </div>
                     </form>

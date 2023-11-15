@@ -70,7 +70,7 @@ class LogoutView(APIView):
         return redirect('/')
 
 class RequestPasswordReset(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = EmailForm(request.POST)
         if form.is_valid():
             user = get_object_or_404(User, email=form.cleaned_data['email'])
@@ -81,11 +81,11 @@ class RequestPasswordReset(APIView):
 
                 # Generar la URL de verificación por correo electrónico
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
-                verify_url = reverse('users:change_password', args=[uid, token])
+                new_password_url = reverse('users:change_password', args=[uid, token])
 
                 # Enviar el correo electrónico de verificación
                 template = get_template('registration/password_email.html')
-                content = template.render({'new_password_url': settings.BASEURL + verify_url, 'username': user.username})
+                content = template.render({'new_password_url': settings.BASEURL + new_password_url, 'username': user.username})
                 message = EmailMultiAlternatives(
                     'Cambio de contraseña',
                     content,
@@ -99,7 +99,7 @@ class RequestPasswordReset(APIView):
 
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         form = EmailForm()
         return render(request, 'registration/make_petition_form.html', {'form': form})
 
@@ -129,8 +129,6 @@ class ChangePassword(APIView):
             if form.is_valid():
                 user.password = make_password(form.cleaned_data['password'])
                 user.save()
-                print("Password changed")
-                print(form.cleaned_data['password'])
                 return redirect('/')
             else:
                 return render(request, 'registration/change_password_form.html', {'form': form})
@@ -141,7 +139,6 @@ class ChangePassword(APIView):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
-            print(user)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         return user
