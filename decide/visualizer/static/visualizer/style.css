@@ -10,16 +10,35 @@
     background-color: rgb(49, 108, 244);
     color: white;
     height: 35px;
-    border-radius: 10px;
+    border-radius: 5px;
+    margin: 0;
+    padding: 20px 40px;
+    text-align: justify;
+    text-justify: center;
+    font-size: 15px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-secondary {
     flex: 1;
-    background-color: rgb(3, 78, 253);
-    border-color: white;
+    background-color: rgb(49, 108, 244);
     color: white;
     height: 35px;
-    border-radius: 10px;
+    border-radius: 5px;
+    margin: 0;
+    padding: 20px 40px;
+    text-align: justify;
+    text-justify: center;
+    font-size: 15px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .form-group {

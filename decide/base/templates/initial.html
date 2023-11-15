@@ -3,24 +3,9 @@
 {% load i18n static %}
 
 {% load static %}
-{% block extrahead %}
-<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" />
-{% endblock extrahead %}
-
-
 
 {% block content %}
 
-<div class="title">
-    <header>
-        Decide
-    </header>
-    <div class="subtitle">
-        <p>
-            {% trans 'Welcome to Decide, the online voting system implemented by decide-part-chiquito group'%}
-        </p>
-    </div>
-</div>
 <div class="navigator">
     <div class="info">
         
@@ -37,6 +22,11 @@
     <div class="row">
         <label for="register" class="label">register</label>
         <button class="button" onclick="go_to_route('/users/register/')">{% trans 'Access'%}</button>
+    </div>
+
+    <div class="row">
+        <label for="mailer" class="label">send email</label>
+        <button class="button" onclick="go_to_route('/mailer/')">Acceder</button>
     </div>
 
     <div class="row">
@@ -88,7 +78,7 @@
     function go_to_route(url, id){
         // La función que se ejecutará al hacer clic en el botón
 
-        if (url != '/admin/' && url != '/users/register/') {
+        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/') {
             let inputValue = document.getElementById(id).value;
             if(inputValue == null || inputValue == ""){
                 alert("Por favor, introduzca un valor válido");

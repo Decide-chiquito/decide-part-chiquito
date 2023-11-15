@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'livereload',
     'users',
     'social_django',
+    'mailer',
     'django_user_agents',
 
 ]
@@ -216,3 +217,9 @@ if os.path.exists("config.jsonnet"):
 
 
 INSTALLED_APPS = INSTALLED_APPS + MODULES
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'decide202324@gmail.com'
+EMAIL_HOST_PASSWORD = 'hulp rfpq boxy otqa'

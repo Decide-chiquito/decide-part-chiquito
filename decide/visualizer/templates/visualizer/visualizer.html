@@ -17,15 +17,7 @@
 {% block content %}
     <div id="app-visualizer">
         <!-- Navbar -->
-        <nav class="title">
-            <div class="container-fluid">
-                <h1 class="navbar-brand">Decide</h1>
-            </div>
-        </nav>
-
-        <!-- Graph -->
-        <div class="voting">
-
+        <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
 
             <h2 v-if="!voting.start_date">Votación no comenzada</h2>
