@@ -54,8 +54,13 @@
     <div class="row">
         <label for="census" class="label">census</label>
         <a href="./admin/voting/voting/upload-csv/">
-            <button class="button">Importar</button>
+            <button class="button" style="width: 380px">Importar</button>
         </a>
+    </div>
+
+    <div class="row">
+        <label for="admin" class="label">{% trans 'Admin'%}</label>
+        <button class="button" onclick="go_to_route('/admin/voting/voting/upload-csv/')">{% trans 'Access'%}</button>
     </div>
     
 </div>
