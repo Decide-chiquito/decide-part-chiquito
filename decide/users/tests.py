@@ -150,7 +150,9 @@ class RequestPasswordResetViewTests(StaticLiveServerTestCase):
         self.assertTrue(self.noadmin.check_password(self.password))
         self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
 
+
 class mail_login_test(StaticLiveServerTestCase):
+
     def setUp(self):
         self.base = BaseTestCase()
         self.base.setUp()
