@@ -103,6 +103,9 @@ class LoginLogoutViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/')
 
+    def test_mail_login(self):
+        response = self.client.get(reverse('social:begin', args=['google-oauth2']))
+        assert response.status_code == 302
 
 class RequestPasswordResetViewTests(StaticLiveServerTestCase):
     def setUp(self):
@@ -146,3 +149,30 @@ class RequestPasswordResetViewTests(StaticLiveServerTestCase):
         self.noadmin = User.objects.filter(username="noadmin").first()
         self.assertTrue(self.noadmin.check_password(self.password))
         self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
+
+class mail_login_test(TestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+        # self.password = "Hola$1234"
+        # self.noadmin = User.objects.filter(username="noadmin").first()
+        # self.noadmin.set_password('1234')
+        # self.noadmin.email = 'noadmin@gmail.com'
+        # self.noadmin.save()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_mail_login_fail(self):
+        self.driver.get(f"http://localhost:8000/users/login/")
+        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()
+        self.assertTrue("https://accounts.google.com/" in self.driver.current_url)
+        
+
