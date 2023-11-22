@@ -6,6 +6,7 @@
 # Luego, ejecute con './init.sh'
 # *********************************************************************************************************************
 
+nocheck=0
 novenv=0
 nodependencies=0
 persist=0
@@ -14,14 +15,18 @@ notest=0
 while [ "$1" != "" ]; do
     case $1 in
         --help)
-            echo "Usage: ./init.sh [--novenv] [--nodependencies] [--persist] [--notest] [--help]"
+            echo "Usage: ./init.sh [--nocheck] [--novenv] [--nodependencies] [--persist] [--notest] [--help]"
             echo "Options:"
             echo "  --help    Show this help message."
+            echo "  --nocheck  Skip the Python version check."
             echo "  --novenv  Skip the virtual environment creation."
             echo "  --nodependencies  Skip the dependencies installation."
             echo "  --persist  Persist the database."
             echo "  --notest  Skip the test execution."
             exit 0
+            ;;
+        --nocheck)
+            nocheck=1
             ;;
         --novenv)
             novenv=1
@@ -56,14 +61,20 @@ echo "####################################################################"
 echo ""
 echo ""
 
-echo "========== CHECKING PYTHON VERSION =========="
-echo "Checking Python version..."
-python3 -c "import sys; assert sys.version_info[:2] == (3, 10), 'Incorrect Python version, requires Python 3.10'; print('Correct Python version (3.10)')"
-if [ $? -ne 0 ]; then
-    echo "Python version is not 3.10. Exiting..."
-    exit 1
+if [ $nocheck -eq 1 ]; then
+    echo "========== SKIPPING PYTHON VERSION CHECK =========="
+    echo "Skipping Python version check because of --nocheck argument."
+    echo ""
+else
+    echo "========== CHECKING PYTHON VERSION =========="
+    echo "Checking Python version..."
+    python3 -c "import sys; assert sys.version_info[:2] == (3, 10), 'Incorrect Python version, requires Python 3.10'; print('Correct Python version (3.10)')"
+    if [ $? -ne 0 ]; then
+        echo "Python version is not 3.10. Exiting..."
+        exit 1
+    fi
+    echo ""
 fi
-echo ""
 
 if [ $novenv -eq 1 ]; then
     echo "========== SKIPPING VENV =========="
