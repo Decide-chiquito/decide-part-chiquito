@@ -17,12 +17,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.forms import EmailForm, PasswordForm
 
+
 from decide import settings
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import gettext as _
+from census.models import Census
+from voting.models import Voting
 
 
 class RegisterView(APIView):
@@ -148,3 +151,16 @@ class ChangePassword(APIView):
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         return user
+    
+def listVoting(request):
+    if request.user.is_authenticated:
+        censos=Census.objects.filter(voter_id=request.user.id)
+        votaciones=[];
+        for censo in censos:
+            votacionesMyCenso=Voting.objects.filter(id=censo.voting_id)
+            for votacion in votacionesMyCenso:
+                votaciones.append(votacion)
+        return render(request,'users/listVoting.html',{'votaciones': votaciones})
+    else:
+        
+        return render(request,'users/login.html')
