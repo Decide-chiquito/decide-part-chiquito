@@ -24,3 +24,4 @@ pynose == 1.4.8
 django-admin-autocomplete-filter
 social-auth-app-django
 django-user-agents
+django-extensions
