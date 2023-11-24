@@ -38,8 +38,8 @@ def listActiveBooth(request):
         for censo in censos:
             boothsMyCenso=Voting.objects.filter(id=censo.voting_id)
             for booth in boothsMyCenso:
-                if booth.end_date!= None:
+                if booth.end_date== None:
                     booths.append(booth)
         return render(request,'booth/listBooth.html',{'booths': booths})
     else:
-        return render(request,'users/login.html')
+        return redirect('/users/login')
