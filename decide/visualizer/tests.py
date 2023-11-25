@@ -59,7 +59,7 @@ class ListVisualizerTests(TestCase):
         self.assertEqual(len(response.context['visualizers']), 0)
 
     def test_logged_in_with_census_no_voting(self):
-        Census.objects.create(voter_id=self.user.id, voting_id=1)  # Asegúrate de que este ID exista o ajusta según tu modelo
+        Census.objects.create(voter_id=self.user.id, voting_id=1) 
         self.client.force_login(self.user)
         response = self.client.get(self.list_visualizer_url)
         self.assertEqual(len(response.context['visualizers']), 0)
