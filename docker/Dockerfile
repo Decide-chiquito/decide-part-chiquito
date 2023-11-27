@@ -1,21 +1,12 @@
 FROM python:3.10-slim
 
-RUN apt-get update && apt-get install -y \
-    git \
-    libpq-dev \
-    gcc \
-    libc-dev \
-    gcc \
-    g++ \
-    make \
-    libffi-dev \
-    python3-dev \
-    build-essential && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git libpq-dev gcc libc-dev gcc g++ make libffi-dev python3-dev build-essential && \
     apt-get clean
 
 WORKDIR /app
 
-RUN git clone -b feat/script-construction https://github.com/Decide-chiquito/decide-part-chiquito.git . && \
+RUN git clone https://github.com/Decide-chiquito/decide-part-chiquito.git . && \
     pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app/decide
