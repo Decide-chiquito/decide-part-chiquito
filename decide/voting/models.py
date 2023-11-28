@@ -63,7 +63,6 @@ class Voting(models.Model):
         verbose_name=_("Voting")
 
     def create_pubkey(self):
-        print("=== CREATE PUBKEY ===")
         if self.pub_key or not self.auths.count():
             return
 
@@ -85,8 +84,6 @@ class Voting(models.Model):
         for question in self.questions.all():
 
             question_votes = mods.get('store', params={'voting_id': self.id, 'question_id': question.id}, HTTP_AUTHORIZATION='Token ' + token)
-            print("=== question_votes ===")
-            print(question_votes)
             votes_format = []
             votes_list = []
 
@@ -139,23 +136,18 @@ class Voting(models.Model):
         self.do_postproc()
 
     def do_postproc(self):
-        print("=== POSTPROC ===")
 
         if isinstance(self.tally, dict):
-            print("=== POSTPROC 1 ===")
             postproc_results = []
-            print(self.tally.items())
+
             for question_id, question_tally in self.tally.items():
-                print("=== POSTPROC 2 ===")
-                print(question_id)
-                print(question_tally)
+
                 # Obtener las opciones para la pregunta actual
                 question = Question.objects.get(id=question_id)
                 options = question.options.all()
                 opts = []
-                print("=== POSTPROC 3 ===")
+
                 for opt in options:
-                    print("=== POSTPROC 4 ===")
                     # Contar los votos para cada opción según el tipo de votación
                     if self.type == 'IDENTITY':
                         votes = question_tally.count(opt.number)
@@ -171,8 +163,7 @@ class Voting(models.Model):
                         'number': opt.number,
                         'votes': votes
                     })
-                print(opts)
-                print("=== POSTPROC 5 ===")
+
                 # Realizar el post-procesamiento para esta pregunta
                 data = {'type': self.type, 'options': opts, 'seats': self.seats}
                 postp = mods.post('postproc', json=data)
