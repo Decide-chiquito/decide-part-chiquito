@@ -37,7 +37,7 @@ def query(modname, entry_point='/', method='get', baseurl=None, **kwargs):
 
     q = getattr(requests, method)
     url = '{}/{}{}'.format(mod, modname, entry_point)
-
+    
     headers = {}
     if 'HTTP_AUTHORIZATION' in kwargs:
         headers['Authorization'] = kwargs['HTTP_AUTHORIZATION']
@@ -47,8 +47,11 @@ def query(modname, entry_point='/', method='get', baseurl=None, **kwargs):
         url += '?{}'.format(urllib.parse.urlencode(params))
 
     if method == 'get':
+        print("tomate")
+        print("url: ", url)
         response = q(url, headers=headers)
     else:
+
         json_data = kwargs.get('json', {})
         response = q(url, json=json_data, headers=headers)
 

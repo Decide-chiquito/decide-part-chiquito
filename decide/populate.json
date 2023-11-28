@@ -181,6 +181,14 @@
         }
     },
     {
+        "model": "census.census",
+        "pk": 6,
+        "fields": {
+            "voting_id": 2,
+            "voter_id": 1
+        }
+    },
+    {
         "model": "mixnet.mixnet",
         "pk": 1,
         "fields": {
@@ -212,6 +220,7 @@
         "fields": {
             "voting_id": 1,
             "voter_id": 1,
+            "question_id": 1,
             "a": 63609216536759901883541894431562835922923548875978047046133664201965024234070,
             "b": 21967688903940695487820355618666519880558108913678774267402000410057120920087,
             "voted": "2022-12-05T16:53:49.831Z"
@@ -223,20 +232,10 @@
         "fields": {
             "voting_id": 1,
             "voter_id": 2,
+            "question_id": 1,
             "a": 87888882234667164738578069131969758903291075080869139979741816145660285281368,
             "b": 73472716662728168145894394350551157571572661852473137154656883892758069415177,
             "voted": "2022-12-05T16:54:25.288Z"
-        }
-    },
-    {
-        "model": "store.vote",
-        "pk": 3,
-        "fields": {
-            "voting_id": 2,
-            "voter_id": 3,
-            "a": 69088252336401053993390820381906007104975250233782275241220593284696983602419,
-            "b": 52716768155559180121306184431860940242828081210732825604528334680523087589244,
-            "voted": "2022-12-05T17:41:20.811Z"
         }
     },
     {
@@ -244,6 +243,20 @@
         "pk": 1,
         "fields": {
             "desc": "¿Es esto una votación correcta?"
+        }
+    },
+    {
+        "model": "voting.question",
+        "pk": 1,
+        "fields": {
+            "desc": "¿Es esto una votación correcta?"
+        }
+    },
+    {
+        "model": "voting.question",
+        "pk": 2,
+        "fields": {
+            "desc": "¿Es esto una votación correcta? 2"
         }
     },
     {
@@ -265,12 +278,30 @@
         }
     },
     {
+        "model": "voting.questionoption",
+        "pk": 3,
+        "fields": {
+            "question": 2,
+            "number": 1,
+            "option": "Sí 2"
+        }
+    },
+    {
+        "model": "voting.questionoption",
+        "pk": 4,
+        "fields": {
+            "question": 2,
+            "number": 2,
+            "option": "No 2"
+        }
+    },
+    {
         "model": "voting.voting",
         "pk": 1,
         "fields": {
             "name": "Votación cerrada",
             "desc": "Esta es la descripción de la votación cerrada",
-            "question": 1,
+            "questions": [1],
             "start_date": "2022-12-05T16:50:39.644Z",
             "end_date": "2022-12-05T16:54:59.111Z",
             "pub_key": 3,
@@ -303,7 +334,7 @@
         "fields": {
             "name": "Votación abierta",
             "desc": "Esta es la descripción de una votación abierta",
-            "question": 1,
+            "questions": [1,2],
             "start_date": "2022-12-05T17:38:31.014Z",
             "end_date": null,
             "pub_key": 6,
@@ -320,7 +351,7 @@
         "fields": {
             "name": "Votación creada",
             "desc": "Esta es la descripción de una votación creada (no abierta)",
-            "question": 1,
+            "questions": [1],
             "start_date": null,
             "end_date": null,
             "pub_key": null,
