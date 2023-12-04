@@ -1,4 +1,10 @@
 from django import forms
+from django.contrib.auth.models import User
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+import json
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.x509 import load_pem_x509_certificate, NameOID
 
 class EmailForm(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'usuario@dominio.com'}))
@@ -38,3 +44,38 @@ class PasswordForm(forms.Form):
         return cleaned_data
 
 
+
+class CertificateLoginForm(forms.Form):
+    cert_file = forms.FileField(label='Certificate File', required=True)
+    cert_password = forms.CharField(label='Certificate Password', widget=forms.PasswordInput, required=True)
+
+    def get_or_create_user(self):
+        try:
+            if not self.is_valid():
+                print("Formulario no válido")
+                return None
+
+            cert_content = self.cleaned_data['cert_file'].read()
+            cert_password = self.cleaned_data['cert_password']
+
+            private_key, cert, additional_certs = pkcs12.load_key_and_certificates(cert_content, cert_password.encode('utf-8'), backend=default_backend())
+
+            cert_json = {
+                'subject': cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value,
+            }
+
+            print(json.dumps(cert_json, indent=2))
+
+            if '-' in cert_json['subject']:
+                subject_name = cert_json['subject'].split('-')[0].strip()
+            else:
+                subject_name = cert_json['subject'].strip()
+
+            user, created = User.objects.get_or_create(username=subject_name)
+
+            return user
+
+        except Exception as e:
+            print(f"Error loading PKCS#12 file: {e}")
+
+        return None
