@@ -44,15 +44,14 @@
             </div>
             <h2 class="results-text">Resultados de la votación:</h2>
             <div>
-                <h3 v-if="voting.type == 'DHONDT' || voting.type == 'WEBSTER'" class="seats-text">- Escaños: [[voting.seats]] -</h3>
+                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="seats-text">- Escaños: [[voting.seats]] -</h3>
 
                 <div class="mobile-table">
                     <div v-for="opt in voting.postproc" :key="opt.number" class="mobile-table-row">
                       <div class="option-text">[[opt.option]]</div>
-                      <div v-if="voting.type != 'DHONDT' && voting.type != 'WEBSTER'" class="table-text">Puntuación: [[opt.postproc]]</div>
+                      <div v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'" class="table-text">Puntuación: [[opt.postproc]]</div>
                       <div class="table-text-muted">Votos: [[opt.votes]]</div>
-                      <div v-if="voting.type == 'DHONDT'" class="table-text">Escaños: [[opt.dhondt]]</div>
-                      <div v-if="voting.type == 'WEBSTER'" class="table-text">Escaños: [[opt.webster]]</div>
+                      <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="table-text">Escaños: [[opt.deputies]]</div>
                     </div>
                   </div>
             </div>
