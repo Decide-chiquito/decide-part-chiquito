@@ -48,7 +48,7 @@ class ListActiveBoothTests(TestCase):
         q = Question(desc='test question1')
         q.save()
         voting = Voting.objects.create(id=1,name="vting1",desc="desc1",question=q,start_date=timezone.now(), end_date=datetime.now() - timedelta(days=1),
-                                       type='IDENTITY',seats=10)
+                                       method='IDENTITY',seats=10)
         Census.objects.create(voter_id=self.user.id, voting_id=voting.id)
         self.client.force_login(self.user)
         response = self.client.get(self.list_booth_url)
@@ -58,7 +58,7 @@ class ListActiveBoothTests(TestCase):
         q = Question(desc='test question2')
         q.save()
         voting = Voting.objects.create(id=2,name="vting2",desc="desc1",question=q,start_date=timezone.now(), end_date=None,
-                                       type='IDENTITY',seats=10)
+                                       method='IDENTITY',seats=10)
         Census.objects.create(voter_id=self.user.id, voting_id=voting.id)
         self.client.force_login(self.user)
         response = self.client.get(self.list_booth_url)
