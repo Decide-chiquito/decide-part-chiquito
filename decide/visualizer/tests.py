@@ -49,4 +49,36 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.assertTrue(vState, "Resultados")
         vState= self.driver.find_element(By.ID,"container2").text
         self.assertTrue(vState)
-        
+    
+    def test_dhondt_voting_visualizer(self):
+        q = Question(desc='test question')
+        q.save()
+        data = [
+            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
+            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
+        ]
+        v = Voting(name='test voting', question=q, method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+        v.save()
+        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        vState= self.driver.find_element(By.TAG_NAME,"h2").text
+        self.assertTrue(vState, "Resultados")
+        vState= self.driver.find_element(By.ID,"container2").text
+        self.assertTrue(vState)
+
+    def test_webster_voting_visualizer(self):
+        q = Question(desc='test question')
+        q.save()
+        data = [
+            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
+            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
+        ]
+        v = Voting(name='test voting', question=q, method='WEBSTER',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+        v.save()
+        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        vState= self.driver.find_element(By.TAG_NAME,"h2").text
+        self.assertTrue(vState, "Resultados")
+        vState= self.driver.find_element(By.ID,"container2").text
+        self.assertTrue(vState)
+
+    
+
