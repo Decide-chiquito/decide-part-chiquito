@@ -88,12 +88,22 @@ def copy_census_to_another_voting(self, request, queryset):
                 elif(len(census1)>len(census2)):
                     census_to_copy = Census.objects.filter(voting_id=voting1.id)
                     for census_entry in census_to_copy:
-                        Census.objects.create(voting_id=voting2.id, voter_id=census_entry.voter_id)
+                        new_census = Census.objects.create(
+                            voting_id=voting2.id,
+                            voter_id=census_entry.voter_id,
+                            adscription_center=census_entry.adscription_center)
+                        new_census.tags.set(census_entry.tags.all())
+                    new_census.save()
                     self.message_user(request, _("census successfully copied from {} to {}.").format(voting1.name, voting2.name), level=messages.SUCCESS)
                 else:
                     census_to_copy = Census.objects.filter(voting_id=voting2.id)
                     for census_entry in census_to_copy:
-                        Census.objects.create(voting_id=voting1.id, voter_id=census_entry.voter_id)
+                        new_census = Census.objects.create(
+                            voting_id=voting1.id,
+                            voter_id=census_entry.voter_id,
+                            adscription_center=census_entry.adscription_center)
+                        new_census.tags.set(census_entry.tags.all())
+                        new_census.save()
                     self.message_user(request, _("census successfully copied from {} to {}.").format(voting2.name, voting1.name), level=messages.SUCCESS)
             except Exception as e:
                 self.message_user(request, _("Errorr in copying the census: {}").format(str(e)), level=messages.ERROR)
