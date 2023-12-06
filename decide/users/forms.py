@@ -55,7 +55,7 @@ class CertificateLoginForm(forms.Form):
             cert_content = self.cleaned_data['cert_file'].read()
             cert_password = self.cleaned_data['cert_password']
 
-            _, cert, additional_certs = pkcs12.load_key_and_certificates(cert_content, cert_password.encode('utf-8'), backend=default_backend())
+            _, cert, _ = pkcs12.load_key_and_certificates(cert_content, cert_password.encode('utf-8'), backend=default_backend())
 
             cert_json = {
                 'subject': cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value,
