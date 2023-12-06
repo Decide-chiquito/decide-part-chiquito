@@ -1,10 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
-from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-import json
 from cryptography.hazmat.primitives.serialization import pkcs12
-from cryptography.x509 import load_pem_x509_certificate, NameOID
+from cryptography.x509 import NameOID
 
 class EmailForm(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'usuario@dominio.com'}))
@@ -57,7 +55,7 @@ class CertificateLoginForm(forms.Form):
             cert_content = self.cleaned_data['cert_file'].read()
             cert_password = self.cleaned_data['cert_password']
 
-            private_key, cert, additional_certs = pkcs12.load_key_and_certificates(cert_content, cert_password.encode('utf-8'), backend=default_backend())
+            _, cert, additional_certs = pkcs12.load_key_and_certificates(cert_content, cert_password.encode('utf-8'), backend=default_backend())
 
             cert_json = {
                 'subject': cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value,
@@ -69,11 +67,11 @@ class CertificateLoginForm(forms.Form):
             else:
                 subject_name = cert_json['subject'].strip()
 
-            user, created = User.objects.get_or_create(username=subject_name)
+            user, _ = User.objects.get_or_create(username=subject_name)
 
             return user
 
-        except Exception as e:
+        except Exception:
             return None
 
 
