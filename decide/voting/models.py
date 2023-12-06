@@ -48,13 +48,13 @@ class Voting(models.Model):
     tally = JSONField(blank=True, null=True,verbose_name=_("tally"))
     postproc = JSONField(blank=True, null=True)
 
-    VOTE_TYPES = (
+    VOTE_METHODS = (
         ('IDENTITY','Identity'),
         ('DHONDT',"D'Hondt"),
         ('WEBSTER',"Webster"),
     )
 
-    type = models.CharField(max_length=8,choices=VOTE_TYPES,default='IDENTITY',verbose_name=_("type"))
+    method = models.CharField(max_length=8,choices=VOTE_METHODS,default='IDENTITY',verbose_name=_("method"))
 
     seats = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("seats"))
     
@@ -130,11 +130,11 @@ class Voting(models.Model):
             options = self.question.options.all()
             opts = []
             for opt in options:
-                if self.type == 'IDENTITY':
+                if self.method == 'IDENTITY':
                     votes = tally.count(opt.number)
-                elif self.type == 'DHONDT':
+                elif self.method == 'DHONDT':
                     votes = tally.count(opt.number)
-                elif self.type == 'WEBSTER':
+                elif self.method == 'WEBSTER':
                     votes = tally.count(opt.number)    
                 else:
                     votes = 0
@@ -143,7 +143,7 @@ class Voting(models.Model):
                     'number': opt.number,
                     'votes': votes
                 })
-            data = { 'type': self.type, 'options': opts, 'seats': self.seats }
+            data = { 'method': self.method, 'options': opts, 'seats': self.seats }
             postp = mods.post('postproc', json=data)
             self.postproc = postp
             self.save()
