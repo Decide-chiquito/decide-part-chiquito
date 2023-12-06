@@ -52,7 +52,6 @@ class CertificateLoginForm(forms.Form):
     def get_or_create_user(self):
         try:
             if not self.is_valid():
-                print("Formulario no válido")
                 return None
 
             cert_content = self.cleaned_data['cert_file'].read()
@@ -64,7 +63,6 @@ class CertificateLoginForm(forms.Form):
                 'subject': cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value,
             }
 
-            print(json.dumps(cert_json, indent=2))
 
             if '-' in cert_json['subject']:
                 subject_name = cert_json['subject'].split('-')[0].strip()
@@ -76,6 +74,6 @@ class CertificateLoginForm(forms.Form):
             return user
 
         except Exception as e:
-            print(f"Error loading PKCS#12 file: {e}")
+            return None
 
-        return None
+
