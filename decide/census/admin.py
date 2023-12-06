@@ -18,6 +18,12 @@ class CensusAdmin(admin.ModelAdmin):
     search_fields = ('voter_id', 'adscription_center')
     autocomplete_fields = ['tags']
 
+    def save_model(self, request, obj, form, change):
+        try:
+            obj.save()
+        except Exception as e:
+            self.message_user(request, f"Error: {str(e)}", level='ERROR')
+
     def display_tags(self, obj):
         return ", ".join([tag.name for tag in obj.tags.all()])
     display_tags.short_description = 'Tags'
