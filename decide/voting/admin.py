@@ -180,8 +180,6 @@ class VotingAdmin(ModelAdmin):
                     except (ValueError, IntegrityError):
                         # Manejar errores de valores incorrectos o integridad
                         pass
-                    except Exception as e:
-                        self.message_user(request, f"Error: {str(e)}", level='ERROR')
 
             return redirect('/admin/census/census/')
 

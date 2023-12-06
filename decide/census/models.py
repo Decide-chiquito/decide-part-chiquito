@@ -35,7 +35,7 @@ class Census(models.Model):
                 email = EmailMessage(subject, message, to=[mailTo])
                 reponse = email.send()
             except User.DoesNotExist:
-                raise Exception(f"El usuario con ID {voter_id} no existe en la base de datos, así que no se le mandará un emal")
+                pass
             except Voting.DoesNotExist:
                 message = f"Ha sido añadido a un nuevo censo. Podrá votar por la votación con id: {voting_id} cuando se habra la votación"
                 email = EmailMessage(subject, message, to=[mailTo])
