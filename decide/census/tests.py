@@ -106,7 +106,7 @@ class CensusTestCase(BaseTestCase):
 
         response = admin_instance.upload_csv(request)
 
-        self.assertEqual(response.status_code, 302) 
+        self.assertEqual(response.status_code, 302)
 
         census1 = Census.objects.get(voting_id=1, voter_id=2)
         self.assertEqual(census1.voting_id, 1)
