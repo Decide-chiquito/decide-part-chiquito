@@ -16,7 +16,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.forms import EmailForm, PasswordForm
-
 from decide import settings
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -169,6 +168,7 @@ class CertLoginView(APIView):
                 user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
                 login(request, user)
                 return render(request, 'registration/cert_success.html', {'user': user})
+            else:
+                return render(request, 'registration/cert_fail.html')
 
-        return render(request, self.template_name, {'cert_form': cert_form})
-
+        return render(request, 'registration/cert_fail.html')
