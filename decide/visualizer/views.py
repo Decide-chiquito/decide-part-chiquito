@@ -27,6 +27,7 @@ class VisualizerView(TemplateView):
         try:
             r = mods.get('voting', params={'id': vid})
             context['voting'] = json.dumps(r[0])
+            context['is_mobile'] = self.request.user_agent.is_mobile
         except:
             raise Http404
 
