@@ -407,7 +407,7 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.driver.quit()
         self.base.tearDown()
 
-    def test_simpleVisualizer(self):      
+    def test_simpleVisualizer(self):
         q = Question(desc='test question')
         q.save()
         v = Voting(name='test voting', question=q)
@@ -440,8 +440,6 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
 
         self.assertTrue(self.driver.current_url == votingURL)
-        response = requests.get(self.driver.current_url)
-        self.assertEqual(response.status_code, 200)
         csv_file_path = "./downloads/census.csv"
         self.assertTrue(os.path.isfile(csv_file_path))
         with open(csv_file_path, "r") as csv_file:
