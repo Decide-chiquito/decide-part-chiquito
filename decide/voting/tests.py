@@ -1,10 +1,14 @@
 import random
 import itertools
+import csv
+import time
+import os
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase
+import requests
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
@@ -13,10 +17,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 from base import mods
 from base.tests import BaseTestCase
 from census.models import Census
+from voting.admin import VotingAdmin
 from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
@@ -196,6 +202,7 @@ class VotingTestCase(BaseTestCase):
 
     def test_update_voting(self):
         voting = self.create_voting()
+        
 
         data = {'action': 'start'}
         #response = self.client.post('/voting/{}/'.format(voting.pk), data, format='json')
@@ -297,13 +304,13 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.json()['name'], "Updated")
 
 
-
 class LogInSuccessTests(StaticLiveServerTestCase):
 
     def setUp(self):
         #Load base test functionality for decide
         self.base = BaseTestCase()
         self.base.setUp()
+        print("LOGIN")
 
         options = webdriver.ChromeOptions()
         options.headless = True
@@ -340,7 +347,6 @@ class LogInErrorTests(StaticLiveServerTestCase):
         options = webdriver.ChromeOptions()
         options.headless = True
         self.driver = webdriver.Chrome(options=options)
-
         super().setUp()
 
     def tearDown(self):
@@ -376,6 +382,76 @@ class LogInErrorTests(StaticLiveServerTestCase):
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
         self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text == 'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
+
+class VisualizerTestCase(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        user = User(username='admintest', is_staff=True)
+        user.is_superuser = True
+        user.set_password('qwerty')
+        user.save()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        options.add_experimental_option("prefs", {
+            "download.default_directory": "./downloads/",
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True
+        })
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_simpleVisualizer(self):      
+        q = Question(desc='test question')
+        q.save()
+        v = Voting(name='test voting', question=q)
+        v.save()
+ 
+        votingURL = f'{self.live_server_url}/admin/voting/voting/'
+        self.driver.get(votingURL)
+        self.driver.find_element(By.ID, "id_username").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+
+        self.assertTrue(self.driver.current_url == votingURL)
+
+        self.driver.set_window_size(1850, 1053)
+        self.driver.find_element(By.ID, "action-toggle").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Export to csv']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
+
+        self.assertTrue(self.driver.current_url == votingURL)
+        response = requests.get(self.driver.current_url)
+        self.assertEqual(response.status_code, 200)
+        csv_file_path = "./downloads/census.csv"
+        self.assertTrue(os.path.isfile(csv_file_path))
+        with open(csv_file_path, "r") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            header = next(csv_reader)
+            self.assertTrue("Voting:" in header)
+
 
 class QuestionsTests(StaticLiveServerTestCase):
 
