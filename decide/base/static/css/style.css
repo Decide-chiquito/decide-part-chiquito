@@ -63,7 +63,7 @@ p {
     position: relative;
     width: 90%;
     border-bottom: 1px solid black;
-    margin-top: 25px;
+    margin-top: 1.5em;
     margin-left: auto;
     margin-right: auto;
 }
@@ -75,7 +75,7 @@ p {
     text-transform: uppercase;
 }
 
-.card-container-mobile {
+.contents-mobile {
     position: relative;
     display: flex;
     flex-direction: column;
