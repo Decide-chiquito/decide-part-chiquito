@@ -27,7 +27,6 @@ class CensusTestCase(BaseTestCase):
         self.user = User.objects.create(id=50, email='test@test.com', username='test', password='test')
         self.user.save()
         question = Question.objects.create(desc="What is your question?")
-        option = QuestionOption.objects.create(question=question, option="Option 1")
         self.voting = Voting.objects.create(
             id=100,
             name="Test Voting",
@@ -106,8 +105,23 @@ class CensusTestCase(BaseTestCase):
         voter = User.objects.get(pk=50)
         self.assertEqual(mail.outbox[0].to, [voter.email])
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, 'Nueva Votación Disponible')
-        self.assertEqual(mail.outbox[0].body, 'Ha sido añadido a un nuevo censo. Podrá votar por la votación con id: 1 cuando se abra la votación')
+        self.assertEqual(mail.outbox[0].subject, 'New voting available')
+        self.assertEqual(mail.outbox[0].body, 'You have been added to a new census. You could vote in the voting with id: 1 when the voting is open.')
+
+    def test_send_without_email(self):
+        data = {'voting_id': 2, 'voters': [1,2,3,4]}
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 401)
+
+        self.login(user='noadmin')
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 403)
+
+        self.login()
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(data.get('voters')), Census.objects.count() - 1)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_send_email_on_census_creation_with_voting(self):
         data = {'voting_id': 100, 'voters': [50]}
@@ -120,8 +134,8 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual(voting.name, 'Test Voting')
         self.assertEqual(mail.outbox[0].to, [voter.email])
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, 'Nueva Votación Disponible')
-        self.assertEqual(mail.outbox[0].body, 'Ha sido añadido a un nuevo censo para la votación Test Voting. Podrá votar por la votación con id: 100 cuando se abra la votación')
+        self.assertEqual(mail.outbox[0].subject, 'New voting available')
+        self.assertEqual(mail.outbox[0].body, 'You have been added to a new census called Test Voting. You could vote in the voting with id: 100 when the voting is open.')
 
 
     def test_destroy_voter(self):
