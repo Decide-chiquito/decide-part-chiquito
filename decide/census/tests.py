@@ -1,6 +1,6 @@
 import random
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from rest_framework.test import APIClient
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
@@ -13,10 +13,9 @@ from selenium.webdriver.common.keys import Keys
 
 from .models import Census, Voting
 from datetime import datetime, timedelta
-from voting.models import Question, QuestionOption
+from voting.models import Question
 from base import mods
 from base.tests import BaseTestCase
-from datetime import datetime
 
 
 class CensusTestCase(BaseTestCase):
