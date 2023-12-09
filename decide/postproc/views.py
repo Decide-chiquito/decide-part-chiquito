@@ -25,20 +25,20 @@ class PostProcView(APIView):
                 'number': x['number'],
                 'votes': x['votes'],
                 'modified_votes': x['votes'],
-                'dhondt': 0
+                'deputies': 0
             }
             res.append(opt_res)
 
         for i in range(0,seats):
             biggest_modified_votes = max(res,key=lambda x:x['modified_votes'])
             index = res.index(biggest_modified_votes)
-            biggest_modified_votes['dhondt'] +=1
-            biggest_modified_votes['modified_votes'] = biggest_modified_votes['votes']/(biggest_modified_votes['dhondt']+1)
+            biggest_modified_votes['deputies'] +=1
+            biggest_modified_votes['modified_votes'] = biggest_modified_votes['votes']/(biggest_modified_votes['deputies']+1)
             del res[index]
             res.append(biggest_modified_votes)
         for a in res:
             del a['modified_votes']
-        res.sort(key=lambda x: -x['dhondt'])
+        res.sort(key=lambda x: -x['deputies'])
         return Response(res)
 
     def webster(self, options):
@@ -51,25 +51,25 @@ class PostProcView(APIView):
                 'number': x['number'],
                 'votes': x['votes'],
                 'modified_votes': x['votes'],
-                'webster': 0
+                'deputies': 0
             }
             res.append(opt_res)
 
         for i in range(0, seats):
-            highest_quotient_party = max(res, key=lambda x: x['votes'] / (2 * x['webster'] + 1))
+            highest_quotient_party = max(res, key=lambda x: x['votes'] / (2 * x['deputies'] + 1))
             index = res.index(highest_quotient_party)
-            highest_quotient_party['webster'] += 1
-            highest_quotient_party['modified_votes'] = highest_quotient_party['votes'] / (2 * highest_quotient_party['webster'] + 1)
+            highest_quotient_party['deputies'] += 1
+            highest_quotient_party['modified_votes'] = highest_quotient_party['votes'] / (2 * highest_quotient_party['deputies'] + 1)
             del res[index]
             res.append(highest_quotient_party)
         for a in res:
             del a['modified_votes']
-        res.sort(key=lambda x: -x['webster'])
+        res.sort(key=lambda x: -x['deputies'])
         return Response(res)
 
     def post(self, request):
         """
-         * type: IDENTITY | EQUALITY | WEIGHT
+         * method: IDENTITY | EQUALITY | WEIGHT
          * options: [
             {
              option: str,
@@ -79,13 +79,13 @@ class PostProcView(APIView):
             }
            ]
         """
-        t = request.data.get('type')
+        m = request.data.get('method')
         opts = request.data.get('options', [])
-        if t == 'IDENTITY':
+        if m == 'IDENTITY':
             return self.identity(opts)
-        elif t == 'DHONDT':
+        elif m == 'DHONDT':
             return self.dhondt(opts)
-        elif t == 'WEBSTER':
+        elif m == 'WEBSTER':
             return self.webster(opts)
 
         return Response({})

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Inicio de Sesión exitoso</h2>
+    <p>Redirigiendo a la página principal</p>
+    <script>
+        setTimeout(function() {
+            window.location.href = "{% url 'index' %}";
+        }, 2000);  <!-- Redirect after 2 seconds -->
+    </script>
+{% endblock %}

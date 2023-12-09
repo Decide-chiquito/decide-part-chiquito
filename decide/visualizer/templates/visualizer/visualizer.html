@@ -26,40 +26,37 @@
               <div v-for="question in voting.questions" :key="question.id">
                 <h2 class="heading">Resultados de la pregunta: [[ question.desc ]]</h2>
 
-                <h3 v-if="voting.type == 'DHONDT' || voting.type == 'WEBSTER'">Escaños: [[voting.seats]] </h3>
+                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños: [[voting.seats]] </h3>
 
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Opción</th>
-                            <th v-if="voting.type != 'DHONDT' && voting.type != 'WEBSTER'">Puntuación</th>
+                            <th v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">Puntuación</th>
                             <th>Votos</th>
-                            <th v-if="voting.type == 'DHONDT' || voting.type == 'WEBSTER'">Escaños</th>
+                            <th v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="opt in findPostprocData(question.id)" :key="opt.number">
                             <th>[[opt.option]]</th>
-                            <td v-if="voting.type != 'DHONDT' && voting.type != 'WEBSTER'">[[opt.postproc]]</td>
+                            <td v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">[[opt.postproc]]</td>
                             <td class="text-muted">[[opt.votes]]</td>
-                            <td v-if="voting.type == 'DHONDT'">[[opt.dhondt]]</td>
-                            <td v-if="voting.type == 'WEBSTER'">[[opt.webster]]</td>
+                            <td v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">[[opt.deputies]]</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div :id="'container-' + question.id"></div>
+                <div id="'container-' + question.id"></div>
+
+                <div v-if="voting.method == 'IDENTITY'" >
+                  <div id="'container-' + question.id"></div>
+                </div>
+                <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
+                  <div id="'container2-' + question.id"></div>
+                </div>
 
               </div>
-            </div>
-            <div v-if="voting.type == 'IDENTITY'" >
-                <div id="container"></div>
-            </div>
-            <div v-if="voting.type == 'DHONDT'">
-                <div id="container2"></div>
-            </div>
-            <div v-if="voting.type == 'WEBSTER'">
-                <div id="container3"></div>
             </div>
         </div>
         
@@ -111,9 +108,9 @@
   
                 const chartData = questionData.postproc.map(opt => ({
                     name: opt.option,
-                    y: opt.dhondt ? Number(opt.dhondt) : 0,  
+                    y: opt.deputies ? Number(opt.deputies) : 0,
                   }));
-                Highcharts.chart('container-' + question.id, {
+                Highcharts.chart('container2-' + question.id, {
                     chart: {
                       plotBackgroundColor: null,
                       plotBorderWidth: 0,
@@ -159,68 +156,6 @@
               });
             }
         </component>
-        <component :is="'script'">
-            var voting = {{voting|safe}};
-
-            if voting.type == 'WEBSTER' {
-              voting.questions.forEach(question => {
-                const questionData = voting.postproc.find(item => item.question_id === question.id);
-                console.log(questionData.postproc.map(opt => ({
-                    name: opt.option,
-                    y: opt.webster ? Number(opt.webster) : 0,
-                  })));
-                const chartData2 = questionData.postproc.map(opt => ({
-                    name: opt.option,
-                    y: opt.webster ? Number(opt.webster) : 0,
-                  }));
-                Highcharts.chart('container-' + question.id, {
-                    chart: {
-                      plotBackgroundColor: null,
-                      plotBorderWidth: 0,
-                      plotShadow: false
-                    },
-                    title: {
-                      text: 'Reparto de escaños de webster',
-                      align: 'center',
-                      verticalAlign: 'middle',
-                      y: -120
-                    },
-                    tooltip: {
-                      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-                    },
-                    accessibility: {
-                      point: {
-                        valueSuffix: '%'
-                      }
-                    },
-                    plotOptions: {
-                      pie: {
-                        dataLabels: {
-                          enabled: true,
-                          distance: -50,
-                          style: {
-                            fontWeight: 'bold',
-                            color: 'white'
-                          }
-                        },
-                        startAngle: -90,
-                        endAngle: 90,
-                        center: ['50%', '75%'],
-                        size: '110%'
-                      }
-                    },
-                    series: [{
-                      type: 'pie',
-                      name: 'Reparto de escaños de webster',
-                      innerSize: '50%',
-                      data: chartData2,
-                    }]
-                  })
-              });
-            }
-        </component>
-
-
         <div class="center">
             <button class="btn btn-primary mt-3" v-on:click="comeBack">
                 {% trans "Volver" %}
