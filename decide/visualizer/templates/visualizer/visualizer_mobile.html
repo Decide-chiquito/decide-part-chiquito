@@ -2,11 +2,10 @@
 {% load i18n static %}
 
 {% block extrahead %}
-    <link type="text/css" rel="stylesheet"
-         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="{% static "visualizer/style.css" %}" />
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href='{% static "visualizer/style.css" %}' />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="{% static "visualizer/modal.js" %}"></script>
+    <script src='{% static "visualizer/modal.js" %}'></script>
 {% endblock %}
 
 {% block content %}
