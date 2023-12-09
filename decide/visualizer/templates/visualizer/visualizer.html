@@ -46,14 +46,11 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <div id="'container-' + question.id"></div>
-
                 <div v-if="voting.method == 'IDENTITY'" >
-                  <div id="'container-' + question.id"></div>
+                  <div :id="'container-' + question.id"></div>
                 </div>
                 <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
-                  <div id="'container2-' + question.id"></div>
+                  <div :id="'container2-' + question.id"></div>
                 </div>
 
               </div>
