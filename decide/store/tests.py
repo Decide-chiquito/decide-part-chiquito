@@ -20,10 +20,11 @@ class StoreTextCase(BaseTestCase):
         self.question.save()
         self.voting = Voting(pk=5001,
                              name='voting example',
-                             question=self.question,
                              start_date=timezone.now(),
         )
         self.voting.save()
+
+        self.voting.questions.add(self.question)
 
     def tearDown(self):
         super().tearDown()
