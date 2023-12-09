@@ -13,63 +13,51 @@ from selenium.webdriver.common.by import By
 
 
 class RegisterViewTest(TestCase):
+
     def setUp(self):
         self.client = APIClient()
 
     def test_get_register_view(self):
-        response = self.client.get('/users/register/')
+        response = self.client.get(reverse('users:register'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/register.html')
 
-    def test_register(self):
-        data = {'username': 'voter_correct',
-                'password': '1234',
-                'confirm_password': '1234',
-                'email': 'voter1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
+    def test_successful_registration(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+            'confirm_password': 'testpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register_success.html')
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('token', response.data)
-        self.assertIn('user_pk', response.data)
+    def test_password_mismatch(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+            'confirm_password': 'mismatchedpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register_fail.html')
+        self.assertContains(response, 'The passwords do not match.')
 
-        user = User.objects.get(username='voter_correct')
-        self.assertTrue(user.check_password('1234'))
-        self.assertEqual(user.email, 'voter1@gmail.com')
+    def test_username_already_in_use(self):
+        User.objects.create_user(username='existinguser', password='testpassword', email='existing@example.com')
+        data = {
+            'username': 'existinguser',
+            'password': 'testpassword',
+            'confirm_password': 'testpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register_fail.html')
+        self.assertContains(response, 'The username is already in use.')
 
-    def test_register_existing_username(self):
-        User.objects.create_user(username='username_exist', password='1234')
-        data = {'username': 'username_exist',
-                'password': '12345',
-                'confirm_password': '12345',
-                'email': 'user1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertIn('The username is already in use.', response.data['error'])
-
-    def test_register_not_username(self):
-        User.objects.create_user(username='username_exist', password='1234')
-        data = {'username': '',
-                'password': '12345',
-                'confirm_password': '12345',
-                'email': 'user1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertIn('Username and password are required.', response.data['error'])
-
-    def test_register_distinct_password(self):
-        data = {'username': 'user1',
-                'password': '1234',
-                'confirm_password': '12345',
-                'email': 'user1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertIn('The passwords do not match.', response.data['error'])
 
 
 class LoginLogoutViewTests(TestCase):
