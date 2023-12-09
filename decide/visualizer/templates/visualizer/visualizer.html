@@ -60,46 +60,50 @@
         <component :is="'script'">
             var voting = {{voting|safe}};
 
-            voting.questions.forEach(question => {
-              const questionData = voting.postproc.find(item => item.question_id === question.id);
-      
-              const data = questionData.postproc.map(x => [x.option, x.votes]);
+            if (voting.method != 'DHONDT') {
 
-              Highcharts.chart('container-' + question.id, {
-                  chart: {
-                      type: 'column'
-                  },
-                  title: {
-                      text: '[[ voting.name ]]',
-                  },
-                  subtitle: {
-                      text:""
-                  },
-                  xAxis: {
-                      categories: [...new Set(data.map(x => x[0]))]
-                  },
-                  yAxis: {
-                      allowDecimals: false,
-                      min: 0,
-                      title: {
-                          text: 'Votos'
-                      }
-                  },
-                  plotOptions: {
-                      column: {
-                          pointPadding: 0.2,
-                          borderWidth: 0
-                      },
-                  },
-                  series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
+              voting.questions.forEach(question => {
+                const questionData = voting.postproc.find(item => item.question_id === question.id);
+        
+                const data = questionData.postproc.map(x => [x.option, x.votes]);
+
+                Highcharts.chart('container-' + question.id, {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: '[[ voting.name ]]',
+                    },
+                    subtitle: {
+                        text:""
+                    },
+                    xAxis: {
+                        categories: [...new Set(data.map(x => x[0]))]
+                    },
+                    yAxis: {
+                        allowDecimals: false,
+                        min: 0,
+                        title: {
+                            text: 'Votos'
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        },
+                    },
+                    series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
+                });
               });
-            });
+            }
         </component>
 
         <component :is="'script'">
             var voting = {{voting|safe}};
 
-            if voting.type == 'DHONDT' {
+            if (voting.method == 'DHONDT') {
+              
               voting.questions.forEach(question => {
                 const questionData = voting.postproc.find(item => item.question_id === question.id);
   
@@ -153,6 +157,7 @@
               });
             }
         </component>
+        
         <div class="center">
             <button class="btn btn-primary mt-3" v-on:click="comeBack">
                 {% trans "Volver" %}
