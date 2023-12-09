@@ -311,16 +311,21 @@
             ],
             "postproc": [
                 {
-                    "votes": 2,
-                    "number": 1,
-                    "option": "Sí",
-                    "postproc": 2
-                },
-                {
-                    "votes": 0,
-                    "number": 2,
-                    "option": "No",
-                    "postproc": 0
+                    "postproc": [
+                        {
+                            "votes": 2,
+                            "number": 1,
+                            "option": "Sí",
+                            "postproc": 2
+                        },
+                        {
+                            "votes": 0,
+                            "number": 2,
+                            "option": "No",
+                            "postproc": 0
+                        }
+                    ],
+                    "question_id": 1
                 }
             ],
             "auths": [
