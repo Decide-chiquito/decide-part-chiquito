@@ -102,7 +102,7 @@
         <component :is="'script'">
             var voting = {{voting|safe}};
 
-            if (voting.method == 'DHONDT') {
+            if (voting.method == 'DHONDT' || voting.method == 'WEBSTER') {
               
               voting.questions.forEach(question => {
                 const questionData = voting.postproc.find(item => item.question_id === question.id);
