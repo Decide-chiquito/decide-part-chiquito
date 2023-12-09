@@ -16,14 +16,15 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.forms import EmailForm, PasswordForm
-
-
 from decide import settings
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import gettext as _
+from .forms import CertificateLoginForm
+from django.contrib.auth.backends import ModelBackend
+
 
 
 class RegisterView(APIView):
@@ -149,3 +150,25 @@ class ChangePassword(APIView):
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         return user
+
+
+class CertLoginView(APIView):
+    template_name = 'registration/cert_login.html'
+
+    def get(self, request, *args, **kwargs):
+        cert_form = CertificateLoginForm()
+        return render(request, self.template_name, {'cert_form': cert_form})
+
+    def post(self, request, *args, **kwargs):
+        cert_form = CertificateLoginForm(request.POST, request.FILES)
+        if cert_form.is_valid():
+            user = cert_form.get_or_create_user()
+            if user:
+                backend = ModelBackend()
+                user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
+                login(request, user)
+                return render(request, 'registration/cert_success.html', {'user': user})
+            else:
+                return render(request, 'registration/cert_fail.html')
+
+        return render(request, 'registration/cert_fail.html')

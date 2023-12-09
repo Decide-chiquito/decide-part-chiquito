@@ -11,7 +11,7 @@ import csv
 from django.http import HttpResponse
 from django.utils.translation import gettext as _
 
-from census.models import Census
+from census.models import Census, Tag
 #UPLOAD CSV
 from django.urls import path
 from django.shortcuts import redirect, render
@@ -56,16 +56,20 @@ def export_to_csv(ModelAdmin, request, queryset):
             voting_id = v.id
 
             writer = csv.writer(response)
-            writer.writerow(["Voting:", str(voting_name)])
-            writer.writerow(["Voting Id:", str(voting_id)])
+            writer.writerow(['votingID', 'voterID', 'center', 'tags...'])
             
             census = Census.objects.filter(voting_id=voting_id)
             if census:
                 for c in census:
                     voter_id = c.voter_id
-                    writer.writerow(["Voter Id:", voter_id])
+                    adscription_center = c.adscription_center
+                    tags = []
+                    for t in c.tags.all():
+                        tags.append(t.name)
+                    writer.writerow([str(voting_id), str(voter_id), str(adscription_center)]+ tags)
+                    
             else:
-                writer.writerow(["Voter Id:", "No Census yet"])
+                writer.writerow([str(voting_id), "No Census"])
             writer.writerow([])
             
         return response
@@ -88,12 +92,22 @@ def copy_census_to_another_voting(self, request, queryset):
                 elif(len(census1)>len(census2)):
                     census_to_copy = Census.objects.filter(voting_id=voting1.id)
                     for census_entry in census_to_copy:
-                        Census.objects.create(voting_id=voting2.id, voter_id=census_entry.voter_id)
+                        new_census = Census.objects.create(
+                            voting_id=voting2.id,
+                            voter_id=census_entry.voter_id,
+                            adscription_center=census_entry.adscription_center)
+                        new_census.tags.set(census_entry.tags.all())
+                    new_census.save()
                     self.message_user(request, _("census successfully copied from {} to {}.").format(voting1.name, voting2.name), level=messages.SUCCESS)
                 else:
                     census_to_copy = Census.objects.filter(voting_id=voting2.id)
                     for census_entry in census_to_copy:
-                        Census.objects.create(voting_id=voting1.id, voter_id=census_entry.voter_id)
+                        new_census = Census.objects.create(
+                            voting_id=voting1.id,
+                            voter_id=census_entry.voter_id,
+                            adscription_center=census_entry.adscription_center)
+                        new_census.tags.set(census_entry.tags.all())
+                        new_census.save()
                     self.message_user(request, _("census successfully copied from {} to {}.").format(voting2.name, voting1.name), level=messages.SUCCESS)
             except Exception as e:
                 self.message_user(request, _("Errorr in copying the census: {}").format(str(e)), level=messages.ERROR)
@@ -129,31 +143,44 @@ class VotingAdmin(ModelAdmin):
         return new_urls + urls
 
     def upload_csv(self, request):
-
         if request.method == "POST":
-            csv_file = request.FILES["csv_upload"]
-            
+            csv_file = request.FILES.get("csv_upload")
+
             if not csv_file.name.endswith('.csv'):
                 form = CsvImportForm()
-                data = {"form": form,
-                        "error": "El archivo no es un csv"}
+                data = {"form": form, "error": "El archivo no es un csv"}
                 return render(request, "csv_upload.html", data)
-            
-            file_data = csv_file.read().decode("utf-8")
-            csv_data = file_data.split("\n")
-            csv_data = csv_data[1:]
-            data = []
-            for census in csv_data:
-                census = census.split(";")
-                if len(census) == 2:
+
+            file_data = csv_file.read().decode("utf-8").split("\n")
+            file_data = file_data[1:]  # Omitir la primera fila si contiene encabezados
+
+            for line in file_data:
+                census_data = line.strip().split(",")  # Dividir los datos por coma
+
+                # Verificar si hay suficientes campos en la línea
+                if len(census_data) >= 4:
                     try:
-                        voting_id = int(census[0].strip().replace("\r",""))
-                        for voter in census[1].strip().replace("\r","").replace('"',"").split(","):
-                            census = Census(voting_id=voting_id, voter_id=voter)
-                            census.save()
-                    except IntegrityError:
+                        voting_id = int(census_data[0].strip())
+                        voter_id = int(census_data[1].strip())
+                        center = census_data[2].strip()
+                        tags = census_data[3:]
+
+                        census_object, created = Census.objects.get_or_create(
+                        voting_id=voting_id,
+                        voter_id=voter_id,
+                        adscription_center=center
+                        )
+
+                        for tag_name in tags:
+                            tag_name = tag_name.strip()
+                            tag_object, tag_created = Tag.objects.get_or_create(name=tag_name)
+                            census_object.tags.add(tag_object)
+
+                        census_object.save()
+                    except (ValueError, IntegrityError):
+                        # Manejar errores de valores incorrectos o integridad
                         pass
-            #Se han añadido X census
+
             return redirect('/admin/census/census/')
 
         form = CsvImportForm()

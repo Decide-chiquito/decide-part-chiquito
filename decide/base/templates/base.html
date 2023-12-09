@@ -6,16 +6,30 @@
         <meta charset="utf-8" />
         <title>{% block title %}Decide!{% endblock %}</title>
         <link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" />
-        <div class="title">
-            <header>
-                Decide
-            </header>
-            <div class="subtitle">
-                <p>
-                    Bienvenido a Decide, el sistema de votaciones online implimentado por el grupo decide-part-chiquito.
-                </p>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        {% if not is_mobile %}
+            <div class="title">
+                <header>
+                    Decide
+                </header>
+                <div class="subtitle">
+                    <p>
+                        Bienvenido a Decide, el sistema de votaciones online implementado por el grupo decide-part-chiquito.
+                    </p>
+                </div>
             </div>
-        </div>
+        {% else %}
+            <nav class="title-mobile">
+                {% if not is_welcome_page %}
+                    <div class="container-fluid-mobile">
+                        <button class="back-button-mobile" onclick="comeBack()"><i class="material-icons">arrow_back</i></button>
+                        <h1 class="navbar-brand-mobile">Decide</h1>
+                    </div>
+                {% else %}
+                    <h1 class="title-text-mobile">Decide</h1>
+                {% endif %}
+            </nav>
+        {% endif %}
         {% block extrahead %}
         {% endblock %}
     </head>
@@ -25,5 +39,14 @@
         {% endblock %}
 
         {% block extrabody %}{% endblock %}
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+        <script>
+            function comeBack() {
+                const baseUrl = `${window.location.protocol}//${window.location.host}`;
+                window.location.href = baseUrl;
+            }
+        </script>
     </body>
 </html>
+

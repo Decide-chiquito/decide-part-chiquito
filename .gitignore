@@ -101,7 +101,7 @@ ENV/
 .mypy_cache/
 
 .vagrant
-decide/census/migrations/0004_alter_census_options_alter_census_voter_id_and_more.py
-decide/mixnet/migrations/0005_alter_mixnet_voting_id.py
-decide/store/migrations/0004_alter_vote_options_alter_vote_voted_and_more.py
-decide/voting/migrations/0007_alter_question_options_alter_questionoption_options_and_more.py
+
+#Migrations
+**/migrations/*.py
+**/migrations/*.pyc
