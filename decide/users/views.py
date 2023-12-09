@@ -37,19 +37,13 @@ class RegisterView(APIView):
         confirm_password = request.data.get('confirm_password', '')
         email = request.data.get('email', '') 
 
-        if not username or not password or not confirm_password:
-            return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
-        
         if password != confirm_password:
-            return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return render(request, 'registration/register_fail.html', {'error': _('The passwords do not match.')})        
         try:
             user = User.objects.create_user(username, password=password, email=email)
-            token, created = Token.objects.get_or_create(user=user)
-            success_message = _('Successful registration. You are now registered.')
-            return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
+            return render(request, 'registration/register_success.html', {'message': _('Successful registration. You are now registered.')})        
         except IntegrityError:
-            return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'registration/register_fail.html', {'error': _('The username is already in use.')})        
 
 
 
