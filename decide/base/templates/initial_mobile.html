@@ -21,6 +21,12 @@
             window.location.href = url;
         }
     }
+
+    function importar() {
+        var url = "./admin/voting/voting/upload-csv/";
+
+        window.location.href = url;
+    }
 </script>
 {% endblock extrahead %}
 
@@ -70,6 +76,12 @@
         </div>
         <button class="button-mobile" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
     </div>
+
+    <div class="card-mobile">
+        <label for="census" class="label-mobile">census</label>
+        <button class="button-mobile" onclick="importar()">Importar</button>
+    </div>
+
 </div>
 
 <div class="subtitle-line-mobile"></div>

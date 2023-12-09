@@ -26,8 +26,16 @@ class VisualizerView(TemplateView):
 
         try:
             r = mods.get('voting', params={'id': vid})
-            context['voting'] = json.dumps(r[0])
+            voting = r[0]
+            
             context['is_mobile'] = self.request.user_agent.is_mobile
+
+            yesno = [{'number': 2, 'option': 'Yes'}, {'number': 1, 'option': 'No'}]
+            voting['question']['type'] = 'MULTIPLE'
+            if r[0]['question']['options'] == yesno:
+                voting['question']['type'] = 'YESNO'
+                voting['postproc'][0]['option'] = 'Sí' #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles, igual en el html de BOOTH
+            context['voting'] = json.dumps(voting)
         except:
             raise Http404
 

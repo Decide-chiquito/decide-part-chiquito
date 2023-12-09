@@ -53,9 +53,7 @@
 
     <div class="row">
         <label for="census" class="label">census</label>
-        <a href="./admin/voting/voting/upload-csv/">
-            <button class="button">Importar</button>
-        </a>
+        <button class="button" onclick="importar()">Importar</button>
     </div>
     
 </div>
@@ -90,6 +88,12 @@
             window.location.href = url;
             
         }
+    }
+
+    function importar() {
+        var url = "./admin/voting/voting/upload-csv/";
+
+        window.location.href = url;
     }
 </script>
 
