@@ -63,6 +63,26 @@ a.btn-mobile:link, a.btn-mobile:visited {
     margin-bottom: 1em;
 }
 
+.hidden-mobile {
+    display: none;
+}
+
+.file-name-mobile {
+    position: relative;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5em;
+}
+
+.error-mobile {
+    color: red;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
 @media (orientation: landscape) {
     .register-title-mobile {
         font-size: 50px;

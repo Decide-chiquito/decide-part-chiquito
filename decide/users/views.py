@@ -189,7 +189,10 @@ class CertLoginView(APIView):
 
     def get(self, request, *args, **kwargs):
         cert_form = CertificateLoginForm()
-        return render(request, self.template_name, {'cert_form': cert_form})
+        if request.user_agent.is_mobile:
+            return render(request, 'registration/cert_login_mobile.html', {'cert_form': cert_form, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, self.template_name, {'cert_form': cert_form})
 
     def post(self, request, *args, **kwargs):
         cert_form = CertificateLoginForm(request.POST, request.FILES)
@@ -199,8 +202,14 @@ class CertLoginView(APIView):
                 backend = ModelBackend()
                 user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
                 login(request, user)
-                return render(request, 'registration/cert_success.html', {'user': user})
+                if request.user_agent.is_mobile:
+                    return redirect('/')
+                else: 
+                    return render(request, 'registration/cert_success.html', {'user': user})
             else:
-                return render(request, 'registration/cert_fail.html')
+                if request.user_agent.is_mobile:
+                    return render(request, 'registration/cert_login_mobile.html', {'is_mobile': request.user_agent.is_mobile, 'error': _('Credenciales inválidas')})
+                else:
+                    return render(request, 'registration/cert_fail.html')
 
         return render(request, 'registration/cert_fail.html')
