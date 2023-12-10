@@ -103,7 +103,14 @@ class RequestPasswordReset(APIView):
     def post(self, request):
         form = EmailForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(User, email=form.cleaned_data['email'])
+            try:
+                user = get_object_or_404(User, email=form.cleaned_data['email'])
+            except:
+                if request.user_agent.is_mobile:
+                    return render(request, 'registration/make_petition_form_mobile.html', {'is_mobile': request.user_agent.is_mobile, 'error': _('No existe un usuario con ese correo electrónico.')})
+                else:
+                    return Response({'error': _('There is no user with that email.')}, status=status.HTTP_400_BAD_REQUEST)
+                
 
             if self.validate_email(user.email):
                 # Generar el token único
@@ -131,7 +138,10 @@ class RequestPasswordReset(APIView):
 
     def get(self, request):
         form = EmailForm()
-        return render(request, 'registration/make_petition_form.html', {'form': form})
+        if request.user_agent.is_mobile:
+            return render(request, 'registration/make_petition_form_mobile.html', {'form': form, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, 'registration/make_petition_form.html', {'form': form})
 
     def validate_email(self, email):
         patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
