@@ -151,3 +151,18 @@ class Voting(models.Model):
 
     def __str__(self):
         return self.name
+
+class Ticket(models.Model):
+    title = models.CharField(max_length=64, blank=False, null=False)
+    description = models.CharField(max_length=1024, blank=False, null=False)
+    voting = models.ForeignKey(Voting, on_delete=models.CASCADE, blank=False, null=False)
+
+    class Meta:
+        verbose_name = "Ticket"
+        verbose_name_plural = "Tickets"
+        indexes = [
+            models.Index(fields=['voting'])
+        ]
+
+    def __str__(self):
+        return f"{self.voting.name} : {self.title}"
