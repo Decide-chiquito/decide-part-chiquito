@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div style="text-align: center; margin-top: 20vh;">
+        <h2>Failed register</h2>
+        <h2>{{ error }}</h2>
+        <p>Redirecting to the form...</p>
+        <script>
+            setTimeout(function() {
+                window.location.href = "{% url 'users:register' %}";
+            }, 3000);
+        </script>
+    </div>
+{% endblock %}
