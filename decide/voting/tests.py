@@ -22,6 +22,7 @@ from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
 from datetime import datetime
+from auditlog.models import LogEntry
 
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
@@ -442,3 +443,51 @@ class QuestionsTests(StaticLiveServerTestCase):
 
         self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[3]/div/div[1]/div/form/div/p').text == 'Please correct the errors below.')
         self.assertTrue(self.cleaner.current_url == self.live_server_url+"/admin/voting/question/add/")
+
+
+class AuditVotingModelTestCase(BaseTestCase):
+    def setUp(self):
+        q = Question(desc='Descripcion')
+        q.save()
+        
+        opt1 = QuestionOption(question=q, option='opcion 1')
+        opt1.save()
+        opt1 = QuestionOption(question=q, option='opcion 2')
+        opt1.save()
+
+        self.v = Voting(name='Votacion', question=q)
+        self.v.save()
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.v = None
+
+    def testQuestionEditAndAppearsOnHistory(self):
+        opt = QuestionOption.objects.get(option='opcion 1')
+        opt.option = "New opcion"
+        opt.save()
+        changes = opt.history.latest().changes_display_dict
+        self.assertEquals(len(changes), 1)
+        self.assertEquals(changes['option'], ['opcion 1', 'New opcion'])
+
+    def testQuestionOptionEditAndAppearsOnHistory(self):
+        q = Question.objects.get(desc='Descripcion')
+        q.desc = "New desc"
+        q.save()
+        changes = q.history.latest().changes_display_dict
+        self.assertEquals(len(changes), 1)
+        self.assertEquals(changes['desc'], ['Descripcion', 'New desc'])
+
+    def testLogEntries(self):
+        q = Question.objects.get(desc='Descripcion')
+        q.desc = "New desc"
+        q.save()
+        opt = QuestionOption.objects.get(option='opcion 1')
+        opt.option = "New opcion"
+        opt.save()
+        self.assertEquals(LogEntry.objects.count(), 6)
+        opt.delete()
+        self.assertEquals(LogEntry.objects.count(), 5)
+        self.assertTrue(LogEntry.objects.filter(action=2).exists())
+        
