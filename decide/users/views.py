@@ -74,7 +74,10 @@ class LoginView(APIView):
 
     def get(self, request):
         user = request.user
-        return render(request, self.template_name, {'user': user})
+        if request.user_agent.is_mobile:
+            return render(request, 'users/login_mobile.html', {'user': user, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, self.template_name, {'user': user})
 
     def post(self, request):
         username = request.POST.get('username')
@@ -86,7 +89,10 @@ class LoginView(APIView):
             login(request, user)
             return redirect('/')
         else:
-            return render(request, self.template_name, {'error': _('invalid credentials')})
+            if request.user_agent.is_mobile:
+                return render(request, 'users/login_mobile.html', {'error': _('Credenciales inválidas'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, self.template_name, {'error': _('invalid credentials')})
 
 class LogoutView(APIView):
     def post(self, request):

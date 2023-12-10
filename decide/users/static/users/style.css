@@ -45,7 +45,15 @@
     border-color: rgb(49, 108, 244);
     font-size: 2em;
     margin-top: 1.5em;
+    margin-bottom: 1em;
 }
+
+a.btn-mobile:link, a.btn-mobile:visited {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ }
 
 .error-mobile {
     color: red;
