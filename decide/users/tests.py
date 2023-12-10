@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class RegisterViewTest(TestCase):
@@ -139,7 +140,7 @@ class RequestPasswordResetViewTests(StaticLiveServerTestCase):
         self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
 
 
-class mail_login_test(StaticLiveServerTestCase):
+class MailLoginTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.base = BaseTestCase()
@@ -159,4 +160,43 @@ class mail_login_test(StaticLiveServerTestCase):
         self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()
         self.assertTrue("https://accounts.google.com/" in self.driver.current_url)
         
+
+class CertLoginViewTest(TestCase):
+    def test_get_cert_login_view(self):
+        response = self.client.get('/users/cert-login/')
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response,'registration/cert_login.html')
+
+    def test_post_cert_login_view_filure(self):
+        data={'cert_file':'','cert_password':''}
+        response = self.client.post('/users/cert-login/',data)
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response, 'registration/cert_fail.html')
+
+    def test_post_cert_login_view_invalid_cert(self):
+        invalid_file = SimpleUploadedFile("invalid_file.txt", 
+            b"soy un archivo que no es un certificado digital, por lo tanto no debe funcionar el login")
+        data = {'cert_file': invalid_file, 'cert_password': 'testpassword'}
+        response = self.client.post('/users/cert-login/', data, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/cert_fail.html')
+
+    ''' El archivo cert.pfx es un certificado digital ficticio que sirve para hacer pruebas, la contraseña es 1111'''
+    def test_post_cert_login_view_succes(self):
+        with open('cert.pfx', 'rb') as cert_file:
+            cert_content = cert_file.read()
+        cert_uploaded = SimpleUploadedFile("cert.pfx", cert_content, content_type="application/x-pkcs12")
+        data = {'cert_file': cert_uploaded, 'cert_password': '1111'}
+        response = self.client.post('/users/cert-login/', data, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/cert_success.html')
+
+    def test_post_cert_login_view_invalid_password(self):
+        with open('cert.pfx', 'rb') as cert_file:
+            cert_content = cert_file.read()
+        cert_uploaded = SimpleUploadedFile("cert.pfx", cert_content, content_type="application/x-pkcs12")
+        data = {'cert_file': cert_uploaded, 'cert_password': 'invalid_pasword'}
+        response = self.client.post('/users/cert-login/', data, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/cert_fail.html')
 
