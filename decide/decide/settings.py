@@ -232,5 +232,3 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'decide202324@gmail.com'
 EMAIL_HOST_PASSWORD = 'hulp rfpq boxy otqa'
-
-BBDD_URL = 'postgres://decide_part_chiquito_user:33s1P3k3BclPaWBbss0BbsuR3J1wmSJW@dpg-clqveoqe9h4c73aqp1c0-a.oregon-postgres.render.com/decide_part_chiquito'
