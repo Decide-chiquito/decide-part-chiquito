@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'gateway',
     'livereload',
     'users',
+    'auditlog',
     'social_django',
     'mailer',
     'django_user_agents',
@@ -104,6 +105,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
+    'auditlog.middleware.AuditlogMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
 
@@ -164,6 +166,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+#AUTH_USER_MODEL = 'users.User'
+
+AUDITLOG = {
+    'LOG_ENTRY_MODEL': 'base.models.CustomLogEntry',
+}
 
 
 # Internationalization
