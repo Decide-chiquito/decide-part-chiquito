@@ -46,7 +46,7 @@
         <!-- Navbar -->
         <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
-            
+
             <h2 v-if="!voting.start_date">Votación no comenzada</h2>
             <h2 v-else-if="!voting.end_date">Votación en curso</h2>
             <div v-else>
@@ -132,7 +132,7 @@
                   type: 'pie'
                 },
                 title: {
-                  text: 'Gráfico de Pastel 2'
+                  text: 'Resultados'
                 },
                 series: [{
                   name: 'Votos',
