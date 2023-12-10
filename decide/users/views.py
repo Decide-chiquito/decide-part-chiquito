@@ -43,13 +43,13 @@ class RegisterView(APIView):
 
         if not username or not password or not confirm_password:
             if request.user_agent.is_mobile:
-                return render(request, 'users/register_mobile.html', {'error': _('Nombre de usuario y contraseña son obligatorios.')})
+                return render(request, 'users/register_mobile.html', {'error': _('Nombre de usuario y contraseña son obligatorios.'), 'is_mobile': request.user_agent.is_mobile})
             else:
                 return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
         
         if password != confirm_password:
             if request.user_agent.is_mobile:
-                return render(request, 'users/register_mobile.html', {'error': _('Las contraseñas no coinciden.')})
+                return render(request, 'users/register_mobile.html', {'error': _('Las contraseñas no coinciden.'), 'is_mobile': request.user_agent.is_mobile})
             else:
                 return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -63,7 +63,7 @@ class RegisterView(APIView):
                 return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
         except IntegrityError:
             if request.user_agent.is_mobile:
-                return render(request, 'users/register_mobile.html', {'error': _('El nombre de usuario ya está en uso.')})
+                return render(request, 'users/register_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
             else:
                 return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
 
