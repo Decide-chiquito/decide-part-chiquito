@@ -91,6 +91,43 @@ class Voting(models.Model):
             vote_list.append(votes_format)
             votes_format = []
         return vote_list
+    
+    def live_tally(self, token=''):
+        print("ENTRA")
+        votes = self.get_votes(token)
+
+        auth = self.auths.first()
+        shuffle_url = "/shuffle/{}/".format(self.id)
+        decrypt_url = "/decrypt/{}/".format(self.id)
+        auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+        data = { "msgs": votes }
+        response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=data,
+                response=True)
+        data = {"msgs": response.json()}
+        response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=data,
+                response=True)
+
+        tally = response.json()
+        if(type(tally) is list):
+            options = self.question.options.all()
+            opts = []
+            for opt in options:
+                if self.method == 'IDENTITY':
+                    votes = tally.count(opt.number)
+                elif self.method == 'DHONDT':
+                    votes = tally.count(opt.number)
+                elif self.method == 'WEBSTER':
+                    votes = tally.count(opt.number)    
+                else:
+                    votes = 0
+                opts.append({
+                    'option': opt.option,
+                    'number': opt.number,
+                    'votes': votes
+                })
+            data = { 'method': self.method, 'options': opts, 'seats': self.seats }
+            postp = mods.post('postproc', json=data)
+        return postp
 
     def tally_votes(self, token=''):
         '''
