@@ -70,6 +70,10 @@ class LogoutView(APIView):
     def post(self, request):
         logout(request)
         return redirect('/')
+    
+    def get(self,request):
+        logout(request)
+        return redirect('/')
 
 class RequestPasswordReset(APIView):
     def post(self, request):
