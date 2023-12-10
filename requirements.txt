@@ -24,4 +24,6 @@ django-admin-autocomplete-filter
 social-auth-app-django
 django-user-agents
 django-extensions
+django-auditlog
 cryptography
+
