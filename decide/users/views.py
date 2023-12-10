@@ -29,7 +29,11 @@ from django.contrib.auth.backends import ModelBackend
 
 class RegisterView(APIView):
     def get(self, request):
-        return render(request, 'users/register.html')
+        context = {'is_mobile': request.user_agent.is_mobile}
+        if request.user_agent.is_mobile:
+            return render(request, 'users/register_mobile.html', context)
+        else:
+            return render(request, 'users/register.html')
 
     def post(self, request):
         username = request.data.get('username', '')
@@ -38,18 +42,30 @@ class RegisterView(APIView):
         email = request.data.get('email', '') 
 
         if not username or not password or not confirm_password:
-            return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('Nombre de usuario y contraseña son obligatorios.')})
+            else:
+                return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
         
         if password != confirm_password:
-            return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('Las contraseñas no coinciden.')})
+            else:
+                return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             user = User.objects.create_user(username, password=password, email=email)
             token, created = Token.objects.get_or_create(user=user)
             success_message = _('Successful registration. You are now registered.')
-            return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
+            if request.user_agent.is_mobile:
+                return redirect('/')
+            else:
+                return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
         except IntegrityError:
-            return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('El nombre de usuario ya está en uso.')})
+            else:
+                return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
