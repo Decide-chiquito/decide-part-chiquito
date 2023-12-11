@@ -33,8 +33,17 @@ class BoothView(TemplateView):
             for k, v in r[0]['pub_key'].items():
                 r[0]['pub_key'][k] = str(v)
 
-            context['voting'] = json.dumps(r[0])
+
+            voting = r[0]
+
+            yesno = [{'number': 2, 'option': 'Yes'}, {'number': 1, 'option': 'No'}]
+            voting['question']['type'] = 'MULTIPLE'
+            if r[0]['question']['options'] == yesno:
+                voting['question']['type'] = 'YESNO'
+            context['voting'] = json.dumps(voting)
+
             context['is_mobile'] = self.request.user_agent.is_mobile
+
         except:
             raise Http404
 

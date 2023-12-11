@@ -46,7 +46,7 @@
         <!-- Navbar -->
         <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
-
+            <h2 v-if="voting.question.type == 'YESNO'">Votación de tipo SI/NO</h2>
             <h2 v-if="!voting.start_date">Votación no comenzada</h2>
             <h2 v-else-if="!voting.end_date">Votación en curso</h2>
             <div v-else>
@@ -73,12 +73,17 @@
                     </tbody>
                 </table>
             </div>
-            <div v-if="voting.method == 'IDENTITY'" >
+            <div v-if="voting.method == 'IDENTITY' && voting.question.type != 'YESNO'" >
                 <div id="container"></div>
             </div>
-            <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
+            <div v-else-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
                 <div id="container2"></div>
             </div>
+
+            <div v-else-if="voting.question.type == 'YESNO'">
+                <div id="container3"></div>
+            </div>
+
             {% if live_tally %}
                 <h2 class="heading" style="color: red;">Votos en directo:</h2>
                 <div class="pies">
@@ -87,6 +92,7 @@
                     <div class="pie" id="pieChart3"></div>
                 </div>
             {% endif %}
+
         </div>
 
         <script>
@@ -234,6 +240,37 @@
                         pointPadding: 0.2,
                         borderWidth: 0
                     },
+                },
+                series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
+            });
+        </component>
+
+        <component :is="'script'">
+            Highcharts.chart('container3', {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: '[[ voting.name ]]',
+                },
+                subtitle: {
+                    text:""
+                },
+                xAxis: {
+                    categories: [...new Set(data.map(x => x[0]))]
+                },
+                yAxis: {
+                    allowDecimals: false,
+                    min: 0,
+                    title: {
+                        text: 'Votos'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                    }
                 },
                 series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
             });

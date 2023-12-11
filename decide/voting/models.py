@@ -15,6 +15,41 @@ class Question(models.Model):
     desc = models.TextField()
     history = AuditlogHistoryField()
 
+    VOTE_TYPE = (
+        ('MULTIPLE','Multiple'),
+        ('YESNO',"Yes/No"),
+    )
+
+    type = models.CharField(max_length=8,choices=VOTE_TYPE,default='IDENTITY',verbose_name=_("type"))
+
+    def save(self):
+        super().save()
+        if self.type == 'YESNO':
+            # Eliminar todas las QuestionOptions asociadas
+            self.options.all().delete()
+
+            # Crear dos nuevas QuestionOptions
+            optYes = QuestionOption(
+                question_id=self.id,
+                number=0,
+                option='Yes',
+            )
+            optYes.save()
+
+            optNo = QuestionOption(
+                question_id=self.id,
+                number=1,
+                option='No',
+            )
+            optNo.save()
+        if self.type == 'MULTIPLE':
+            option = QuestionOption.objects.filter(number=2, option='No')
+            option.delete()
+            option = QuestionOption.objects.filter(number=3, option='Yes')
+            option.delete()
+
+        return super().save()
+
     def __str__(self):
         return self.desc
     class Meta:

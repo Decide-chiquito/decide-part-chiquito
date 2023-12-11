@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 from unfold.admin import ModelAdmin
+from django import forms
 
 from .models import QuestionOption
 from .models import Question
@@ -117,13 +118,33 @@ def copy_census_to_another_voting(self, request, queryset):
 class CsvImportForm(forms.Form):
     csv_upload = forms.FileField()
 
+
+class QuestionOptionForm(forms.ModelForm):
+    class Meta:
+        model = QuestionOption
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(QuestionOptionForm, self).__init__(*args, **kwargs)
+        instance = kwargs.get('instance')
+        if instance and instance.question.type == 'YESNO':
+            print(instance.question.type)
+            self.fields['number'].widget.attrs['readonly'] = True
+            self.fields['option'].widget.attrs['readonly'] = True
+
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
-
+    form = QuestionOptionForm
+    extra = 0
 
 @admin.register(Question)
-class QuestionAdmin(ModelAdmin):
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('desc', 'type') 
     inlines = [QuestionOptionInline]
+    
+    class Media:
+        js = ('voting/admin/form.js',)
+
 
 @admin.register(Voting)
 class VotingAdmin(ModelAdmin):
