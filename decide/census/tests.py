@@ -22,6 +22,7 @@ from voting.admin import VotingAdmin
 from voting.models import Voting
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.client import RequestFactory
+from django.utils import timezone
 
 
 
@@ -30,7 +31,7 @@ class CensusTestCase(BaseTestCase):
     @override_settings(USE_TZ=False)
     def setUp(self):
         super().setUp()
-        self.user = User.objects.create(id=50, email='test@test.com', username='test', password='test')
+        self.user = User.objects.create(id=51, email='test@test.com', username='test', password='test')
         self.user.save()
         question = Question.objects.create(desc="What is your question?")
         self.voting = Voting.objects.create(
@@ -38,8 +39,8 @@ class CensusTestCase(BaseTestCase):
             name="Test Voting",
             desc="Test Voting Description",
             question=question,
-            start_date=datetime.now(),
-            end_date=datetime.now() + timedelta(days=7),
+            start_date=timezone.now(),
+            end_date=timezone.now() + timedelta(days=7),
             method='IDENTITY',
             seats=5
         )
@@ -103,12 +104,12 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual(len(data.get('voters')), Census.objects.count() - 1)
     
     def test_send_email_on_census_creation(self):
-        data = {'voting_id': 1, 'voters': [50]}
+        data = {'voting_id': 1, 'voters': [51]}
         self.login()
         response = self.client.post('/census/', data, format='json')
         self.assertEqual(response.status_code, 201)
 
-        voter = User.objects.get(pk=50)
+        voter = User.objects.get(pk=51)
         self.assertEqual(mail.outbox[0].to, [voter.email])
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'New voting available')
@@ -130,12 +131,12 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_send_email_on_census_creation_with_voting(self):
-        data = {'voting_id': 100, 'voters': [50]}
+        data = {'voting_id': 100, 'voters': [51]}
         self.login()
         response = self.client.post('/census/', data, format='json')
         self.assertEqual(response.status_code, 201)
 
-        voter = User.objects.get(pk=50)
+        voter = User.objects.get(pk=51)
         voting = Voting.objects.get(pk=100)
         self.assertEqual(voting.name, 'Test Voting')
         self.assertEqual(mail.outbox[0].to, [voter.email])
