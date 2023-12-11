@@ -1,6 +1,6 @@
 import random
 from django.contrib.auth.models import User
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
@@ -27,23 +27,14 @@ from django.utils import timezone
 
 
 class CensusTestCase(BaseTestCase):
-    
     @override_settings(USE_TZ=False)
     def setUp(self):
         super().setUp()
         self.user = User.objects.create(id=51, email='test@test.com', username='test', password='test')
         self.user.save()
-        question = Question.objects.create(desc="What is your question?")
-        self.voting = Voting.objects.create(
-            id=100,
-            name="Test Voting",
-            desc="Test Voting Description",
-            question=question,
-            start_date=timezone.now(),
-            end_date=timezone.now() + timedelta(days=7),
-            method='IDENTITY',
-            seats=5
-        )
+        question = Question(desc="What is your question?")
+        question.save()
+        self.voting = Voting(id=100, name="Test Voting", question=question)
         self.voting.save()
         self.census = Census(voting_id=1, voter_id=1)
         self.census.save()
@@ -216,7 +207,7 @@ class CensusTest(StaticLiveServerTestCase):
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
         self.cleaner.get(self.live_server_url+"/admin/census/census/add")
-        now = datetime.now()
+        now = timezone.now()
         self.cleaner.find_element(By.ID, "id_voting_id").click()
         self.cleaner.find_element(By.ID, "id_voting_id").send_keys(now.strftime("%m%d%M%S"))
         self.cleaner.find_element(By.ID, "id_voter_id").click()
@@ -257,7 +248,7 @@ class CensusTest(StaticLiveServerTestCase):
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
         self.cleaner.get(self.live_server_url+"/admin/census/census/add")
-        now = datetime.now()
+        now = timezone.now()
         self.cleaner.find_element(By.ID, "id_voting_id").click()
         self.cleaner.find_element(By.ID, "id_voting_id").send_keys('64654654654654')
         self.cleaner.find_element(By.ID, "id_voter_id").click()
