@@ -4,12 +4,16 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _ 
 
+from auditlog.registry import auditlog
+from auditlog.models import AuditlogHistoryField
+
 from base import mods
 from base.models import Auth, Key
 
 
 class Question(models.Model):
     desc = models.TextField()
+    history = AuditlogHistoryField()
 
     VOTE_TYPE = (
         ('MULTIPLE','Multiple'),
@@ -56,13 +60,14 @@ class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE,verbose_name=_("question"))
     number = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("number"))
     option = models.TextField(verbose_name=_("option"))
+    history = AuditlogHistoryField()
     class Meta:
         verbose_name=_("QuestionOption")
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.number:
             self.number = self.question.options.count() + 2
-        return super().save()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
@@ -82,6 +87,7 @@ class Voting(models.Model):
 
     tally = JSONField(blank=True, null=True,verbose_name=_("tally"))
     postproc = JSONField(blank=True, null=True)
+    history = AuditlogHistoryField()
 
     VOTE_METHODS = (
         ('IDENTITY','Identity'),
@@ -186,3 +192,8 @@ class Voting(models.Model):
 
     def __str__(self):
         return self.name
+
+
+auditlog.register(Question, serialize_data=True,)
+auditlog.register(QuestionOption, serialize_data=True,)
+auditlog.register(Voting, serialize_data=True,)

@@ -2,9 +2,11 @@ import json
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.http import Http404
+from django.shortcuts import render,redirect
 
 from base import mods
-
+from census.models import Census
+from voting.models import Voting
 
 class VisualizerView(TemplateView):
     template_name = 'visualizer/visualizer.html'
@@ -40,3 +42,16 @@ class VisualizerView(TemplateView):
             raise Http404
 
         return context
+    
+def listVisualizer(request):
+    if request.user.is_authenticated:
+        censos=Census.objects.filter(voter_id=request.user.id)
+        visualizers=[];
+        for censo in censos:
+            visualizerMyCenso=Voting.objects.filter(id=censo.voting_id)
+            for visualizer in visualizerMyCenso:
+                if visualizer.end_date!= None:
+                    visualizers.append(visualizer)
+        return render(request,'visualizer/listVisualizer.html',{'visualizers': visualizers})
+    else:
+        return redirect('/users/login')

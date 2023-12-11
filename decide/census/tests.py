@@ -1,8 +1,9 @@
 import random
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import override_settings
 from rest_framework.test import APIClient
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core import mail
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,22 +11,47 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
-from .models import Census
+from .models import Census, Voting
+from datetime import datetime, timedelta
+from voting.models import Question
 from base import mods
 from base.tests import BaseTestCase
-from datetime import datetime
+
+from django.contrib.admin.sites import AdminSite
+from voting.admin import VotingAdmin
+from voting.models import Voting
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test.client import RequestFactory
+
 
 
 class CensusTestCase(BaseTestCase):
-
+    
+    @override_settings(USE_TZ=False)
     def setUp(self):
         super().setUp()
+        self.user = User.objects.create(id=50, email='test@test.com', username='test', password='test')
+        self.user.save()
+        question = Question.objects.create(desc="What is your question?")
+        self.voting = Voting.objects.create(
+            id=100,
+            name="Test Voting",
+            desc="Test Voting Description",
+            question=question,
+            start_date=datetime.now(),
+            end_date=datetime.now() + timedelta(days=7),
+            method='IDENTITY',
+            seats=5
+        )
+        self.voting.save()
         self.census = Census(voting_id=1, voter_id=1)
         self.census.save()
 
     def tearDown(self):
         super().tearDown()
         self.census = None
+        self.user = None
+        self.voting = None
 
     def test_check_vote_permissions(self):
         response = self.client.get('/census/{}/?voter_id={}'.format(1, 2), format='json')
@@ -75,6 +101,48 @@ class CensusTestCase(BaseTestCase):
         response = self.client.post('/census/', data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(data.get('voters')), Census.objects.count() - 1)
+    
+    def test_send_email_on_census_creation(self):
+        data = {'voting_id': 1, 'voters': [50]}
+        self.login()
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        voter = User.objects.get(pk=50)
+        self.assertEqual(mail.outbox[0].to, [voter.email])
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'New voting available')
+        self.assertEqual(mail.outbox[0].body, 'You have been added to a new census. You could vote in the voting with id: 1 when the voting is open.')
+
+    def test_send_without_email(self):
+        data = {'voting_id': 2, 'voters': [1,2,3,4]}
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 401)
+
+        self.login(user='noadmin')
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 403)
+
+        self.login()
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(data.get('voters')), Census.objects.count() - 1)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_send_email_on_census_creation_with_voting(self):
+        data = {'voting_id': 100, 'voters': [50]}
+        self.login()
+        response = self.client.post('/census/', data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        voter = User.objects.get(pk=50)
+        voting = Voting.objects.get(pk=100)
+        self.assertEqual(voting.name, 'Test Voting')
+        self.assertEqual(mail.outbox[0].to, [voter.email])
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'New voting available')
+        self.assertEqual(mail.outbox[0].body, 'You have been added to a new census called Test Voting. You could vote in the voting with id: 100 when the voting is open.')
+
 
     def test_destroy_voter(self):
         data = {'voters': [1]}
@@ -88,6 +156,31 @@ class CensusTestCase(BaseTestCase):
         response = self.client.put('/census/{}/'.format(1), data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual("Census updated", response.json())
+
+    def test_import_census(self):
+        admin_instance = VotingAdmin(model=Voting, admin_site=AdminSite())
+
+        csv_content = "votingID,voterID,center,tags...\n1,2,ETSII,tag1\n2,2,ETSA,tag1,tag2"
+        csv_file = SimpleUploadedFile("census.csv", csv_content.encode("utf-8"), content_type="text/csv")
+
+        request = RequestFactory().post('/admin/voting/voting/upload-csv/', {'csv_upload': csv_file})
+
+        response = admin_instance.upload_csv(request)
+
+        self.assertEqual(response.status_code, 302)
+
+        census1 = Census.objects.get(voting_id=1, voter_id=2)
+        self.assertEqual(census1.voting_id, 1)
+        self.assertEqual(census1.voter_id, 2)
+        self.assertEqual(census1.adscription_center, 'ETSII')
+        self.assertTrue(census1.tags.filter(name='tag1').exists())
+
+        census2 = Census.objects.get(voting_id=2, voter_id=2)
+        self.assertEqual(census2.voting_id, 2)
+        self.assertEqual(census2.voter_id, 2)
+        self.assertEqual(census2.adscription_center, 'ETSA')
+        self.assertTrue(census2.tags.filter(name='tag1').exists())
+        self.assertTrue(census2.tags.filter(name='tag2').exists())
 
 
 

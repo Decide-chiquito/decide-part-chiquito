@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script>
+        function updateFileInfo() {
+            var input = document.getElementById('id_csv_upload');
+            var fileInfo = document.getElementById('file-info');
+
+            if (input.files.length > 0) {
+                var file = input.files[0];
+                fileInfo.textContent = 'Archivo seleccionado: ' + file.name;
+            } else {
+                fileInfo.textContent = 'No hay ningún archivo seleccionado';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('id_form');
+            var fileInput = document.getElementById('id_csv_upload');
+
+            form.addEventListener('submit', function(event) {
+                if (fileInput.files.length == 0) {
+                    document.getElementById('error-message-mobile').textContent = 'Debe seleccionar algún archivo';
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+    <script src='{% static "visualizer/modal.js" %}'></script>
+    <link type="text/css" rel="stylesheet" href='{% static "voting/style.css" %}' />
+{% endblock %}
+
+{% block content %}
+    <div id="app-visualizer">
+
+        <h1 class="import-title-mobile">Importar censo desde CSV</h1>
+        
+        <button class="open-modal-button" id="openModalButton">Ver formato del CSV</button>
+
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModalButton">&times;</span>
+                <h2>FORMATO DEL CSV DE IMPORTACIÓN</h2>
+                <p>&#x2022; La primera fila del CSV debe corresponderse con la cabecera.</p>
+                <p>&#x2022; El resto de filas se corresponden con los valores que se utilizan para realizar la importación del censo.</p>
+                <p>&#x2022; Los valores deberán aparecer en el siguiente orden: id de la votación, id del votante, centro de adscripción, tags (opcionales).</p>
+                <p>Veamos un ejemplo del formato a seguir:</p>
+                <div class="example-mobile">
+                    <p>votingID,voterID,center,tags...</p>
+                    <p>2,2,ETSII,tag1,tag2,tag3</p>
+                    <p>2,3,ETSA</p>
+                    <p>3,4,ETSI,tag1,tag2</p>
+                    <p>3,2,ETSII,tag1</p>
+                </div>
+            </div>
+        </div>
+        
+        <form id="id_form" action="." method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="contents-mobile">
+                <div class="card-mobile">
+                    <label class="label-mobile">Seleccionar CSV</label>
+                    <label class="button-mobile">Seleccionar
+                        <input class="hidden-mobile" type="file" name="csv_upload" required="" id="id_csv_upload" onchange="updateFileInfo()">
+                    </label>
+                </div>
+                <p class="file-name-mobile" id="file-info">No hay ningún archivo seleccionado</p>
+                <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
+                <button class="button-mobile" id="csv_import_submit" type="submit">Importar</button>
+            </div>
+        </form>
+        
+    </div>
+{% endblock %}
+
+{% block extrabody %}
+    <!-- Vuejs -->
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+    <script src="https://unpkg.com/bootstrap@5.2.2/dist/js/bootstrap.js"></script>
+
+    <script>
+        var voting = {{voting|safe}};
+
+        const { createApp } = Vue;
+        createApp({
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    voting: voting,
+                }
+            },
+
+            methods: {
+                comeBack() {
+                    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+                    window.location.href = baseUrl;
+                },
+            }
+        }).mount('#app-visualizer');
+    </script>
+
+</body>
+{% endblock %}

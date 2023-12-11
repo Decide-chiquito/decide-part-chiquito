@@ -1,0 +1,98 @@
+.register-title-mobile {
+    text-align: center;
+    font-size: 75px;
+    font-weight: bold;
+    margin-top: 65px;
+    margin-bottom: 50px;
+    padding: 0 20px;
+    max-width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.form-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.form-group {
+    width: 75%;
+    margin-bottom: 1.5em;
+}
+
+.form-control {
+    height: 2.5em;
+    border-radius: 10px;
+    font-size: 2em;
+    padding: 30px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.200);
+}
+
+.btn-mobile {
+    background-color: rgb(49, 108, 244);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.200);
+    font-weight: bold;
+    color: white;
+    width: 75%;
+    height: 2.5em;
+    border-radius: 10px;
+    border-color: rgb(49, 108, 244);
+    font-size: 2em;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}
+
+a.btn-mobile:link, a.btn-mobile:visited {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ }
+
+.error-mobile {
+    color: red;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.hidden-mobile {
+    display: none;
+}
+
+.file-name-mobile {
+    position: relative;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5em;
+}
+
+.error-mobile {
+    color: red;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+@media (orientation: landscape) {
+    .register-title-mobile {
+        font-size: 50px;
+    }
+
+    .form-control {
+        font-size: 1.5em;
+    }
+
+    .btn-mobile {
+        font-size: 1.5em;
+    }
+}

@@ -30,31 +30,26 @@
     </div>
 
     <div class="row">
-        <label for="booth" class="label">booth</label>
-        <select id="booth" name="booth">
-            <option value="" selected>{% trans 'Choose one option'%}</option>
-            {% for voting in voting_enabled %}
-            <option value="{{voting.id}}">{{voting.name}}</option>
-            {% endfor %}
-        </select>
-        <button class="button" onclick="go_to_route('/booth/', 'booth')">{% trans "Access" %}</button>
+        <label for="voting" class="label">BoothList</label>
+        <a href="booth/listActiveVoting/">
+            <button class="button">BoothList</button>
+        </a>
     </div>
 
     <div class="row">
-        <label for="visualizer" class="label">{% trans 'visualizer'%}</label>
-        <select id="visualizer" name="visualizer">
-            <option value="" selected>{% trans "Choose a option" %}</option>
-            {% for voting in voting_finished %}
-            <option value="{{voting.id}}">{{voting.name}}</option>
-            {% endfor %}
-        </select>
-        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">{% trans 'Access'%}</button>
+        <label for="voting" class="label">VisualizerList</label>
+        <a href="visualizer/listVisualizer/">
+            <button class="button">VisualizerList</button>
+        </a>
     </div>
 
     <div class="row">
         <label for="census" class="label">census</label>
         <button class="button" onclick="importar()">Importar</button>
     </div>
+    
+    
+    
     
 </div>
 <div class="urls-list">

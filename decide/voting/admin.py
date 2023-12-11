@@ -170,7 +170,11 @@ class VotingAdmin(ModelAdmin):
             if not csv_file.name.endswith('.csv'):
                 form = CsvImportForm()
                 data = {"form": form, "error": "El archivo no es un csv"}
-                return render(request, "csv_upload.html", data)
+                data['is_mobile'] = request.user_agent.is_mobile
+                if request.user_agent.is_mobile:
+                    return render(request, "csv_upload_mobile.html", data)
+                else:
+                    return render(request, "csv_upload.html", data)
 
             file_data = csv_file.read().decode("utf-8").split("\n")
             file_data = file_data[1:]  # Omitir la primera fila si contiene encabezados
@@ -206,4 +210,9 @@ class VotingAdmin(ModelAdmin):
 
         form = CsvImportForm()
         data = {"form": form}
-        return render(request, "csv_upload.html", data)
+        data['is_mobile'] = request.user_agent.is_mobile
+        
+        if request.user_agent.is_mobile:
+            return render(request, "csv_upload_mobile.html", data)
+        else:
+            return render(request, "csv_upload.html", data)

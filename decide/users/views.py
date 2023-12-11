@@ -29,7 +29,11 @@ from django.contrib.auth.backends import ModelBackend
 
 class RegisterView(APIView):
     def get(self, request):
-        return render(request, 'users/register.html')
+        context = {'is_mobile': request.user_agent.is_mobile}
+        if request.user_agent.is_mobile:
+            return render(request, 'users/register_mobile.html', context)
+        else:
+            return render(request, 'users/register.html')
 
     def post(self, request):
         username = request.data.get('username', '')
@@ -38,18 +42,28 @@ class RegisterView(APIView):
         email = request.data.get('email', '') 
 
         if not username or not password or not confirm_password:
-            return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('Nombre de usuario y contraseña son obligatorios.'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
         
         if password != confirm_password:
-            return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('Las contraseñas no coinciden.'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, 'registration/register_fail.html', {'error': _('The passwords do not match.')})
         
         try:
             user = User.objects.create_user(username, password=password, email=email)
-            token, created = Token.objects.get_or_create(user=user)
-            success_message = _('Successful registration. You are now registered.')
-            return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
+            if request.user_agent.is_mobile:
+                return redirect('/')
+            else:
+                return render(request, 'registration/register_success.html', {'message': _('Successful registration. You are now registered.')})   
         except IntegrityError:
-            return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, 'registration/register_fail.html', {'error': _('The username is already in use.')})   
 
 
 
@@ -58,7 +72,10 @@ class LoginView(APIView):
 
     def get(self, request):
         user = request.user
-        return render(request, self.template_name, {'user': user})
+        if request.user_agent.is_mobile:
+            return render(request, 'users/login_mobile.html', {'user': user, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, self.template_name, {'user': user})
 
     def post(self, request):
         username = request.POST.get('username')
@@ -70,7 +87,10 @@ class LoginView(APIView):
             login(request, user)
             return redirect('/')
         else:
-            return render(request, self.template_name, {'error': _('invalid credentials')})
+            if request.user_agent.is_mobile:
+                return render(request, 'users/login_mobile.html', {'error': _('Credenciales inválidas'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, self.template_name, {'error': _('invalid credentials')})
 
 class LogoutView(APIView):
     def post(self, request):
@@ -81,7 +101,14 @@ class RequestPasswordReset(APIView):
     def post(self, request):
         form = EmailForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(User, email=form.cleaned_data['email'])
+            try:
+                user = get_object_or_404(User, email=form.cleaned_data['email'])
+            except:
+                if request.user_agent.is_mobile:
+                    return render(request, 'registration/make_petition_form_mobile.html', {'is_mobile': request.user_agent.is_mobile, 'error': _('No existe un usuario con ese correo electrónico.')})
+                else:
+                    return Response({'error': _('There is no user with that email.')}, status=status.HTTP_400_BAD_REQUEST)
+                
 
             if self.validate_email(user.email):
                 # Generar el token único
@@ -109,7 +136,10 @@ class RequestPasswordReset(APIView):
 
     def get(self, request):
         form = EmailForm()
-        return render(request, 'registration/make_petition_form.html', {'form': form})
+        if request.user_agent.is_mobile:
+            return render(request, 'registration/make_petition_form_mobile.html', {'form': form, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, 'registration/make_petition_form.html', {'form': form})
 
     def validate_email(self, email):
         patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -157,7 +187,10 @@ class CertLoginView(APIView):
 
     def get(self, request, *args, **kwargs):
         cert_form = CertificateLoginForm()
-        return render(request, self.template_name, {'cert_form': cert_form})
+        if request.user_agent.is_mobile:
+            return render(request, 'registration/cert_login_mobile.html', {'cert_form': cert_form, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, self.template_name, {'cert_form': cert_form})
 
     def post(self, request, *args, **kwargs):
         cert_form = CertificateLoginForm(request.POST, request.FILES)
@@ -167,8 +200,14 @@ class CertLoginView(APIView):
                 backend = ModelBackend()
                 user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
                 login(request, user)
-                return render(request, 'registration/cert_success.html', {'user': user})
+                if request.user_agent.is_mobile:
+                    return redirect('/')
+                else: 
+                    return render(request, 'registration/cert_success.html', {'user': user})
             else:
-                return render(request, 'registration/cert_fail.html')
+                if request.user_agent.is_mobile:
+                    return render(request, 'registration/cert_login_mobile.html', {'is_mobile': request.user_agent.is_mobile, 'error': _('Credenciales inválidas')})
+                else:
+                    return render(request, 'registration/cert_fail.html')
 
         return render(request, 'registration/cert_fail.html')

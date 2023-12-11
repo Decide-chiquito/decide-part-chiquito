@@ -2,11 +2,10 @@
 {% load i18n static %}
 
 {% block extrahead %}
-    <link type="text/css" rel="stylesheet"
-         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="{% static "visualizer/style.css" %}" />
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href='{% static "visualizer/style.css" %}' />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="{% static "visualizer/modal.js" %}"></script>
+    <script src='{% static "visualizer/modal.js" %}'></script>
 {% endblock %}
 
 {% block content %}
@@ -39,17 +38,21 @@
             <h2 class="results-text">Resultados de la votación:</h2>
             <div>
                 <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="seats-text">- Escaños: [[voting.seats]] -</h3>
-
+ 
                 <div class="mobile-table">
-                    <div v-for="opt in voting.postproc" :key="opt.number" class="mobile-table-row">
-                      <div class="option-text">[[opt.option]]</div>
-                      <div v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'" class="table-text">Puntuación: [[opt.postproc]]</div>
-                      <div class="table-text-muted">Votos: [[opt.votes]]</div>
-                      <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="table-text">Escaños: [[opt.deputies]]</div>
-                    </div>
-                  </div>
+                   <div v-for="opt in voting.postproc" :key="opt.number" class="mobile-table-row">
+                        <div class="option-text">[[opt.option]]</div>
+                        <div v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'" class="table-text">Puntuación: [[opt.postproc]]</div>
+                        <div class="table-text-muted">Votos: [[opt.votes]]</div>
+                        <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="table-text">Escaños: [[opt.deputies]]</div>
+                        <div class='graph-mobile'>
+                            <div class='graph-bar-mobile' :style='{width: (opt.votes / maxVotes) * 100 + "%", backgroundColor: getRandomColor()}'> </div>
+                        </div>
+                   </div>
+                 </div>
             </div>
         </div>
+        
     </div>
 {% endblock %}
 
@@ -61,12 +64,13 @@
 
     <script>
         var voting = {{voting|safe}};
-        const { createApp } = Vue
+
+        const { createApp } = Vue;
         createApp({
             delimiters: ['[[', ']]'],
             data() {
                 return {
-                    voting: voting
+                    voting: voting,
                 }
             },
 
@@ -74,13 +78,26 @@
                 comeBack() {
                     const baseUrl = `${window.location.protocol}//${window.location.host}`;
                     window.location.href = baseUrl;
+                },
+
+                getRandomColor() {
+                    const r = Math.floor(Math.random() * 255);
+                    const g = Math.floor(Math.random() * 255);
+                    const b = Math.floor(Math.random() * 255);
+                    return `rgb(${r}, ${g}, ${b})`;
+                },
+
+                getMaxVotes(options) {
+                    return Math.max(...options.map(opt => opt.votes));
+                }
+            },
+            computed: {
+                maxVotes() {
+                    return this.getMaxVotes(this.voting.postproc);
                 }
             }
-        }).mount('#app-visualizer')
-
-        
+        }).mount('#app-visualizer');
     </script>
 
-    
 </body>
 {% endblock %}

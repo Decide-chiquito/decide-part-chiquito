@@ -1,0 +1,21 @@
+{% extends "base.html"%}
+
+{% load i18n static %}
+
+{% load static %}
+
+{% block content %}
+
+
+    {%for booth in booths%}
+    <div class="navigator">
+        <div class="info">
+            </div class="row">    
+                <h2>{{booth.name}}</h2>
+                <a class="button"  href='/booth/{{booth.id}}'>{% trans 'Access'%}</a>       
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+{% endblock content %}

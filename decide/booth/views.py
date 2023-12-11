@@ -2,9 +2,11 @@ import json
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.http import Http404
+from django.shortcuts import render,redirect
 
 from base import mods
-
+from census.models import Census
+from voting.models import Voting
 
 # TODO: check permissions and census
 class BoothView(TemplateView):
@@ -34,3 +36,16 @@ class BoothView(TemplateView):
         context['KEYBITS'] = settings.KEYBITS
 
         return context
+
+def listActiveBooth(request):
+    if request.user.is_authenticated:
+        censos=Census.objects.filter(voter_id=request.user.id)
+        booths=[];
+        for censo in censos:
+            boothsMyCenso=Voting.objects.filter(id=censo.voting_id)
+            for booth in boothsMyCenso:
+                if booth.end_date== None:
+                    booths.append(booth)
+        return render(request,'booth/listBooth.html',{'booths': booths})
+    else:
+        return redirect('/users/login')
