@@ -22,8 +22,8 @@ class Question(models.Model):
 
     type = models.CharField(max_length=8,choices=VOTE_TYPE,default='IDENTITY',verbose_name=_("type"))
 
-    def save(self):
-        super().save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         if self.type == 'YESNO':
             # Eliminar todas las QuestionOptions asociadas
             self.options.all().delete()
@@ -48,7 +48,7 @@ class Question(models.Model):
             option = QuestionOption.objects.filter(number=3, option='Yes')
             option.delete()
 
-        return super().save()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.desc
