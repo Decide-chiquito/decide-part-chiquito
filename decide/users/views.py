@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from django.contrib.auth import authenticate, login, logout
@@ -5,12 +6,16 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.generic import TemplateView
+from census.models import Census
+from voting.models import Voting
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -148,3 +153,49 @@ class ChangePassword(APIView):
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         return user
+
+
+class NoticeView(TemplateView):
+    template_name = 'users/notice.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(NoticeView,self).get_context_data(**kwargs)
+       
+        # Obtener censos asociados al usuario actual
+        censos = Census.objects.filter(voter_id=self.request.user.id)
+
+        # Obtener la fecha de inicio y fin para filtrar votaciones
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        filtered_votings = Voting.objects.all()
+
+        if start_date and end_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            filtered_votings = filtered_votings.filter(start_date__gte=start_date, end_date__lte=end_date)
+
+        # Crear una lista con información de las votaciones y su estado
+        voting_info = []
+        for censo in censos:
+            voting = Voting.objects.get(id=censo.voting_id)
+            status = self.get_voting_status(voting)
+            voting_info.append({
+                'voting_id': voting.id,
+                'voting_name': voting.name,
+                'voting_question': voting.question,
+                'voting_endDate': voting.end_date,
+                'status': status
+            })
+        context['voting_info'] = voting_info
+        return context
+
+    def get_voting_status(self, voting):
+        if voting.start_date and not voting.end_date:
+            return 'La votación sigue Abierta'
+        elif voting.end_date and not voting.tally:
+            return 'La votación se encuentra Cerrada, los resultados aún están pendientes'
+        elif voting.tally:
+            return 'La votación se encuentra Cerrada, los resultados ya están disponibles'
+        else:
+            return 'Estado desconocido'
+   

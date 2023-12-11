@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+{% block extrahead %}
+    <title>Notificaciones</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../../static/users/style.css">
+    
+{% endblock extrahead %}
+
+{% block content %}
+  <h1 class="voting-title">Notificaciones de las votaciones</h1>
+  
+  <form method="get" action="">
+    <label for="start_date">{% trans 'Start Date' %}:</label>
+    <input type="date" id="start_date" name="start_date">
+
+    <label for="end_date">{% trans 'End Date' %}:</label>
+    <input type="date" id="end_date" name="end_date">
+
+    <button type="submit">{% trans 'Filter' %}</button>
+  </form>
+
+  {% if voting_info %}
+    <div class="voting-cards">
+      {% for info in voting_info %}
+        <div class="voting-card">
+          <h3>{{ info.voting_name }}</h3>
+          <p><strong>Estado:</strong> {{ info.status }}</p>
+          
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{% trans 'You are not associated with any voting notices.' %}</p>
+  {% endif %}
+{% endblock %}
