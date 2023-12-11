@@ -126,7 +126,6 @@ def send_start_email(voting):
 
         for censo in censos_relacionados:
             user = User.objects.get(pk=censo.voter_id)
-            print(user.email)
 
             if user.email:
                 html_content = render_to_string('start_email_template.html', {'username': user.username, 'voting_name': voting.name})
@@ -138,7 +137,6 @@ def send_start_email(voting):
 
 def send_tally_email(voting):
     censos_relacionados = Census.objects.filter(voting_id=voting.id)
-    print(censos_relacionados)
     for censo in censos_relacionados:
         user = User.objects.get(pk=censo.voter_id)
 
@@ -163,7 +161,6 @@ class QuestionOptionForm(forms.ModelForm):
         super(QuestionOptionForm, self).__init__(*args, **kwargs)
         instance = kwargs.get('instance')
         if instance and instance.question.type == 'YESNO':
-            print(instance.question.type)
             self.fields['number'].widget.attrs['readonly'] = True
             self.fields['option'].widget.attrs['readonly'] = True
 
