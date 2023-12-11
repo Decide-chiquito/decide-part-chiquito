@@ -1,4 +1,5 @@
 #!/bin/sh
+pip install -r requirements.txt
 cd decide/
 cp local_settings.deploy.py local_settings.py
 ./manage.py createsuperuser --noinput   
