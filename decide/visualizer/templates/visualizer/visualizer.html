@@ -12,6 +12,33 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <style>
+ 
+        .pies {
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          width: 100%;
+        }
+    
+        .pie {
+          text-align: center;
+          border: 1px solid #ccc;
+          margin: 10px;
+        }
+    
+        @media (max-width: 768px) {
+          .pies {
+            flex-direction: column;
+            text-align: center;
+          }
+    
+          .pie {
+            width: 80%;
+          }
+        }
+      </style>
 {% endblock %}
 
 {% block content %}
@@ -52,7 +79,131 @@
             <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
                 <div id="container2"></div>
             </div>
+            {% if live_tally %}
+                <h2 class="heading" style="color: red;">Votos en directo:</h2>
+                <div class="pies">
+                    <div class="pie" id="pieChart1"></div>
+                    <div class="pie" id="pieChart2"></div>
+                    <div class="pie" id="pieChart3"></div>
+                </div>
+            {% endif %}
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              // Datos para el primer gráfico
+              var datos1 = {{ votes | safe }};
+              var data1 = datos1.map(function(item) {
+                return {
+                  name: item.name,
+                  y: item.value
+                };
+              });
+        
+              // Configuración del primer gráfico
+              var options1 = {
+                chart: {
+                  type: 'pie'
+                },
+                title: {
+                  text: 'Personas que han votado'
+                },
+                series: [{
+                  name: 'Votos',
+                  data: data1
+                }]
+              };
+        
+              // Renderiza el primer gráfico de pastel
+              Highcharts.chart('pieChart1', options1);
+        
+              // Datos para el segundo gráfico
+              var datos2 = {{ live_tally | safe }};
+              var data2 = datos2.map(function(item) {
+                return {
+                  name: item.option,
+                  y: item.votes
+                };
+              });
+        
+              // Configuración del segundo gráfico
+              var options2 = {
+                chart: {
+                  type: 'pie'
+                },
+                title: {
+                  text: 'Resultados'
+                },
+                series: [{
+                  name: 'Votos',
+                  data: data2
+                }]
+              };
+        
+              // Renderiza el segundo gráfico de pastel
+              Highcharts.chart('pieChart2', options2);
+        
+              // Datos para el tercer gráfico
+              var datos3 = {{ census | safe }};
+              var data3 = datos3.map(function(item) {
+                return {
+                  name: item.name,
+                  y: item.value
+                };
+              });
+        
+              // Configuración del tercer gráfico
+              var options3 = {
+                chart: {
+                  type: 'pie'
+                },
+                title: {
+                  text: 'Division por centros de adscripcion'
+                },
+                series: [{
+                  name: 'Votos',
+                  data: data3
+                }]
+              };
+        
+              // Renderiza el tercer gráfico de pastel
+              Highcharts.chart('pieChart3', options3);
+            });
+        </script>
+
+        <component :is="'script'">
+            var voting = {{live_tally|safe}};
+            const data = voting.map(x => [x.option, x.votes]);
+
+            Highcharts.chart('live', {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Resultados',
+                },
+                subtitle: {
+                    text:""
+                },
+                xAxis: {
+                    categories: [...new Set(data.map(x => x[0]))]
+                },
+                yAxis: {
+                    allowDecimals: false,
+                    min: 0,
+                    title: {
+                        text: 'Votos'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                    }
+                },
+                series: [{ colorByPoint: true, data, name: "[[ voting.name ]]", showInLegend: false }]
+            });
+        </component>
         
         <component :is="'script'">
             var voting = {{voting|safe}};
