@@ -20,27 +20,27 @@ class Census(models.Model):
     tags = models.ManyToManyField(Tag, related_name='census')
 
     def save(self, *args, **kwargs):
-        is_new = not self.pk  # Verifica si es una instancia nueva
-        super().save(*args, **kwargs)  # Guarda la instancia de Census
+        is_new = not self.pk
+        super().save(*args, **kwargs)
 
         if is_new:
             voter_id = self.voter_id
             voting_id = self.voting_id
             try:
-                subject = 'Nueva Votación Disponible'
+                subject = 'New voting available'
                 voter = User.objects.get(pk=voter_id)
                 mailTo = voter.email
                 
                 voting = Voting.objects.get(pk=voting_id)
                 
-                message = f"Ha sido añadido a un nuevo censo para la votación {voting.name}. Podrá votar por la votación con id: {voting_id} cuando se habra la votación"
+                message = f"You have been added to a new census called {voting.name}. You could vote in the voting with id: {voting_id} when the voting is open."
 
                 email = EmailMessage(subject, message, to=[mailTo])
                 reponse = email.send()
             except User.DoesNotExist:
                 pass
             except Voting.DoesNotExist:
-                message = f"Ha sido añadido a un nuevo censo. Podrá votar por la votación con id: {voting_id} cuando se habra la votación"
+                message = f"You have been added to a new census. You could vote in the voting with id: {voting_id} when the voting is open."
                 email = EmailMessage(subject, message, to=[mailTo])
                 reponse = email.send()
 
