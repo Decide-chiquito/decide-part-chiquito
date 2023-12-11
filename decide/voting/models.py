@@ -93,7 +93,6 @@ class Voting(models.Model):
         return vote_list
     
     def live_tally(self, token=''):
-        print("ENTRA")
         votes = self.get_votes(token)
 
         auth = self.auths.first()

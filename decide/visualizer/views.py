@@ -36,8 +36,10 @@ class VisualizerView(TemplateView):
             
             context['voting'] = json.dumps(v)
             context['is_mobile'] = self.request.user_agent.is_mobile
-
-            # STATISTICS
+        except:
+            raise Http404
+        
+        try:
             if voting_instance.end_date == None:
                 live_tally = voting_instance.live_tally(token)
                 context['live_tally'] = json.dumps(live_tally)
@@ -61,10 +63,9 @@ class VisualizerView(TemplateView):
                     centros[centros.index(centro)] = {'name': centro, 'value': votos}
 
                 context['census'] = json.dumps(centros)
-
-
+                print(voting_instance.end_date)
         except:
-            raise Http404
+            pass
 
         return context
 
