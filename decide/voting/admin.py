@@ -26,6 +26,10 @@ from rest_framework.status import (
 )
 from django.db.utils import IntegrityError
 from django.contrib.auth.decorators import user_passes_test
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth.models import User
 
 
 def start(modeladmin, request, queryset):
@@ -33,6 +37,7 @@ def start(modeladmin, request, queryset):
         v.create_pubkey()
         v.start_date = timezone.now()
         v.save()
+        send_start_email(v)
 
 
 def stop(ModelAdmin, request, queryset):
@@ -45,6 +50,7 @@ def tally(ModelAdmin, request, queryset):
     for v in queryset.filter(end_date__lt=timezone.now()):
         token = request.session.get('auth-token', '')
         v.tally_votes(token)
+        send_tally_email(v)
 
 def export_to_csv(ModelAdmin, request, queryset):
     if queryset:
@@ -114,6 +120,35 @@ def copy_census_to_another_voting(self, request, queryset):
                 self.message_user(request, _("Errorr in copying the census: {}").format(str(e)), level=messages.ERROR)
 
     copy_census_to_another_voting.short_description = _("Copy the census to other voting")
+
+def send_start_email(voting):
+        censos_relacionados = Census.objects.filter(voting_id=voting.id)
+
+        for censo in censos_relacionados:
+            user = User.objects.get(pk=censo.voter_id)
+            print(user.email)
+
+            if user.email:
+                html_content = render_to_string('start_email_template.html', {'username': user.username, 'voting_name': voting.name})
+                text_content = strip_tags(html_content)
+                subject = _('New voting available')
+                email = EmailMultiAlternatives(subject, text_content, to=[user.email])
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+
+def send_tally_email(voting):
+    censos_relacionados = Census.objects.filter(voting_id=voting.id)
+    print(censos_relacionados)
+    for censo in censos_relacionados:
+        user = User.objects.get(pk=censo.voter_id)
+
+        if user.email:
+            html_content = render_to_string('tally_email_template.html', {'username': user.username, 'voting_name': voting.name})
+            text_content = strip_tags(html_content)
+            subject = _('Voting tallied')
+            email = EmailMultiAlternatives(subject, text_content, to=[user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
 
 class CsvImportForm(forms.Form):
     csv_upload = forms.FileField()
