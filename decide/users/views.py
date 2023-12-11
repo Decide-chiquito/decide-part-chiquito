@@ -221,10 +221,14 @@ class EditProfileView(TemplateView):
     template_name = 'users/edit_profile.html'
 
     def get_template_names(self):
-        return [self.template_name]
+        if self.request.user_agent.is_mobile:
+            return ['users/edit_profile_mobile.html']
+        else:
+            return [self.template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['is_mobile'] = self.request.user_agent.is_mobile
         return context
     
     def post(self, request, *args, **kwargs):
@@ -236,7 +240,10 @@ class EditProfileView(TemplateView):
             email = request.POST.get('email')
 
             if not username:
-                return render(request, self.template_name, {'error': _('El nombre de usuario es obligatorio.')})
+                if request.user_agent.is_mobile:
+                    return render(request, 'users/edit_profile_mobile.html', {'error': _('El nombre de usuario es obligatorio.'), 'is_mobile': request.user_agent.is_mobile})
+                else:
+                    return render(request, self.template_name, {'error': _('El nombre de usuario es obligatorio.')})
 
             try:
                 user = request.user
@@ -249,7 +256,10 @@ class EditProfileView(TemplateView):
                 return redirect('/')
             
             except IntegrityError:
-                return render(request, self.template_name, {'error': _('El nombre de usuario ya está en uso.')})
+                if request.user_agent.is_mobile:
+                    return render(request, 'users/edit_profile_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
+                else:
+                    return render(request, self.template_name, {'error': _('El nombre de usuario ya está en uso.')})
 
         else:
             return Response({'error': _('You must be logged in to edit your profile.')}, status=status.HTTP_400_BAD_REQUEST)

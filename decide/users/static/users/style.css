@@ -1,4 +1,4 @@
-.register-title-mobile {
+.register-title-mobile, .edit-title-mobile {
     text-align: center;
     font-size: 75px;
     font-weight: bold;
@@ -146,8 +146,25 @@ a.btn-primary:link, a.btn-primary:visited {
     justify-content: center;
 }
 
+.login-container-mobile {
+    display: flex;
+    justify-content: center;
+}
+
+.edit-admin-container-mobile {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.edit-admin-mobile {
+    margin-top: 2em;
+    font-size: 2em;
+    width: 60%;
+}
+
 @media (orientation: landscape) {
-    .register-title-mobile {
+    .register-title-mobile, .edit-title-mobile {
         font-size: 50px;
     }
 
