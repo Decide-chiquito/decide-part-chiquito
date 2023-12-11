@@ -462,7 +462,7 @@ class AuditVotingModelTestCase(BaseTestCase):
     def tearDown(self):
         super().tearDown()
         self.v = None
-
+    
     def testQuestionEditAndAppearsOnHistory(self):
         opt = QuestionOption.objects.get(option='opcion 1')
         opt.option = "New opcion"
@@ -490,4 +490,183 @@ class AuditVotingModelTestCase(BaseTestCase):
         opt.delete()
         self.assertEquals(LogEntry.objects.count(), 5)
         self.assertTrue(LogEntry.objects.filter(action=2).exists())
+
+
+class ReuseCensusTests(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        user = User(username='admintest', is_staff=True)
+        user.is_superuser = True
+        user.set_password('qwerty')
+        user.is_superuser = True
+        user.save()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def create_voting(self):
+        q = Question(desc='test question')
+        q.save()
+        for i in range(5):
+            opt = QuestionOption(question=q, option='option {}'.format(i+1))
+            opt.save()
+        v = Voting(name='test voting', question=q)
+        v.save()
+
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        v.auths.add(a)
+
+        return v
+    
+    def create_voters(self, v):
+        for i in range(10):
+            u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
+            u.is_active = True
+            u.save()
+            c = Census(voter_id=u.id, voting_id=v.id)
+            c.save()
+
+    def test_successful_reuse_census(self):
+        voting1 = self.create_voting()
+        self.create_voters(voting1)
+        voting2 = self.create_voting()
+
+        census1 = Census.objects.filter(voting_id=voting1.id)
+        census2 = Census.objects.filter(voting_id=voting2.id)
+
+        self.assertTrue(census1 != census2)
+  
+        self.driver.get(self.live_server_url + "/admin/voting/voting/")
+        self.driver.set_window_size(1920, 1080)
+
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
         
+        voting_elements = self.driver.find_elements(By.CLASS_NAME, "action-select")
+        if len(voting_elements) >= 2:
+            voting_elements[0].click()
+            voting_elements[1].click()
+
+            self.assertTrue(voting_elements[0].is_selected())
+            self.assertTrue(voting_elements[1].is_selected())
+        
+        dropdown = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.NAME, "action")))
+        dropdown.find_element(By.XPATH, "//option[. = 'Copiando el censo a otra votacion'] | //option[. = 'Copy the census to other voting'] | //option[. = 'Copy census to another voting']").click()
+        self.driver.find_element(By.NAME, "index").click()
+        
+        voters1 = set(census_entry.voter_id for census_entry in census1)
+        voters2 = set(census_entry.voter_id for census_entry in census2)
+        self.assertTrue(voters1 == voters2)
+        
+        self.assertTrue(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Censo copiado con exito de {} a {}".format(voting1.name, voting2.name) or self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Census successfully copied from {} to {}.".format(voting1.name, voting2.name))
+    
+    def test_votings_with_no_census(self):
+        voting1 = self.create_voting()
+        voting2 = self.create_voting()
+
+        census1 = Census.objects.filter(voting_id=voting1.id)
+        census2 = Census.objects.filter(voting_id=voting2.id)
+  
+        self.driver.get(self.live_server_url + "/admin/voting/voting/")
+        self.driver.set_window_size(1920, 1080)
+
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        
+        voting_elements = self.driver.find_elements(By.CLASS_NAME, "action-select")
+        if len(voting_elements) >= 2:
+            voting_elements[0].click()
+            voting_elements[1].click()
+
+            self.assertTrue(voting_elements[0].is_selected())
+            self.assertTrue(voting_elements[1].is_selected())
+        
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Copiando el censo a otra votacion'] | //option[. = 'Copy the census to other voting'] | //option[. = 'Copy census to another voting']").click()
+        self.driver.find_element(By.NAME, "index").click()
+
+        voters1 = set(census_entry.voter_id for census_entry in census1)
+        voters2 = set(census_entry.voter_id for census_entry in census2)
+        self.assertTrue(len(voters1) == 0 and len(voters2) == 0)
+        
+        self.assertTrue(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "El censo de ambas botaciones esta vacio" or self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "The census of both votes are empty")
+    
+    def test_one_voting_selected(self):
+        voting1 = self.create_voting()
+        self.create_voters(voting1)
+        voting2 = self.create_voting()
+
+        census1 = Census.objects.filter(voting_id=voting1.id)
+        census2 = Census.objects.filter(voting_id=voting2.id)
+  
+        self.driver.get(self.live_server_url + "/admin/voting/voting/")
+        self.driver.set_window_size(1920, 1080)
+
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        
+        voting_elements = self.driver.find_elements(By.CLASS_NAME, "action-select")
+        if len(voting_elements) >= 2:
+            voting_elements[0].click()
+
+            self.assertTrue(voting_elements[0].is_selected())
+            self.assertFalse(voting_elements[1].is_selected())
+        
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Copiando el censo a otra votacion'] | //option[. = 'Copy the census to other voting'] | //option[. = 'Copy census to another voting']").click()
+        self.driver.find_element(By.NAME, "index").click()
+
+        voters1 = set(census_entry.voter_id for census_entry in census1)
+        voters2 = set(census_entry.voter_id for census_entry in census2)
+        self.assertTrue(voters1 != voters2)
+        
+        self.assertTrue(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Selecciona exactamente 2 votos" or self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Select exactly 2 votes.")
+    
+    def test_both_with_census(self):
+        voting1 = self.create_voting()
+        self.create_voters(voting1)
+        voting2 = self.create_voting()
+        self.create_voters(voting2)
+
+        census1 = Census.objects.filter(voting_id=voting1.id)
+        census2 = Census.objects.filter(voting_id=voting2.id)
+  
+        self.driver.get(self.live_server_url + "/admin/voting/voting/")
+        self.driver.set_window_size(1920, 1080)
+
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+        
+        voting_elements = self.driver.find_elements(By.CLASS_NAME, "action-select")
+        if len(voting_elements) >= 2:
+            voting_elements[0].click()
+            voting_elements[1].click()
+
+            self.assertTrue(voting_elements[0].is_selected())
+            self.assertTrue(voting_elements[1].is_selected())
+        
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Copiando el censo a otra votacion'] | //option[. = 'Copy the census to other voting'] | //option[. = 'Copy census to another voting']").click()
+        self.driver.find_element(By.NAME, "index").click()
+
+        voters1 = set(census_entry.voter_id for census_entry in census1)
+        voters2 = set(census_entry.voter_id for census_entry in census2)
+        self.assertTrue(len(voters1) > 0 and len(voters2) > 0)
+        
+        self.assertTrue(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Ambas votaciones tienen un censo" or self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Both votes have a census")
