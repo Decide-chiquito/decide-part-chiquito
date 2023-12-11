@@ -34,22 +34,21 @@ class VisualizerView(TemplateView):
             token = self.request.session.get('auth-token', '')
             v = r[0]
             v_id = v['id']
-            voting_instance = get_object_or_404(Voting, id=v_id)
             
-            context['voting'] = json.dumps(v)
-
             context['is_mobile'] = self.request.user_agent.is_mobile
 
             yesno = [{'number': 2, 'option': 'Yes'}, {'number': 1, 'option': 'No'}]
             voting['question']['type'] = 'MULTIPLE'
-            if r[0]['question']['options'] == yesno:
-                voting['question']['type'] = 'YESNO'
-                voting['postproc'][0]['option'] = 'Sí' #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles, igual en el html de BOOTH
-            context['voting'] = json.dumps(voting)
+            if r[0]['question']['options'] == yesno and r[0]['postproc']:
+                r[0]['question']['type'] = 'YESNO'
+                r[0]['postproc'][0]['option'] = 'Sí' #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles, igual en el html de BOOTH
+            context['voting'] = json.dumps(r[0])
         except:
             raise Http404
         
         try:
+            voting_instance = get_object_or_404(Voting, id=v_id)
+
             if voting_instance.end_date == None:
                 live_tally = voting_instance.live_tally(token)
                 context['live_tally'] = json.dumps(live_tally)
@@ -73,7 +72,6 @@ class VisualizerView(TemplateView):
                     centros[centros.index(centro)] = {'name': centro, 'value': votos}
 
                 context['census'] = json.dumps(centros)
-                print(voting_instance.end_date)
         except:
             pass
 
