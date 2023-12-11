@@ -51,21 +51,19 @@ class RegisterView(APIView):
             if request.user_agent.is_mobile:
                 return render(request, 'users/register_mobile.html', {'error': _('Las contraseñas no coinciden.'), 'is_mobile': request.user_agent.is_mobile})
             else:
-                return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'registration/register_fail.html', {'error': _('The passwords do not match.')})
         
         try:
             user = User.objects.create_user(username, password=password, email=email)
-            token, created = Token.objects.get_or_create(user=user)
-            success_message = _('Successful registration. You are now registered.')
             if request.user_agent.is_mobile:
                 return redirect('/')
             else:
-                return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
+                return render(request, 'registration/register_success.html', {'message': _('Successful registration. You are now registered.')})   
         except IntegrityError:
             if request.user_agent.is_mobile:
                 return render(request, 'users/register_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
             else:
-                return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'registration/register_fail.html', {'error': _('The username is already in use.')})   
 
 
 

@@ -1,0 +1,21 @@
+{% extends "base.html"%}
+
+{% load i18n static %}
+
+{% load static %}
+
+{% block content %}
+
+
+    {%for visualizer in visualizers%}
+    <div class="navigator">
+        <div class="info">
+            </div class="row">    
+                <h2>{{visualizer.name}}</h2>
+                <a class="button"  href='/visualizer/{{visualizer.id}}'>{% trans 'Access'%}</a>       
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+{% endblock content %}
