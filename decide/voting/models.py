@@ -24,10 +24,10 @@ class QuestionOption(models.Model):
     class Meta:
         verbose_name=_("QuestionOption")
 
-    def save(self):
+    def save(self,*args,**kwargs):
         if not self.number:
             self.number = self.question.options.count() + 2
-        return super().save()
+        return super(QuestionOption,self).save(*args,**kwargs)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
