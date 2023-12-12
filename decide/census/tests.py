@@ -150,12 +150,17 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual("Census updated", response.json())
 
     def test_import_census(self):
+        self.login()
         admin_instance = VotingAdmin(model=Voting, admin_site=AdminSite())
 
         csv_content = "votingID,voterID,center,tags...\n1,2,ETSII,tag1\n2,2,ETSA,tag1,tag2"
         csv_file = SimpleUploadedFile("census.csv", csv_content.encode("utf-8"), content_type="text/csv")
 
         request = RequestFactory().post('/admin/voting/voting/upload-csv/', {'csv_upload': csv_file})
+        user = User.objects.get(username='admin')
+        self.assertTrue(user.check_password('qwerty'))
+        request.user = user
+
 
         response = admin_instance.upload_csv(request)
 
