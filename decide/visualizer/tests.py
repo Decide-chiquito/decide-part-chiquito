@@ -14,8 +14,6 @@ from datetime import timedelta, datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from django.utils import timezone
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 import time
 
