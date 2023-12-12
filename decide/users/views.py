@@ -24,6 +24,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import gettext as _
 from .forms import CertificateLoginForm
 from django.contrib.auth.backends import ModelBackend
+from django.views.generic import TemplateView
+from base import mods
+import json
+from django.http import Http404
 
 
 
@@ -211,3 +215,53 @@ class CertLoginView(APIView):
                     return render(request, 'registration/cert_fail.html')
 
         return render(request, 'registration/cert_fail.html')
+
+
+class EditProfileView(TemplateView):
+    template_name = 'users/edit_profile.html'
+
+    def get_template_names(self):
+        if self.request.user_agent.is_mobile:
+            return ['users/edit_profile_mobile.html']
+        else:
+            return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_mobile'] = self.request.user_agent.is_mobile
+        return context
+    
+    def post(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated and not request.user.is_superuser:
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+
+            if not username:
+                if request.user_agent.is_mobile:
+                    return render(request, 'users/edit_profile_mobile.html', {'error': _('El nombre de usuario es obligatorio.'), 'is_mobile': request.user_agent.is_mobile})
+                else:
+                    return render(request, self.template_name, {'error': _('El nombre de usuario es obligatorio.')})
+
+            try:
+                user = request.user
+                user.username = username
+                user.first_name = first_name
+                user.last_name = last_name
+                user.email = email
+                user.save()
+
+                return redirect('/')
+            
+            except IntegrityError:
+                if request.user_agent.is_mobile:
+                    return render(request, 'users/edit_profile_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
+                else:
+                    return render(request, self.template_name, {'error': _('El nombre de usuario ya está en uso.')})
+
+        else:
+            return Response({'error': _('You must be logged in to edit your profile.')}, status=status.HTTP_400_BAD_REQUEST)
+        
+
