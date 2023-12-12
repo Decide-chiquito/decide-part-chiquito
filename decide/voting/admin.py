@@ -196,10 +196,10 @@ class VotingAdmin(ModelAdmin):
         return new_urls + urls
 
     def upload_csv(self, request):
-        if request.user.is_superuser:
+        user = getattr(request, 'user', None)
+        if user and user.is_superuser:
             if request.method == "POST":
                 csv_file = request.FILES.get("csv_upload")
-
                 if not csv_file.name.endswith('.csv'):
                     form = CsvImportForm()
                     data = {"form": form, "error": "El archivo no es un csv"}
