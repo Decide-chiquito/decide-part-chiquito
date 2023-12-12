@@ -196,55 +196,58 @@ class VotingAdmin(ModelAdmin):
         return new_urls + urls
 
     def upload_csv(self, request):
-        if request.method == "POST":
-            csv_file = request.FILES.get("csv_upload")
+        if request.user.is_superuser:
+            if request.method == "POST":
+                csv_file = request.FILES.get("csv_upload")
 
-            if not csv_file.name.endswith('.csv'):
-                form = CsvImportForm()
-                data = {"form": form, "error": "El archivo no es un csv"}
-                data['is_mobile'] = request.user_agent.is_mobile
-                if request.user_agent.is_mobile:
-                    return render(request, "csv_upload_mobile.html", data)
-                else:
-                    return render(request, "csv_upload.html", data)
+                if not csv_file.name.endswith('.csv'):
+                    form = CsvImportForm()
+                    data = {"form": form, "error": "El archivo no es un csv"}
+                    data['is_mobile'] = request.user_agent.is_mobile
+                    if request.user_agent.is_mobile:
+                        return render(request, "csv_upload_mobile.html", data)
+                    else:
+                        return render(request, "csv_upload.html", data)
 
-            file_data = csv_file.read().decode("utf-8").split("\n")
-            file_data = file_data[1:]  # Omitir la primera fila si contiene encabezados
+                file_data = csv_file.read().decode("utf-8").split("\n")
+                file_data = file_data[1:]  # Omitir la primera fila si contiene encabezados
 
-            for line in file_data:
-                census_data = line.strip().split(",")  # Dividir los datos por coma
+                for line in file_data:
+                    census_data = line.strip().split(",")  # Dividir los datos por coma
 
-                # Verificar si hay suficientes campos en la línea
-                if len(census_data) >= 4:
-                    try:
-                        voting_id = int(census_data[0].strip())
-                        voter_id = int(census_data[1].strip())
-                        center = census_data[2].strip()
-                        tags = census_data[3:]
+                    # Verificar si hay suficientes campos en la línea
+                    if len(census_data) >= 4:
+                        try:
+                            voting_id = int(census_data[0].strip())
+                            voter_id = int(census_data[1].strip())
+                            center = census_data[2].strip()
+                            tags = census_data[3:]
 
-                        census_object, created = Census.objects.get_or_create(
-                        voting_id=voting_id,
-                        voter_id=voter_id,
-                        adscription_center=center
-                        )
+                            census_object, created = Census.objects.get_or_create(
+                            voting_id=voting_id,
+                            voter_id=voter_id,
+                            adscription_center=center
+                            )
 
-                        for tag_name in tags:
-                            tag_name = tag_name.strip()
-                            tag_object, tag_created = Tag.objects.get_or_create(name=tag_name)
-                            census_object.tags.add(tag_object)
+                            for tag_name in tags:
+                                tag_name = tag_name.strip()
+                                tag_object, tag_created = Tag.objects.get_or_create(name=tag_name)
+                                census_object.tags.add(tag_object)
 
-                        census_object.save()
-                    except (ValueError, IntegrityError):
-                        # Manejar errores de valores incorrectos o integridad
-                        pass
+                            census_object.save()
+                        except (ValueError, IntegrityError):
+                            # Manejar errores de valores incorrectos o integridad
+                            pass
 
-            return redirect('/admin/census/census/')
+                return redirect('/admin/census/census/')
 
-        form = CsvImportForm()
-        data = {"form": form}
-        data['is_mobile'] = request.user_agent.is_mobile
-        
-        if request.user_agent.is_mobile:
-            return render(request, "csv_upload_mobile.html", data)
+            form = CsvImportForm()
+            data = {"form": form}
+            data['is_mobile'] = request.user_agent.is_mobile
+            
+            if request.user_agent.is_mobile:
+                return render(request, "csv_upload_mobile.html", data)
+            else:
+                return render(request, "csv_upload.html", data)
         else:
-            return render(request, "csv_upload.html", data)
+            return redirect('/')
