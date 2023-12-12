@@ -9,7 +9,7 @@ from .models import Voting
 from django.contrib import messages
 from .filters import StartedFilter
 import csv
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.utils.translation import gettext as _
 
 from census.models import Census, Tag
@@ -196,7 +196,7 @@ class VotingAdmin(ModelAdmin):
         return new_urls + urls
 
     def upload_csv(self, request):
-        if request.user.is_superuser:  
+        if request.user.is_superuser:
             if request.method == "POST":
                 csv_file = request.FILES.get("csv_upload")
 
