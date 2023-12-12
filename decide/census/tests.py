@@ -1,20 +1,14 @@
 import random
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
-from rest_framework.test import APIClient
+from django.test import override_settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 from .models import Census, Voting
-from datetime import datetime, timedelta
 from voting.models import Question
-from base import mods
 from base.tests import BaseTestCase
 
 from django.contrib.admin.sites import AdminSite
@@ -99,7 +93,6 @@ class CensusTestCase(BaseTestCase):
         self.login()
         response = self.client.post('/census/', data, format='json')
         self.assertEqual(response.status_code, 201)
-
         voter = User.objects.get(pk=51)
         self.assertEqual(mail.outbox[0].to, [voter.email])
         self.assertEqual(len(mail.outbox), 1)

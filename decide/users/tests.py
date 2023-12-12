@@ -159,7 +159,6 @@ class MailLoginTest(StaticLiveServerTestCase):
         self.driver.get(f"{self.live_server_url}/users/login/")
         self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()
         self.assertTrue("https://accounts.google.com/" in self.driver.current_url)
-        
 
 class CertLoginViewTest(TestCase):
     def test_get_cert_login_view(self):
@@ -174,14 +173,14 @@ class CertLoginViewTest(TestCase):
         self.assertTemplateUsed(response, 'registration/cert_fail.html')
 
     def test_post_cert_login_view_invalid_cert(self):
-        invalid_file = SimpleUploadedFile("invalid_file.txt", 
+        invalid_file = SimpleUploadedFile("invalid_file.txt",
             b"soy un archivo que no es un certificado digital, por lo tanto no debe funcionar el login")
         data = {'cert_file': invalid_file, 'cert_password': 'testpassword'}
         response = self.client.post('/users/cert-login/', data, format='multipart')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/cert_fail.html')
 
-    ''' El archivo cert.pfx es un certificado digital ficticio que sirve para hacer pruebas, la contraseña es 1111'''
+    # El archivo cert.pfx es un certificado digital ficticio que sirve para hacer pruebas, la contraseña es 1111
     def test_post_cert_login_view_succes(self):
         with open('cert.pfx', 'rb') as cert_file:
             cert_content = cert_file.read()
