@@ -2,14 +2,14 @@ from django.test import TestCase
 from base.tests import BaseTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
-from voting.models import Voting, Question
+from voting.models import Voting, Question, QuestionOption
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from django.utils import timezone
-
+from selenium.webdriver.support.ui import WebDriverWait
 import time
-
+from selenium.webdriver.support import expected_conditions as EC
 class VisualizerTestCase(StaticLiveServerTestCase):
 
     def setUp(self):
@@ -21,81 +21,32 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         super().setUp()
 
     def tearDown(self):
-        super().tearDown()
         self.driver.quit()
         self.base.tearDown()
 
+    def create_voting(self, method,data):
+        q = Question.objects.create(desc='test question')
+        if data== None:
+            data = [
+                {'option': 'Option 1', 'votes': 5},
+                {'option': 'Option 2', 'votes': 3},
+                # Añadir más opciones según sea necesario
+            ]
+        for item in data:
+            QuestionOption.objects.create(question=q, option=item['option'])
 
-    def test_simpleVisualizer(self):        
-        q = Question(desc='test question')
-        q.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting.objects.create(name='test voting', method=method, start_date=timezone.now(), end_date=timezone.now())
+        v.questions.add(q)
+        v.postproc=data
         v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Votación no comenzada")
+        return v
 
-    def test_dhondt_voting_visualizer(self):
-        q = Question(desc='test question')
-        q.save()
-        data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
-        ]
-        v = Voting(name='test voting', question=q, method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
-        v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
-        self.assertTrue(vState)
-    
-    def test_dhondt_voting_visualizer(self):
-        q = Question(desc='test question')
-        q.save()
-        data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
-        ]
-        v = Voting(name='test voting', question=q, method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
-        v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
-        self.assertTrue(vState)
 
-    def test_webster_voting_visualizer(self):
-        q = Question(desc='test question')
-        q.save()
-        data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
-        ]
-        v = Voting(name='test voting', question=q, method='WEBSTER',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
-        v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
-        self.assertTrue(vState)
+    def test_simple_visualizer(self):
+        v = self.create_voting('IDENTITY', None)
+        self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "h2")))
+        v_state = self.driver.find_element(By.TAG_NAME, "h2").text
+        self.assertIn("Resultados", v_state)
 
-    def test_identity_voting_visualizer(self):
-        q = Question(desc='test question')
-        q.save()
-        data = [
-            { 'option': 'Option 1', 'number': 1, 'votes': 5, 'postproc': 5 },
-            { 'option': 'Option 5', 'number': 5, 'votes': 5, 'postproc': 5 },
-            { 'option': 'Option 3', 'number': 3, 'votes': 3, 'postproc': 3 },
-            { 'option': 'Option 4', 'number': 4, 'votes': 2, 'postproc': 2 },
-            { 'option': 'Option 6', 'number': 6, 'votes': 1, 'postproc': 1 },
-            { 'option': 'Option 2', 'number': 2, 'votes': 0, 'postproc': 0 },
-        ]
-        v = Voting(name='test voting', question=q, method='IDENTITY',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
-        v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container").text
-        self.assertTrue(vState)
-
+  

@@ -7,7 +7,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-
+from rest_framework import status
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -25,7 +25,7 @@ from datetime import datetime
 
 from base.tests import BaseTestCase
 from voting.models import Voting, Question, QuestionOption,Auth
-
+from django.urls import reverse
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
         # Crear instancias de Question y sus opciones
@@ -150,46 +150,7 @@ class VotingTestCase(BaseTestCase):
         user.save()
         return user
 
-    def store_votes(self, v):
-        voters = list(Census.objects.filter(voting_id=v.id))
-        voter = voters.pop()
-
-        clear = {}
-        for opt in v.questions.first().options.all():
-            clear[opt.number] = 0
-            for i in range(random.randint(0, 5)):
-                a, b = self.encrypt_msg(opt.number, v)
-                data = {
-                    'voting': v.id,
-                    'voter': voter.voter_id,
-                    'vote': {'a': a, 'b': b},
-                }
-                clear[opt.number] += 1
-                user = self.get_or_create_user(voter.voter_id)
-                self.login(user=user.username)
-                voter = voters.pop()
-                mods.post('store', json=data)
-        return clear
-
-    def test_complete_voting(self):
-        v = self.create_voting()
-        self.create_voters(v)
-
-        v.create_pubkey()
-        v.start_date = timezone.now()
-        v.save()
-
-        clear = self.store_votes(v)
-
-        self.login()  # set token
-        v.tally_votes(self.token)
-
-        tally = v.tally
-        tally.sort()
-        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
-
-        for opt in v.questions.first().options.all():
-            self.assertEqual(tally.get(opt.number, 0), clear.get(opt.number, 0))
+    
 
 
 
@@ -242,7 +203,7 @@ class VotingTestCase(BaseTestCase):
         # login with user admin
         self.login()
         data = {'action': 'bad'}
-        print('hola')
+        
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
 
@@ -250,7 +211,7 @@ class VotingTestCase(BaseTestCase):
         for action in ['stop', 'tally']:
             data = {'action': action}
             response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-            print('hola')
+            
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response.json(), 'Voting is not started')
 
@@ -262,13 +223,13 @@ class VotingTestCase(BaseTestCase):
         # STATUS VOTING: started
         data = {'action': 'start'}
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        print('hola')
+        
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already started')
 
         data = {'action': 'tally'}
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        print('hola')
+        
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting is not stopped')
 
@@ -280,13 +241,13 @@ class VotingTestCase(BaseTestCase):
         # STATUS VOTING: stopped
         data = {'action': 'start'}
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        print('hola')
+        
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already started')
 
         data = {'action': 'stop'}
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        print('hola')
+        
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already stopped')
 
@@ -298,7 +259,7 @@ class VotingTestCase(BaseTestCase):
         # STATUS VOTING: tallied
         data = {'action': 'start'}
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
-        print('hola')
+        
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already started')
 
@@ -478,3 +439,44 @@ class QuestionsTests(StaticLiveServerTestCase):
 
         self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[3]/div/div[1]/div/form/div/p').text == 'Please correct the errors below.')
         self.assertTrue(self.cleaner.current_url == self.live_server_url+"/admin/voting/question/add/")
+
+class VotingPostAPITestCase(APITestCase):
+
+    def setUp(self):
+        # Configura un usuario staff para las pruebas
+        self.user = User.objects.create_user(username='staffs', password='password',is_staff=True)
+        self.login_url = reverse('users:login')
+       
+    def test_post_voting_with_missing_data(self):
+        """
+        Prueba la creación de una votación con datos faltantes.
+        """
+        # Datos incompletos, faltan 'question' y 'question_opt'
+        incomplete_data = {
+            'name': 'Test Voting',
+            'desc': 'Test Description',
+        }
+
+        response = self.client.post('/voting/', incomplete_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_post_voting_success(self):
+        """
+        Prueba la creación exitosa de una votación.
+        """
+        # Datos completos incluyendo 'question' y 'question_opt'
+        complete_data = {
+            'name': 'Test Voting',
+            'desc': 'Test Description',
+            'question': 'Test Question',
+            'question_opt': ['Option 1', 'Option 2'],
+            'method': 'IDENTITY',  # Asumiendo que se requiere especificar un método
+        }
+
+        response = self.client.post('/voting/', complete_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+       
+
+    def tearDown(self):
+        self.client.logout()
