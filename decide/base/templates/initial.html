@@ -24,39 +24,39 @@
         <button class="button" onclick="go_to_route('/users/register/')">{% trans 'Access'%}</button>
     </div>
 
+    {% if user.is_authenticated and not user.is_superuser %}
+        <div class="row">
+            <label for="edit-profile" class="label">edit profile</label>
+            <button class="button" onclick="go_to_route('/users/edit-profile/')">{% trans 'Access'%}</button>
+        </div>
+    {% endif %}
+
     <div class="row">
         <label for="mailer" class="label">send email</label>
         <button class="button" onclick="go_to_route('/mailer/')">Acceder</button>
     </div>
 
     <div class="row">
-        <label for="booth" class="label">booth</label>
-        <select id="booth" name="booth">
-            <option value="" selected>{% trans 'Choose one option'%}</option>
-            {% for voting in voting_enabled %}
-            <option value="{{voting.id}}">{{voting.name}}</option>
-            {% endfor %}
-        </select>
-        <button class="button" onclick="go_to_route('/booth/', 'booth')">{% trans "Access" %}</button>
+        <label for="voting" class="label">BoothList</label>
+        <a href="booth/listActiveVoting/">
+            <button class="button">BoothList</button>
+        </a>
     </div>
 
     <div class="row">
-        <label for="visualizer" class="label">{% trans 'visualizer'%}</label>
-        <select id="visualizer" name="visualizer">
-            <option value="" selected>{% trans "Choose a option" %}</option>
-            {% for voting in voting_finished %}
-            <option value="{{voting.id}}">{{voting.name}}</option>
-            {% endfor %}
-        </select>
-        <button class="button" onclick="go_to_route('/visualizer/', 'visualizer')">{% trans 'Access'%}</button>
+        <label for="voting" class="label">VisualizerList</label>
+        <a href="visualizer/listVisualizer/">
+            <button class="button">VisualizerList</button>
+        </a>
     </div>
 
     <div class="row">
         <label for="census" class="label">census</label>
-        <a href="./admin/voting/voting/upload-csv/">
-            <button class="button">Importar</button>
-        </a>
+        <button class="button" onclick="importar()">Importar</button>
     </div>
+    
+    
+    
     
 </div>
 <div class="urls-list">
@@ -78,7 +78,7 @@
     function go_to_route(url, id){
         // La función que se ejecutará al hacer clic en el botón
 
-        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/') {
+        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/' && url != '/users/edit-profile/') {
             let inputValue = document.getElementById(id).value;
             if(inputValue == null || inputValue == ""){
                 alert("Por favor, introduzca un valor válido");
@@ -90,6 +90,12 @@
             window.location.href = url;
             
         }
+    }
+
+    function importar() {
+        var url = "./admin/voting/voting/upload-csv/";
+
+        window.location.href = url;
     }
 </script>
 

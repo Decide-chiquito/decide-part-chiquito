@@ -88,13 +88,15 @@
         <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
+            <h2 v-if="voting.question.type == 'YESNO'">Votación de tipo SI/NO</h2>
             <form v-for="opt in voting.question.options" :key="opt.number" class="form-voting">
                 <div class="form-group">
                     <input type="radio" v-model="selected"
                                 :id="'q' + opt.number"
                                 name="question"
                                 :value="opt.number">
-                        [[ opt.option ]]
+                        <p v-if="opt.option == 'Yes'">Sí</p>
+                            <p v-else>[[opt.option]]</p>
                 </div>
             </form>
             <div class="options">

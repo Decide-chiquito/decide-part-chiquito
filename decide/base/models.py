@@ -1,5 +1,24 @@
 from django.db import models
 
+from auditlog.registry import AuditlogModelRegistry
+
+class CustomLogEntry(AuditlogModelRegistry):
+    entity_name = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Audits'
+
+    def save(self, *args, **kwargs):
+        # Asigna automáticamente el nombre de la entidad si aún no se ha establecido
+        if not self.entity_name:
+            self.entity_name = self.get_entity_name()  # Implementa get_entity_name() según tus necesidades
+        super().save(*args, **kwargs)
+
+    def get_entity_name(self):
+        # Implementa lógica para obtener el nombre de la entidad aquí
+        # Puede ser, por ejemplo, self.instance._meta.verbose_name
+        return self.entity_name
+
 
 class BigBigField(models.TextField):
     def to_python(self, value):

@@ -9,7 +9,9 @@
 <link type="text/css" rel="stylesheet" href="{% static "css/style.css" %}" />
 <script>
     function go_to_route(url, id){
-        if (url != '/admin/' && url != '/users/register/') {
+        // La función que se ejecutará al hacer clic en el botón
+
+        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/' && url != '/admin/voting/voting/upload-csv/' && url != '/users/edit-profile/') {
             let inputValue = document.getElementById(id).value;
             if(inputValue == null || inputValue == ""){
                 alert("Por favor, introduzca un valor válido");
@@ -19,7 +21,14 @@
         } else {
             console.log(url);
             window.location.href = url;
+            
         }
+    }
+
+    function importar() {
+        var url = "./admin/voting/voting/upload-csv/";
+
+        window.location.href = url;
     }
 </script>
 {% endblock extrahead %}
@@ -28,17 +37,14 @@
 
 {% block content %}
 
-<nav class="title-mobile">
-    <h1 class="title-text-mobile">Decide</h1>
-</nav>
-
 <h2 class="subtitle-mobile">DECIDE, el sistema de votaciones por decide-part-chiquito</h2>
 
 <div class="subtitle-line-mobile"></div>
 
 <p class="access-text-mobile">- Acceso al sistema -</p>
 
-<div class="card-container-mobile">
+<div class="contents-mobile">
+
     <div class="card-mobile">
         <label for="admin" class="label-mobile">admin</label>
         <button class="button-mobile" onclick="go_to_route('/admin/')">Acceder</button>
@@ -47,6 +53,18 @@
     <div class="card-mobile">
         <label for="register" class="label-mobile">register</label>
         <button class="button-mobile" onclick="go_to_route('/users/register/')">Acceder</button>
+    </div>
+
+    {% if user.is_authenticated and not user.is_superuser %}
+        <div class="card-mobile">
+            <label for="edit-profile" class="label-mobile">edit profile</label>
+            <button class="button-mobile" onclick="go_to_route('/users/edit-profile/')">Acceder</button>
+        </div>
+    {% endif %}
+
+    <div class="card-mobile">
+        <label for="mailer" class="label-mobile">send email</label>
+        <button class="button-mobile" onclick="go_to_route('/mailer/')">Acceder</button>
     </div>
     
     <div class="card-mobile">
@@ -74,23 +92,30 @@
         </div>
         <button class="button-mobile" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
     </div>
+
+    <div class="card-mobile">
+        <label for="census" class="label-mobile">census</label>
+        <button class="button-mobile" onclick="go_to_route('/admin/voting/voting/upload-csv/')">Importar</button>
+    </div>
+
+    <div class="subtitle-line-mobile"></div>
+
+    <p class="access-text-mobile">- Puntos de acceso a través de URL -</p>
+
+    <div class="urls-list-mobile">
+    <ul class="points-mobile">
+        {% for url in url_patterns %}
+            {% if url != ""%}
+                <li><label class="points-label-mobile">{{ url }}</label></li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    </div>
+
 </div>
 
-<div class="subtitle-line-mobile"></div>
 
-<p class="access-text-mobile">- Puntos de acceso a través de URL -</p>
 
-<div class="urls-list-mobile">
-   <ul class="points-mobile">
-    {% for url in url_patterns %}
-        {% if url != ""%}
-            <li><label class="points-label-mobile">{{ url }}</label></li>
-        {% endif %}
-    {% endfor %}
-    </ul>
-</div>
-<div>
-    <p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
-</div>
+
 {% endblock content %}
 

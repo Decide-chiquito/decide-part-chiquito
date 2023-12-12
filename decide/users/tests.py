@@ -10,66 +10,55 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class RegisterViewTest(TestCase):
+
     def setUp(self):
         self.client = APIClient()
 
     def test_get_register_view(self):
-        response = self.client.get('/users/register/')
+        response = self.client.get(reverse('users:register'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/register.html')
 
-    def test_register(self):
-        data = {'username': 'voter_correct',
-                'password': '1234',
-                'confirm_password': '1234',
-                'email': 'voter1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
+    def test_successful_registration(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+            'confirm_password': 'testpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register_success.html')
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('token', response.data)
-        self.assertIn('user_pk', response.data)
+    def test_password_mismatch(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+            'confirm_password': 'mismatchedpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register_fail.html')
+        self.assertContains(response, 'The passwords do not match.')
 
-        user = User.objects.get(username='voter_correct')
-        self.assertTrue(user.check_password('1234'))
-        self.assertEqual(user.email, 'voter1@gmail.com')
+    def test_username_already_in_use(self):
+        User.objects.create_user(username='existinguser', password='testpassword', email='existing@example.com')
+        data = {
+            'username': 'existinguser',
+            'password': 'testpassword',
+            'confirm_password': 'testpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:register'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/register_fail.html')
+        self.assertContains(response, 'The username is already in use.')
 
-    def test_register_existing_username(self):
-        User.objects.create_user(username='username_exist', password='1234')
-        data = {'username': 'username_exist',
-                'password': '12345',
-                'confirm_password': '12345',
-                'email': 'user1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertIn('The username is already in use.', response.data['error'])
-
-    def test_register_not_username(self):
-        User.objects.create_user(username='username_exist', password='1234')
-        data = {'username': '',
-                'password': '12345',
-                'confirm_password': '12345',
-                'email': 'user1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertIn('Username and password are required.', response.data['error'])
-
-    def test_register_distinct_password(self):
-        data = {'username': 'user1',
-                'password': '1234',
-                'confirm_password': '12345',
-                'email': 'user1@gmail.com'}
-        response = self.client.post('/users/register/', data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertIn('The passwords do not match.', response.data['error'])
 
 
 class LoginLogoutViewTests(TestCase):
@@ -103,6 +92,9 @@ class LoginLogoutViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/')
 
+    def test_mail_login(self):
+        response = self.client.get(reverse('social:begin', args=['google-oauth2']))
+        assert response.status_code == 302
 
 class RequestPasswordResetViewTests(StaticLiveServerTestCase):
     def setUp(self):
@@ -146,3 +138,65 @@ class RequestPasswordResetViewTests(StaticLiveServerTestCase):
         self.noadmin = User.objects.filter(username="noadmin").first()
         self.assertTrue(self.noadmin.check_password(self.password))
         self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
+
+
+class MailLoginTest(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_mail_login_fail(self):
+        self.driver.get(f"{self.live_server_url}/users/login/")
+        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()
+        self.assertTrue("https://accounts.google.com/" in self.driver.current_url)
+        
+
+class CertLoginViewTest(TestCase):
+    def test_get_cert_login_view(self):
+        response = self.client.get('/users/cert-login/')
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response,'registration/cert_login.html')
+
+    def test_post_cert_login_view_filure(self):
+        data={'cert_file':'','cert_password':''}
+        response = self.client.post('/users/cert-login/',data)
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response, 'registration/cert_fail.html')
+
+    def test_post_cert_login_view_invalid_cert(self):
+        invalid_file = SimpleUploadedFile("invalid_file.txt", 
+            b"soy un archivo que no es un certificado digital, por lo tanto no debe funcionar el login")
+        data = {'cert_file': invalid_file, 'cert_password': 'testpassword'}
+        response = self.client.post('/users/cert-login/', data, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/cert_fail.html')
+
+    ''' El archivo cert.pfx es un certificado digital ficticio que sirve para hacer pruebas, la contraseña es 1111'''
+    def test_post_cert_login_view_succes(self):
+        with open('cert.pfx', 'rb') as cert_file:
+            cert_content = cert_file.read()
+        cert_uploaded = SimpleUploadedFile("cert.pfx", cert_content, content_type="application/x-pkcs12")
+        data = {'cert_file': cert_uploaded, 'cert_password': '1111'}
+        response = self.client.post('/users/cert-login/', data, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/cert_success.html')
+
+    def test_post_cert_login_view_invalid_password(self):
+        with open('cert.pfx', 'rb') as cert_file:
+            cert_content = cert_file.read()
+        cert_uploaded = SimpleUploadedFile("cert.pfx", cert_content, content_type="application/x-pkcs12")
+        data = {'cert_file': cert_uploaded, 'cert_password': 'invalid_pasword'}
+        response = self.client.post('/users/cert-login/', data, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration/cert_fail.html')
+

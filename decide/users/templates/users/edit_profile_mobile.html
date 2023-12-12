@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link type="text/css" rel="stylesheet" href='{% static "users/style.css" %}' />
+{% endblock %}
+
+{% block content %}
+    <div id="app-visualizer">
+
+        {% if not user.is_authenticated %}
+
+            <h1 class="voting-title">Inicia sesión para poder editar tu perfil</h1>
+
+            <div class="login-container-mobile">
+                <a href="/users/login/" class="btn-mobile">Iniciar sesión</a>
+            </div>
+
+        {% elif user.is_superuser %}
+            
+            <div class="edit-admin-container-mobile">
+                <h2 class="edit-admin-mobile">No puedes editar tus datos siendo administrador.</h2>
+            </div>
+
+        {% else %}
+
+            <h1 class="edit-title-mobile">Editar datos de usuario</h1>
+
+            <form method="post" class="form-mobile">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username" class="label-mobile">Nombre de usuario</label>
+                    <input type="text" name="username" value="{{ user.username }}" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="first_name" class="label-mobile">Nombre</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control">
+                </div>
+            
+                <div class="form-group">
+                    <label for="last_name" class="label-mobile">Apellidos</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="label-mobile">Correo electrónico</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="form-control">
+                </div>
+
+                <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
+                <button type="submit" class="btn-mobile">Actualizar datos</button>
+            </form>
+
+        {% endif %}
+
+    </div>
+{% endblock %}
