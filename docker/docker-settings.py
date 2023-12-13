@@ -28,6 +28,8 @@ MODULES = [
     'store',
     'visualizer',
     'voting',
+    'users',
+    'mailer'
 ]
 
 BASEURL = 'http://10.5.0.1:8000'
@@ -43,3 +45,22 @@ APIS = {
     'visualizer': 'http://10.5.0.1:8000',
     'voting': 'http://10.5.0.1:8000',
 }
+
+STATIC_ROOT = '/app/decide/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'livereload.middleware.LiveReloadScript',
+    'auditlog.middleware.AuditlogMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
+]
