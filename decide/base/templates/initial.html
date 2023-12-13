@@ -32,6 +32,21 @@
     {% endif %}
 
     <div class="row">
+        {% if user.is_authenticated %}
+        <label for="logout" class="label">Logout</label>
+        <a  class="button" href="/users/logout/">
+            Logout
+        </a>
+        {% else %}
+        <label for="login" class="label">Login</label>
+        <a  class="button" href="/users/login/">
+            Login
+        </a>
+        {%endif%}
+        
+    </div>
+
+    <div class="row">
         <label for="mailer" class="label">send email</label>
         <button class="button" onclick="go_to_route('/mailer/')">Acceder</button>
     </div>
