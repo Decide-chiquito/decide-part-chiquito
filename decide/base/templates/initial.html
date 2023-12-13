@@ -37,23 +37,21 @@
     </div>
 
     <div class="row">
-        <label for="voting" class="label">BoothList</label>
-        <a href="booth/listActiveVoting/">
-            <button class="button">BoothList</button>
-        </a>
+        <label for="voting" class="label">Booth</label>
+        <button class="button" onclick=" button_go_to_route('booth/listActiveVoting/')">List</button>
     </div>
 
     <div class="row">
-        <label for="voting" class="label">VisualizerList</label>
-        <a href="visualizer/listVisualizer/">
-            <button class="button">VisualizerList</button>
-        </a>
+        <label for="voting" class="label">Visualizer</label>
+        <button class="button" onclick=" button_go_to_route('visualizer/listVisualizer/')">List</button>
     </div>
 
-    <div class="row">
-        <label for="census" class="label">census</label>
-        <button class="button" onclick="importar()">Importar</button>
-    </div>
+    {% if user.is_superuser %}
+        <div class="row">
+            <label for="census" class="label">census</label>
+            <button class="button" onclick=" button_go_to_route('admin/voting/voting/upload-csv/')">Importar</button>
+        </div>
+    {% endif %}
     
     
     
@@ -92,9 +90,7 @@
         }
     }
 
-    function importar() {
-        var url = "./admin/voting/voting/upload-csv/";
-
+    function button_go_to_route(url) {
         window.location.href = url;
     }
 </script>
