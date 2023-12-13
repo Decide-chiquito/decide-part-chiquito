@@ -668,3 +668,58 @@ class ReuseCensusTests(StaticLiveServerTestCase):
         self.assertTrue(len(voters1) > 0 and len(voters2) > 0)
         
         self.assertTrue(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Ambas votaciones tienen un censo" or self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Both votes have a census")
+
+class YesNoQuestionVoting(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        user = User(username='admintest', is_staff=True)
+        user.is_superuser = True
+        user.set_password('qwerty')
+        user.save()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        self.driver.quit()
+        super().tearDown()
+
+    def test_voting_yes_no(self):
+        self.driver.get(self.live_server_url + "/admin/login/?next=/admin/")
+        self.driver.set_window_size(1280, 720)
+
+        username_input = self.driver.find_element(By.ID, "id_username")
+        password_input = self.driver.find_element(By.ID, "id_password")
+
+        username_input.click()
+        username_input.send_keys("admintest")
+
+        password_input.click()
+        password_input.send_keys("qwerty")
+
+        password_input.send_keys(Keys.ENTER)
+
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.LINK_TEXT, "Voting"))
+        )
+
+        self.driver.find_element(By.LINK_TEXT, "Voting").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".border-b:nth-child(1) > a").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-question .addlink").click()
+
+        self.driver.find_element(By.ID, "id_desc").send_keys("Si o No")
+        dropdown = self.driver.find_element(By.ID, "id_type")
+        dropdown.find_element(By.XPATH, "//option[. = 'Yes/No']").click()
+        
+        self.driver.find_element(By.NAME, "_save").click()
+
+        self.driver.find_element(By.LINK_TEXT, "Voting").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".border-b:nth-child(1) > a").click()
+        self.driver.find_element(By.LINK_TEXT, "Si o No").click()
+
+        self.driver.find_element(By.ID, "id_desc").click()
+

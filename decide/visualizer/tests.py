@@ -124,3 +124,35 @@ class ListVisualizerTests(TestCase):
         response = self.client.get(self.list_visualizer_url)
         self.assertEqual(len(response.context['visualizers']), 1)
 
+
+class VisualizerQuestionYesNoTestCase(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_visualizer_yes_no(self):
+        q = Question(desc='test question', type = 'YESNO')
+        q.save()
+        data = [
+            { 'option': 'No', 'number': 1, 'votes': 1 },
+            { 'option': 'Yes', 'number': 2,'votes': 2 },
+        ]
+        v = Voting(name='test voting', question=q, method='IDENTITY',start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+        v.save()
+        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        vState= self.driver.find_element(By.TAG_NAME,"h2").text
+        self.assertTrue(vState, "Resultados")
+        votosSi = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(2) > .text-muted").text
+        votosNo = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(1) > .text-muted").text
+        self.assertEqual(votosSi, "2")
+        self.assertEqual(votosNo, "1")
