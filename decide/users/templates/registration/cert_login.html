@@ -22,9 +22,12 @@
           </div>
           <button type="submit" class="login-button">Iniciar Sesión</button>
         </form>
-        <form action="{% url 'index' %}" method="get">
-          <button type="submit" class="login-button">Volver a la página inicial</button>
-        </form>
+        <button type="button" class="login-button" id="goToIndexButton">Volver a la página inicial</button>
+        <script>
+            document.getElementById('goToIndexButton').addEventListener('click', function() {
+                window.location.href = "/";
+            });
+        </script>
       </div>
     </div>
   </div>
