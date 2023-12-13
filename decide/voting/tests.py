@@ -5,8 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
+
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,19 +20,16 @@ from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
-from datetime import datetime
 from auditlog.models import LogEntry
 
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
         q = Question(desc='Descripcion')
         q.save()
-        
         opt1 = QuestionOption(question=q, option='opcion 1')
         opt1.save()
         opt1 = QuestionOption(question=q, option='opcion 2')
         opt1.save()
-
         self.v = Voting(name='Votacion', question=q)
         self.v.save()
         super().setUp()
@@ -362,7 +358,8 @@ class LogInErrorTests(StaticLiveServerTestCase):
 
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
-        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text == 'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
+        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text ==
+                        'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
 
     def passwordWrongLogIn(self):
         self.cleaner.get(self.live_server_url+"/admin/login/?next=/admin/")
@@ -376,7 +373,8 @@ class LogInErrorTests(StaticLiveServerTestCase):
 
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
-        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text == 'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
+        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text ==
+                        'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
 
 class QuestionsTests(StaticLiveServerTestCase):
 

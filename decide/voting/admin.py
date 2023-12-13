@@ -18,14 +18,10 @@ from django.urls import path
 from django.shortcuts import redirect, render
 from django import forms
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from rest_framework.response import Response
 from rest_framework.status import (
         HTTP_409_CONFLICT as ST_409
 )
 from django.db.utils import IntegrityError
-from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -94,7 +90,7 @@ def copy_census_to_another_voting(self, request, queryset):
                 census2 = Census.objects.filter(voting_id=voting2.id)
                 if (len(census1)>0 and len(census2)>0):
                     self.message_user(request, _("Both votes have a census"), level=messages.ERROR)
-                elif(len(census1) == 0 and len(census2) == 0):
+                elif(len(census1)==0 and len(census2)==0):
                     self.message_user(request, _("The census of both votes are empty"), level=messages.ERROR)
                 elif(len(census1)>len(census2)):
                     census_to_copy = Census.objects.filter(voting_id=voting1.id)
