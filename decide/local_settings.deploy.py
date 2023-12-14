@@ -15,7 +15,6 @@ DEBUG = 'RENDER' not in os.environ
 
 # Modules in use, commented modules that you won't use
 MODULES = [
-    'authentication',
     'base',
     'booth',
     'census',
@@ -46,7 +45,7 @@ INSTALLED_APPS = [
     'users',
     'social_django',
     'mailer',
-    'django_user_agents',
+    'django_user_agents'
 ]
 
 ROOT_URLCONF = 'decide.urls'
