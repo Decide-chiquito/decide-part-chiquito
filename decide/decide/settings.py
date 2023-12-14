@@ -29,9 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -44,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'admin_auto_filters',
     'corsheaders',
     'django_filters',
@@ -57,7 +53,6 @@ INSTALLED_APPS = [
     'social_django',
     'mailer',
     'django_user_agents',
-
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '591203465714-9ng1mqkp902c0gkjmkun63ctsapvofgp.apps.googleusercontent.com'
