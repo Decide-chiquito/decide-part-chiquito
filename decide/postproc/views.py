@@ -29,7 +29,7 @@ class PostProcView(APIView):
             }
             res.append(opt_res)
 
-        for i in range(0,seats):
+        for _ in range(0,seats):
             biggest_modified_votes = max(res,key=lambda x:x['modified_votes'])
             index = res.index(biggest_modified_votes)
             biggest_modified_votes['deputies'] +=1
