@@ -271,7 +271,7 @@ class EditProfileViewTest(StaticLiveServerTestCase):
         self.driver.quit()
         self.base.tearDown()
 
-    def test_get_edit_profile(self):     
+    def test_get_edit_profile(self):
         editURL = f'{self.live_server_url}/users/edit-profile/'
         self.driver.get(editURL)
         elemento = self.driver.find_element(By.CLASS_NAME, "edit-profile-title")
@@ -279,7 +279,7 @@ class EditProfileViewTest(StaticLiveServerTestCase):
 
     def test_succesful_edit_profile(self):
         user_id = User.objects.get(username='noadmin').id
-        
+
         self.driver.get(f'{self.live_server_url}/users/edit-profile/')
         username_element = self.driver.find_element(By.NAME, "username")
         username_element.click()
