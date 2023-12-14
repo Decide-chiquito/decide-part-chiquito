@@ -11,7 +11,7 @@
     function go_to_route(url, id){
         // La función que se ejecutará al hacer clic en el botón
 
-        if (url != '/admin/' && url != '/users/register/' && url != '/mailer/' && url != '/admin/voting/voting/upload-csv/' && url != '/users/edit-profile/') {
+        if (url != '/admin/' && url != '/users/register/' && url != '/admin/voting/voting/upload-csv/' && url != '/users/edit-profile/' && url != '/users/login/') {
             let inputValue = document.getElementById(id).value;
             if(inputValue == null || inputValue == ""){
                 alert("Por favor, introduzca un valor válido");
@@ -49,6 +49,11 @@
         <label for="admin" class="label-mobile">admin</label>
         <button class="button-mobile" onclick="go_to_route('/admin/')">Acceder</button>
     </div>
+
+    <div class="card-mobile">
+        <label for="login" class="label-mobile">login</label>
+        <button class="button-mobile" onclick="go_to_route('/users/login/')">Acceder</button>
+    </div>
     
     <div class="card-mobile">
         <label for="register" class="label-mobile">register</label>
@@ -61,11 +66,6 @@
             <button class="button-mobile" onclick="go_to_route('/users/edit-profile/')">Acceder</button>
         </div>
     {% endif %}
-
-    <div class="card-mobile">
-        <label for="mailer" class="label-mobile">send email</label>
-        <button class="button-mobile" onclick="go_to_route('/mailer/')">Acceder</button>
-    </div>
     
     <div class="card-mobile">
         <label for="booth" class="label-mobile">booth</label>
