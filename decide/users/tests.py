@@ -11,6 +11,7 @@ from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from django.core.files.uploadedfile import SimpleUploadedFile
+from selenium.webdriver.common.keys import Keys
 
 
 class RegisterViewTest(TestCase):
@@ -199,7 +200,7 @@ class CertLoginViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/cert_fail.html')
 
-class EditProfileViewTest(BaseTestCase):
+class EditProfileTest(BaseTestCase):
 
     def setUp(self):
         self.client = APIClient()
@@ -247,3 +248,100 @@ class EditProfileViewTest(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/edit_profile.html')
         self.assertContains(response, 'El nombre de usuario ya está en uso.')
+
+
+class EditProfileViewTest(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+        self.driver.get(f'{self.live_server_url}/users/login/')
+        self.driver.find_element(By.NAME, "username").click()
+        self.driver.find_element(By.NAME, "username").send_keys("noadmin")
+        self.driver.find_element(By.NAME, "password").click()
+        self.driver.find_element(By.NAME, "password").send_keys("qwerty")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_get_edit_profile(self):     
+        editURL = f'{self.live_server_url}/users/edit-profile/'
+        self.driver.get(editURL)
+        elemento = self.driver.find_element(By.CLASS_NAME, "edit-profile-title")
+        self.assertEqual(elemento.text, 'Editar datos de usuario')
+
+    def test_succesful_edit_profile(self):
+        user_id = User.objects.get(username='noadmin').id
+        
+        editURL = f'{self.live_server_url}/users/edit-profile/'
+        self.driver.get(editURL)
+
+        username_element = self.driver.find_element(By.NAME, "username")
+        username_element.click()
+        username_element.clear()
+        username_element.send_keys("new_username")
+
+        self.driver.find_element(By.NAME, "first_name").click()
+        self.driver.find_element(By.NAME, "first_name").send_keys("Nombre")
+
+        self.driver.find_element(By.NAME, "last_name").click()
+        self.driver.find_element(By.NAME, "last_name").send_keys("Apellido")
+
+        self.driver.find_element(By.NAME, "email").click()
+        self.driver.find_element(By.NAME, "email").send_keys("updated@example.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+
+        self.assertTrue(self.driver.current_url == f'{self.live_server_url}/')
+
+        updated_user = User.objects.get(id=user_id)
+        self.assertEqual(updated_user.username, 'new_username')
+        self.assertEqual(updated_user.first_name, 'Nombre')
+        self.assertEqual(updated_user.last_name, 'Apellido')
+        self.assertEqual(updated_user.email, 'updated@example.com')
+
+    def test_username_already_in_use(self):
+        User.objects.create_user(username='existinguser', password='testpassword', email='existing@example.com')
+
+        user_id = User.objects.get(username='noadmin').id
+        
+        editURL = f'{self.live_server_url}/users/edit-profile/'
+        self.driver.get(editURL)
+
+        username_element = self.driver.find_element(By.NAME, "username")
+        username_element.click()
+        username_element.clear()
+        username_element.send_keys("existinguser")
+
+        self.driver.find_element(By.NAME, "first_name").click()
+        self.driver.find_element(By.NAME, "first_name").send_keys("existinguser")
+
+        self.driver.find_element(By.NAME, "last_name").click()
+        self.driver.find_element(By.NAME, "last_name").send_keys("testpassword")
+
+        self.driver.find_element(By.NAME, "email").click()
+        self.driver.find_element(By.NAME, "email").send_keys("test@example.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+
+        self.assertTrue(self.driver.current_url == editURL)
+
+        updated_user = User.objects.get(id=user_id)
+        self.assertEqual(updated_user.username, 'noadmin')
+
+        current_element = self.driver.find_element(By.CLASS_NAME, "edit-error").text
+        self.assertEqual(current_element, 'El nombre de usuario ya está en uso.')
+
+    def test_invalid_edit_profile(self):
+        self.driver.find_element(By.LINK_TEXT, "Logout").click()
+        editURL = f'{self.live_server_url}/users/edit-profile/'
+        self.driver.get(editURL)
+        login_button = self.driver.find_element(By.CLASS_NAME, "btn-primary")
+        self.assertTrue("Iniciar sesión" in login_button.text)
+
