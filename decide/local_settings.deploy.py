@@ -15,7 +15,6 @@ DEBUG = 'RENDER' not in os.environ
 
 # Modules in use, commented modules that you won't use
 MODULES = [
-    'base',
     'booth',
     'census',
     'mixnet',
@@ -24,6 +23,18 @@ MODULES = [
     'visualizer',
     'voting'
 ]
+
+APIS = {
+    'authentication': BASEURL,
+    'base': BASEURL,
+    'booth': BASEURL,
+    'census': BASEURL,
+    'mixnet': BASEURL,
+    'postproc': BASEURL,
+    'store': BASEURL,
+    'visualizer': BASEURL,
+    'voting': BASEURL,
+}
 
 INSTALLED_APPS = [
     'unfold',
@@ -68,17 +79,7 @@ if not DEBUG:
 
 BASEURL = 'https://{}'.format(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
-APIS = {
-    'authentication': BASEURL,
-    'base': BASEURL,
-    'booth': BASEURL,
-    'census': BASEURL,
-    'mixnet': BASEURL,
-    'postproc': BASEURL,
-    'store': BASEURL,
-    'visualizer': BASEURL,
-    'voting': BASEURL,
-}
+
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 DATABASES = {
