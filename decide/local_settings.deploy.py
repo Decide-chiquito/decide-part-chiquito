@@ -55,13 +55,14 @@ MIDDLEWARE = [
     'livereload.middleware.LiveReloadScript',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
 ]
 
 STATIC_URL='/static/'
-if not DEBUG:
-    STATIC_ROOT=os.path.join(BASE_DIR, 'static')
-    STATICFILES_STORAGE='whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATIC_ROOT=os.path.join(BASE_DIR, 'static')
+STATICFILES_STORAGE='whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 
@@ -144,7 +145,6 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
 
 # Versioning
 ALLOWED_VERSIONS = ['v1', 'v2']

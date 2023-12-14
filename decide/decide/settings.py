@@ -104,6 +104,7 @@ MIDDLEWARE = [
     'livereload.middleware.LiveReloadScript',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
 ]
 
