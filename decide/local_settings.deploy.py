@@ -23,8 +23,7 @@ MODULES = [
     'postproc',
     'store',
     'visualizer',
-    'voting',
-    'users',
+    'voting'
 ]
 
 INSTALLED_APPS = [
