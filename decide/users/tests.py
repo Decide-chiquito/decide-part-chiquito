@@ -10,8 +10,6 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
