@@ -1,8 +1,8 @@
 import random
 import itertools
 import csv
-import re
 import os
+import time
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -384,6 +384,7 @@ class LogInErrorTests(StaticLiveServerTestCase):
 class ExportCensusTestCase(StaticLiveServerTestCase):
 
     def setUp(self):
+        #Load base test functionality for decide
         self.base = BaseTestCase()
         self.base.setUp()
 
@@ -401,6 +402,7 @@ class ExportCensusTestCase(StaticLiveServerTestCase):
             "safebrowsing.enabled": True
         })
         self.driver = webdriver.Chrome(options=options)
+
         super().setUp()
 
     def tearDown(self):
@@ -408,7 +410,7 @@ class ExportCensusTestCase(StaticLiveServerTestCase):
         self.driver.quit()
         self.base.tearDown()
 
-    def test_export_census_success(self):
+    def test_export_census_empty(self):
         q = Question(desc='test question')
         q.save()
         v = Voting(name='test voting', question=q)
@@ -439,48 +441,7 @@ class ExportCensusTestCase(StaticLiveServerTestCase):
         actions = ActionChains(self.driver)
         actions.move_to_element(element).release().perform()
         self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
-
-        self.assertTrue(self.driver.current_url == votingURL)
-        csv_file_path = "./downloads/census.csv"
-        self.assertTrue(os.path.isfile(csv_file_path))
-        with open(csv_file_path, "r") as csv_file:
-            csv_reader = csv.reader(csv_file)
-            header = next(csv_reader)
-            headerCSV = ['votingID', 'voterID', 'center', 'tags...']
-            self.assertTrue(header == headerCSV)
-
-    def test_export_empty_census(self):
-        q = Question(desc='test question')
-        q.save()
-        v = Voting(name='test voting', question=q)
-        v.save()
-
-        votingURL = f'{self.live_server_url}/admin/voting/voting/'
-        self.driver.get(votingURL)
-        self.driver.find_element(By.ID, "id_username").click()
-        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
-
-        self.driver.find_element(By.ID, "id_password").click()
-        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
-        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
-
-        self.assertTrue(self.driver.current_url == votingURL)
-
-        self.driver.set_window_size(1850, 1053)
-        self.driver.find_element(By.ID, "action-toggle").click()
-        dropdown = self.driver.find_element(By.NAME, "action")
-        dropdown.find_element(By.XPATH, "//option[. = 'Export to csv']").click()
-        element = self.driver.find_element(By.NAME, "action")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).click_and_hold().perform()
-        element = self.driver.find_element(By.NAME, "action")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).perform()
-        element = self.driver.find_element(By.NAME, "action")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).release().perform()
-        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
-
+        time.sleep(10)
         self.assertTrue(self.driver.current_url == votingURL)
         csv_file_path = "./downloads/census.csv"
         self.assertTrue(os.path.isfile(csv_file_path))
@@ -489,6 +450,54 @@ class ExportCensusTestCase(StaticLiveServerTestCase):
             next(csv_reader)
             linea = next(csv_reader, None)
             self.assertTrue(len(linea) == 2 and linea[0].isdigit() and linea[1] == 'No Census')
+
+    def test_export_census_success(self):
+        q = Question(desc='test question')
+        q.save()
+        v = Voting(name='test voting', question=q)
+        v.save()
+        u = User(username='testvoter')
+        u.save()
+        c = Census(voter_id=u.id, voting_id=v.id)
+        c.save()
+
+        votingURL = f'{self.live_server_url}/admin/voting/voting/'
+        self.driver.get(votingURL)
+        self.driver.find_element(By.ID, "id_username").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+
+        self.assertTrue(self.driver.current_url == votingURL)
+
+        self.driver.set_window_size(1850, 1053)
+        self.driver.find_element(By.ID, "action-toggle").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Export to csv']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
+        time.sleep(10)
+        self.assertTrue(self.driver.current_url == votingURL)
+        csv_file_path = "./downloads/census.csv"
+        self.assertTrue(os.path.isfile(csv_file_path))
+        with open(csv_file_path, "r") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            header = next(csv_reader)
+            headerCSV = ['votingID', 'voterID', 'center', 'tags...']
+            self.assertTrue(header == headerCSV)
+            linea = next(csv_reader, None)
+            self.assertTrue(linea[0].isdigit() and linea[1].isdigit())
+
 
 class QuestionsTests(StaticLiveServerTestCase):
 
