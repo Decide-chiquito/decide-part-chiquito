@@ -144,7 +144,3 @@ a.btn-mobile:link, a.btn-mobile:visited {
 .alert {
     font-size: 2em;
 }
-
-.me-2 {
-    transform: scale(2);
-}

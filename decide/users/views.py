@@ -266,6 +266,10 @@ class EditProfileView(TemplateView):
                     return render(request, self.template_name, {'error': _('El nombre de usuario ya está en uso.')})
 
         else:
-            return Response({'error': _('You must be logged in to edit your profile.')}, status=status.HTTP_400_BAD_REQUEST)
+            error_message = _('You must be logged in to edit your profile.')
+            if request.user_agent.is_mobile:
+                return render(request, 'users/edit_profile_mobile.html', {'error': error_message, 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, self.template_name, {'error': error_message})
         
 
