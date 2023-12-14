@@ -11,7 +11,6 @@ from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from django.core.files.uploadedfile import SimpleUploadedFile
-from selenium.webdriver.common.keys import Keys
 
 
 class RegisterViewTest(TestCase):
@@ -208,7 +207,7 @@ class EditProfileTest(BaseTestCase):
         self.client.force_login(self.user)
 
 
-    def test_get_edit_profile(self):       
+    def test_get_edit_profile(self):
         response = self.client.get(reverse('users:edit_profile'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/edit_profile.html')
@@ -281,9 +280,7 @@ class EditProfileViewTest(StaticLiveServerTestCase):
     def test_succesful_edit_profile(self):
         user_id = User.objects.get(username='noadmin').id
         
-        editURL = f'{self.live_server_url}/users/edit-profile/'
-        self.driver.get(editURL)
-
+        self.driver.get(f'{self.live_server_url}/users/edit-profile/')
         username_element = self.driver.find_element(By.NAME, "username")
         username_element.click()
         username_element.clear()
