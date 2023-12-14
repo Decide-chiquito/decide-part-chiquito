@@ -199,3 +199,51 @@ class CertLoginViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/cert_fail.html')
 
+class EditProfileViewTest(BaseTestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='updateuser', password='passwd')
+        self.client.force_login(self.user)
+
+
+    def test_get_edit_profile(self):       
+        response = self.client.get(reverse('users:edit_profile'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/edit_profile.html')
+
+    def test_succesful_edit_profile(self):
+        data = {
+            'username': 'new_username',
+            'first_name': 'Nombre',
+            'last_name': 'Apellido',
+            'email': 'updated@example.com'
+        }
+        response = self.client.post(reverse('users:edit_profile'), data)
+        self.assertEqual(response.status_code, 302)
+        updated_user = User.objects.get(id=self.user.id)
+        self.assertEqual(updated_user.username, 'new_username')
+        self.assertEqual(updated_user.first_name, 'Nombre')
+        self.assertEqual(updated_user.last_name, 'Apellido')
+        self.assertEqual(updated_user.email, 'updated@example.com')
+
+    def test_invalid_edit_profile(self):
+        data = {
+            'username': '', 
+        }
+        response = self.client.post(reverse('users:edit_profile'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/edit_profile.html')
+
+    def test_username_already_in_use(self):
+        User.objects.create_user(username='existinguser', password='testpassword', email='existing@example.com')
+        data = {
+            'username': 'existinguser',
+            'password': 'testpassword',
+            'confirm_password': 'testpassword',
+            'email': 'test@example.com',
+        }
+        response = self.client.post(reverse('users:edit_profile'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/edit_profile.html')
+        self.assertContains(response, 'El nombre de usuario ya está en uso.')
