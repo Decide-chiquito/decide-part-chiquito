@@ -6,12 +6,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+print(RENDER_EXTERNAL_HOSTNAME)
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-DEBUG = 'RENDER' not in os.environ
+DEBUG = True
 BASEURL = 'https://{}'.format(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
 # Modules in use, commented modules that you won't use
