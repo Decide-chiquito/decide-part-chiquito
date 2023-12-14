@@ -79,9 +79,16 @@ class VisualizerView(TemplateView):
     
     
 def listVisualizer(request):
-    if request.user.is_authenticated:
+    if request.user.is_superuser:
+        visualizers=[]
+        visualizerAll=Voting.objects.all()
+        for visualizer in visualizerAll:
+            if visualizer.start_date!= None:
+                visualizers.append(visualizer)
+        return render(request,'visualizer/listVisualizer.html',{'visualizers': visualizers})
+    elif request.user.is_authenticated:
         censos=Census.objects.filter(voter_id=request.user.id)
-        visualizers=[];
+        visualizers=[]
         for censo in censos:
             visualizerMyCenso=Voting.objects.filter(id=censo.voting_id)
             for visualizer in visualizerMyCenso:
