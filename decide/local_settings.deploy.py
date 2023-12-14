@@ -39,28 +39,6 @@ APIS = {
     'voting': BASEURL,
 }
 
-INSTALLED_APPS = [
-    'unfold',
-    'django_extensions',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'admin_auto_filters',
-    'corsheaders',
-    'django_filters',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'rest_framework_swagger',
-    'gateway',
-    'livereload',
-    'users',
-    'social_django',
-    'mailer',
-    'django_user_agents'
-]
 
 ROOT_URLCONF = 'decide.urls'
 
