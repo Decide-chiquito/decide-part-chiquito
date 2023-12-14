@@ -5,7 +5,6 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
-from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
@@ -17,10 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.forms import EmailForm, PasswordForm
 from decide import settings
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import gettext as _
 from .forms import CertificateLoginForm
 from django.contrib.auth.backends import ModelBackend
