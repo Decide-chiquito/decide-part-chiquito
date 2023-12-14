@@ -10,6 +10,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -199,3 +201,124 @@ class CertLoginViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/cert_fail.html')
 
+class MobileTestCase(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        self.user = User.objects.create_user(username='testuser', password='testpassword', email='test@test.com')
+        self.user = User.objects.create_user(username='testuser2', password='testpassword')
+        mobile_emulation = {
+            "deviceMetrics": {"width": 360, "height": 640, "pixelRatio": 3.0},
+            "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"
+        }
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.headless = True
+        chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+        self.driver = webdriver.Chrome(options=chrome_options)
+        super().setUp()
+
+    def tearDown(self):
+        self.driver.quit()
+        super().tearDown()
+        self.base.tearDown()
+    
+    def test_register_empty_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/register/")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/register/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "Nombre de usuario y contraseña son obligatorios.")
+
+    def test_existing_user_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/register/")
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.ID, "id_confirm_password").send_keys("testpassword")
+        self.driver.find_element(By.ID, "id_email").send_keys("test@test.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/register/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "El nombre de usuario ya está en uso.")
+
+    def test_password_mismatch_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/register/")
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser2")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.ID, "id_confirm_password").send_keys("testpassword2")
+        self.driver.find_element(By.ID, "id_email").send_keys("test@test.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/register/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "Las contraseñas no coinciden.")
+        
+    def test_register_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/register/")
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser3")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.ID, "id_confirm_password").send_keys("testpassword")
+        self.driver.find_element(By.ID, "id_email").send_keys("test@test.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
+    
+    def test_login_empty_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/login/")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/login/")
+
+    def test_wrong_user_login_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/login/")
+        self.driver.find_element(By.ID, "id_username").send_keys("wronguser")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/login/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "Credenciales inválidas")
+
+    def test_login_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/login/")
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
+
+    def test_wrong_email_password_reset_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/login/")
+        self.driver.find_element(By.LINK_TEXT, "Recuperar contraseña").click()
+        self.driver.find_element(By.ID, "id_email").send_keys("test2@test.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/password-reset/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "No existe un usuario con ese correo electrónico.")
+
+    def test_not_username_edit_profile_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/edit-profile/")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.driver.get(f"{self.live_server_url}/users/edit-profile/")
+        self.driver.find_element(By.ID, "id_username").clear()
+        self.driver.find_element(By.ID, "id_first_name").clear()
+        self.driver.find_element(By.ID, "id_first_name").send_keys("test")
+        self.driver.find_element(By.ID, "id_last_name").clear()
+        self.driver.find_element(By.ID, "id_last_name").send_keys("test")
+        self.driver.find_element(By.ID, "id_email").clear()
+        self.driver.find_element(By.ID, "id_email").send_keys("test20@test.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/edit-profile/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "El nombre de usuario es obligatorio.")
+
+    def test_existing_username_edit_profile_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/edit-profile/")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser")
+        self.driver.find_element(By.ID, "id_password").send_keys("testpassword")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.driver.get(f"{self.live_server_url}/users/edit-profile/")
+        self.driver.find_element(By.ID, "id_username").clear()
+        self.driver.find_element(By.ID, "id_username").send_keys("testuser2")
+        self.driver.find_element(By.ID, "id_first_name").clear()
+        self.driver.find_element(By.ID, "id_first_name").send_keys("test")
+        self.driver.find_element(By.ID, "id_last_name").clear()
+        self.driver.find_element(By.ID, "id_last_name").send_keys("test")
+        self.driver.find_element(By.ID, "id_email").clear()
+        self.driver.find_element(By.ID, "id_email").send_keys("test@test.com")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/edit-profile/")
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "El nombre de usuario ya está en uso.")
+        
