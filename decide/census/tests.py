@@ -1,20 +1,14 @@
 import random
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
-from rest_framework.test import APIClient
+from django.test import override_settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 from .models import Census, Voting
-from datetime import datetime, timedelta
 from voting.models import Question
-from base import mods
 from base.tests import BaseTestCase
 
 from django.contrib.admin.sites import AdminSite
@@ -99,7 +93,6 @@ class CensusTestCase(BaseTestCase):
         self.login()
         response = self.client.post('/census/', data, format='json')
         self.assertEqual(response.status_code, 201)
-
         voter = User.objects.get(pk=51)
         self.assertEqual(mail.outbox[0].to, [voter.email])
         self.assertEqual(len(mail.outbox), 1)
@@ -150,12 +143,17 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual("Census updated", response.json())
 
     def test_import_census(self):
+        self.login()
         admin_instance = VotingAdmin(model=Voting, admin_site=AdminSite())
 
         csv_content = "votingID,voterID,center,tags...\n1,2,ETSII,tag1\n2,2,ETSA,tag1,tag2"
         csv_file = SimpleUploadedFile("census.csv", csv_content.encode("utf-8"), content_type="text/csv")
 
         request = RequestFactory().post('/admin/voting/voting/upload-csv/', {'csv_upload': csv_file})
+        user = User.objects.get(username='admin')
+        self.assertTrue(user.check_password('qwerty'))
+        request.user = user
+
 
         response = admin_instance.upload_csv(request)
 

@@ -24,19 +24,18 @@ from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
-from datetime import datetime
 from auditlog.models import LogEntry
+
+from selenium.webdriver.common.action_chains import ActionChains
 
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
         q = Question(desc='Descripcion')
         q.save()
-        
         opt1 = QuestionOption(question=q, option='opcion 1')
         opt1.save()
         opt1 = QuestionOption(question=q, option='opcion 2')
         opt1.save()
-
         self.v = Voting(name='Votacion', question=q)
         self.v.save()
         super().setUp()
@@ -365,7 +364,8 @@ class LogInErrorTests(StaticLiveServerTestCase):
 
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
-        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text == 'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
+        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text ==
+                        'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
 
     def passwordWrongLogIn(self):
         self.cleaner.get(self.live_server_url+"/admin/login/?next=/admin/")
@@ -379,7 +379,8 @@ class LogInErrorTests(StaticLiveServerTestCase):
 
         self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
 
-        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text == 'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
+        self.assertTrue(self.cleaner.find_element_by_xpath('/html/body/div/div[2]/div/div[1]/p').text ==
+                        'Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.')
 
 class ExportCensusTestCase(StaticLiveServerTestCase):
 
@@ -792,3 +793,148 @@ class ReuseCensusTests(StaticLiveServerTestCase):
         self.assertTrue(len(voters1) > 0 and len(voters2) > 0)
         
         self.assertTrue(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Ambas votaciones tienen un censo" or self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[3]/div/ul/li').text == "Both votes have a census")
+
+class YesNoQuestionVoting(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        user = User(username='admintest', is_staff=True)
+        user.is_superuser = True
+        user.set_password('qwerty')
+        user.save()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        self.driver.quit()
+        super().tearDown()
+
+    def test_voting_yes_no(self):
+        self.driver.get(self.live_server_url + "/admin/login/?next=/admin/")
+        self.driver.set_window_size(1280, 720)
+
+        username_input = self.driver.find_element(By.ID, "id_username")
+        password_input = self.driver.find_element(By.ID, "id_password")
+
+        username_input.click()
+        username_input.send_keys("admintest")
+
+        password_input.click()
+        password_input.send_keys("qwerty")
+
+        password_input.send_keys(Keys.ENTER)
+
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.LINK_TEXT, "Voting"))
+        )
+
+        self.driver.find_element(By.LINK_TEXT, "Voting").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".border-b:nth-child(1) > a").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".model-question .addlink").click()
+
+        self.driver.find_element(By.ID, "id_desc").send_keys("Si o No")
+        dropdown = self.driver.find_element(By.ID, "id_type")
+        dropdown.find_element(By.XPATH, "//option[. = 'Yes/No']").click()
+        
+        self.driver.find_element(By.NAME, "_save").click()
+
+        self.driver.find_element(By.LINK_TEXT, "Voting").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".border-b:nth-child(1) > a").click()
+        self.driver.find_element(By.LINK_TEXT, "Si o No").click()
+
+        self.driver.find_element(By.ID, "id_desc").click()
+
+class VotingAdminTests(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        user = User(username='admintest', is_staff=True)
+        user.is_superuser = True
+        user.set_password('qwerty')
+        user.save()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        self.driver.quit()
+        super().tearDown()
+
+    def test_voting_yes_no(self):
+        q = Question(desc='test question')
+        q.save()
+        v = Voting(name='test voting', question=q)
+        v.save()
+
+        votingURL = f'{self.live_server_url}/admin/voting/voting/'
+        self.driver.get(votingURL)
+        self.driver.find_element(By.ID, "id_username").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+
+        self.assertTrue(self.driver.current_url == votingURL)
+        self.assertFalse(v.start_date)
+        self.assertFalse(v.end_date)
+
+        #START
+        self.driver.set_window_size(1920, 1080)
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
+
+        #STOP
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Stop']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
+
+        
+
+        #TALLY
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Tally']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
+
+        v1 = Voting.objects.get(name='test voting')
+        self.assertTrue(v1.start_date)
+        self.assertTrue(v1.end_date)
+        

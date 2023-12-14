@@ -9,13 +9,12 @@ from django.urls import reverse_lazy
 from census.models import Census
 from voting.models import Voting
 from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from django.utils import timezone
 
-import time
+
 
 class VisualizerTestCase(StaticLiveServerTestCase):
 
@@ -33,7 +32,7 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.base.tearDown()
 
 
-    def test_simpleVisualizer(self):        
+    def test_simpleVisualizer(self):
         q = Question(desc='test question')
         q.save()
         v = Voting(name='test voting', question=q)
@@ -42,20 +41,6 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
         self.assertTrue(vState, "Votación no comenzada")
 
-    def test_dhondt_voting_visualizer(self):
-        q = Question(desc='test question')
-        q.save()
-        data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
-        ]
-        v = Voting(name='test voting', question=q, method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
-        v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
-        self.assertTrue(vState)
     
     def test_dhondt_voting_visualizer(self):
         q = Question(desc='test question')
@@ -66,7 +51,7 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         ]
         v = Voting(name='test voting', question=q, method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
         self.assertTrue(vState, "Resultados")
         vState= self.driver.find_element(By.ID,"container2").text
@@ -81,7 +66,7 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         ]
         v = Voting(name='test voting', question=q, method='WEBSTER',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
         self.assertTrue(vState, "Resultados")
         vState= self.driver.find_element(By.ID,"container2").text
@@ -100,13 +85,11 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         ]
         v = Voting(name='test voting', question=q, method='IDENTITY',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
         self.assertTrue(vState, "Resultados")
         vState= self.driver.find_element(By.ID,"container").text
         self.assertTrue(vState)
-
-
 
 class ListVisualizerTests(TestCase):
     def setUp(self):
@@ -141,3 +124,35 @@ class ListVisualizerTests(TestCase):
         response = self.client.get(self.list_visualizer_url)
         self.assertEqual(len(response.context['visualizers']), 1)
 
+
+class VisualizerQuestionYesNoTestCase(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_visualizer_yes_no(self):
+        q = Question(desc='test question', type = 'YESNO')
+        q.save()
+        data = [
+            { 'option': 'No', 'number': 1, 'votes': 1 },
+            { 'option': 'Yes', 'number': 2,'votes': 2 },
+        ]
+        v = Voting(name='test voting', question=q, method='IDENTITY',start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+        v.save()
+        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        vState= self.driver.find_element(By.TAG_NAME,"h2").text
+        self.assertTrue(vState, "Resultados")
+        votosSi = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(2) > .text-muted").text
+        votosNo = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(1) > .text-muted").text
+        self.assertEqual(votosSi, "2")
+        self.assertEqual(votosNo, "1")
