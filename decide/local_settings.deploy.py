@@ -12,6 +12,7 @@ if RENDER_EXTERNAL_HOSTNAME:
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = 'RENDER' not in os.environ
+BASEURL = 'https://{}'.format(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
 # Modules in use, commented modules that you won't use
 MODULES = [
@@ -77,7 +78,7 @@ if not DEBUG:
     STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE='whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-BASEURL = 'https://{}'.format(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
+
 
 
 
