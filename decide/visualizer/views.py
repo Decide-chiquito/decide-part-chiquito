@@ -92,7 +92,7 @@ def listVisualizer(request):
         for censo in censos:
             visualizerMyCenso=Voting.objects.filter(id=censo.voting_id)
             for visualizer in visualizerMyCenso:
-                if visualizer.end_date!= None:
+                if visualizer.end_date is not None:
                     visualizers.append(visualizer)
         return render(request,'visualizer/listVisualizer.html',{'visualizers': visualizers})
     else:
