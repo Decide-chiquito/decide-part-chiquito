@@ -159,7 +159,7 @@ if os.path.exists("config.jsonnet"):
         vars()[k] = v
 
 
-INSTALLED_APPS = INSTALLED_APPS + MODULES
+
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
