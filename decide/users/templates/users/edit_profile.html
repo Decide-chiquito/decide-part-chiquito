@@ -14,6 +14,8 @@
 
         {% if not user.is_authenticated %}
 
+            <h3 class="edit-error">{{ error }}</h3>
+
             <h2 class="edit-profile-title">Editar datos de usuario</h2>
             <a href="/users/login/" class="btn btn-primary">Iniciar sesión</a>
 
