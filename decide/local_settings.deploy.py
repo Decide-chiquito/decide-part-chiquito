@@ -16,7 +16,15 @@ BASEURL = 'https://{}'.format(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
 # Modules in use, commented modules that you won't use
 MODULES = [
-   
+    'authentication',
+    'base',
+    'booth',
+    'census',
+    'mixnet',
+    'postproc',
+    'store',
+    'visualizer',
+    'voting',
 ]
 
 APIS = {
