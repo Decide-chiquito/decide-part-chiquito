@@ -11,18 +11,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-RUN git clone https://github.com/Decide-chiquito/decide-part-chiquito.git . && \
+RUN git clone -b 'feat/script-construction' https://github.com/Decide-chiquito/decide-part-chiquito.git . && \
     pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app/decide
 
-ADD .env /app/collecti_stamp/.env
-ENV $(cat /app/collecti_stamp/.env | xargs)
-
 # local settings.py
-COPY docker-settings.py /app/decide/local_settings.py
+COPY docker-settings.py ./local_settings.py
 
-RUN ./manage.py collectstatic
-RUN find . -mindepth 2 -type d -path '*/static' -exec mv -r {}/. ./static \;
+RUN ./manage.py collectstatic --noinput
+RUN find . -mindepth 2 -type d -path '*/static' -exec mv -T {}/. /app/static \;
+
 
 #CMD ["gunicorn", "-w 5", "decide.wsgi", "--timeout=500", "-b 0.0.0.0:5000"]

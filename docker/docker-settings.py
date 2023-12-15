@@ -16,6 +16,7 @@ DATABASES = {
 
 STATIC_ROOT = '/app/static/'
 MEDIA_ROOT = '/app/static/media/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = ['http://10.5.0.1:8000', 'http://localhost:8000']
@@ -49,8 +50,8 @@ APIS = {
     'voting': 'http://10.5.0.1:8000',
 }
 
-STATIC_ROOT = '/app/decide/static/'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
