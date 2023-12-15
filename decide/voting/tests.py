@@ -26,8 +26,6 @@ from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
 from auditlog.models import LogEntry
 
-from selenium.webdriver.common.action_chains import ActionChains
-
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
         q = Question(desc='Descripcion')
@@ -867,7 +865,7 @@ class VotingAdminTests(StaticLiveServerTestCase):
         self.driver.quit()
         super().tearDown()
 
-    def test_voting_yes_no(self):
+    def test_voting_methods(self):
         q = Question(desc='test question')
         q.save()
         v = Voting(name='test voting', question=q)
