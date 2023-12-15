@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'social_django',
     'mailer',
     'django_user_agents',
+    'ticket',
 
 ]
 
@@ -91,6 +92,7 @@ MODULES = [
     'visualizer',
     'voting',
     'users',
+    'ticket',
 ]
 
 BASEURL = 'http://localhost:8000'

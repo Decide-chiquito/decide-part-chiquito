@@ -1,6 +1,6 @@
 from django import forms
 
-from decide.ticket.models import Ticket
+from ticket.models import Ticket
 
 
 class TicketForm(forms.ModelForm):
