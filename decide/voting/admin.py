@@ -16,11 +16,6 @@ from census.models import Census, Tag
 #UPLOAD CSV
 from django.urls import path
 from django.shortcuts import redirect, render
-from django import forms
-from django.contrib import messages
-from rest_framework.status import (
-        HTTP_409_CONFLICT as ST_409
-)
 from django.db.utils import IntegrityError
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -167,9 +162,8 @@ class QuestionOptionInline(admin.TabularInline):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('desc', 'type') 
+    list_display = ('desc', 'type')
     inlines = [QuestionOptionInline]
-    
     class Media:
         js = ('voting/admin/form.js',)
 
