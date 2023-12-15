@@ -91,7 +91,7 @@
             <!-- Iterar sobre las preguntas -->
             <div v-for="question in voting.questions" :key="question.id">
                 <h2>[[ question.desc ]]</h2>
-                
+                <h2 v-if="question.type == 'YESNO'">Votación de tipo SI/NO</h2>
                 <!-- Iterar sobre las opciones de la pregunta actual -->
                 <form class="form-voting">
                     <div class="form-group" v-for="opt in question.options" :key="opt.number">
@@ -99,7 +99,8 @@
                                :id="'q' + question.id + '-' + opt.number"
                                :name="'question' + question.id"
                                :value="opt.number">
-                           [[ opt.option ]]
+                        <p v-if="opt.option == 'Yes'">Sí</p>
+                        <p v-else>[[opt.option]]</p>
                     </div>
                 </form>
             </div>

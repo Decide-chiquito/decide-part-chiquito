@@ -34,7 +34,7 @@ True
 '''
 
 
-from pprint import pprint
+
 
 from Crypto.PublicKey import ElGamal
 from Crypto.Random import random
@@ -191,9 +191,9 @@ class MixCrypt:
 
         return ((a * a1) % p, (b * b1) % p)
 
-    def gen_perm(self, l):
-        x = list(range(l))
-        for i in range(l):
+    def gen_perm(self, lista):
+        x = list(range(lista))
+        for i in range(lista):
             d = random.StrongRandom().randint(0, i)
             if i != d:
                 x[i] = x[d]
