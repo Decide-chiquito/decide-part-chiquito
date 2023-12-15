@@ -14,6 +14,7 @@ def welcome(request):
     context['voting_finished'] = voting_finished
     context['is_mobile'] = is_mobile
     context['is_welcome_page'] = is_welcome_page
+    context['user']=request.user
     
 
     if (request.user_agent.is_mobile):

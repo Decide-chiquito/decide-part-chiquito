@@ -16,14 +16,10 @@ class BoothTestCase(BaseTestCase):
     def tearDown(self):
         super().tearDown()
     def testBoothNotFound(self):
-        
-        # Se va a probar con el numero 10000 pues en las condiciones actuales en las que nos encontramos no parece posible que se genren 10000 votaciones diferentes
         response = self.client.get('/booth/10000/')
         self.assertEqual(response.status_code, 404)
     
     def testBoothRedirection(self):
-        
-        # Se va a probar con el numero 10000 pues en las condiciones actuales en las que nos encontramos no parece posible que se genren 10000 votaciones diferentes
         response = self.client.get('/booth/10000')
         self.assertEqual(response.status_code, 301)
 
@@ -47,7 +43,7 @@ class ListActiveBoothTests(TestCase):
     def test_logged_in_with_census_no_active_booth(self):
         q = Question(desc='test question1')
         q.save()
-        voting = Voting.objects.create(id=1,name="vting1",desc="desc1",question=q,start_date=timezone.now(), end_date=datetime.now() - timedelta(days=1),
+        voting = Voting.objects.create(id=1,name="vting1",desc="desc1",question=q,start_date=timezone.now(), end_date=timezone.now() - timedelta(days=1),
                                        method='IDENTITY',seats=10)
         Census.objects.create(voter_id=self.user.id, voting_id=voting.id)
         self.client.force_login(self.user)
