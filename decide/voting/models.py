@@ -136,7 +136,6 @@ class Voting(models.Model):
             votes_by_question[question.id] = votes_list
 
         return votes_by_question
-        return vote_list
     
     def live_tally(self, token=''):
         votes = self.get_votes(token)
