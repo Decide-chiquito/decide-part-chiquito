@@ -250,6 +250,22 @@ class LiveStaticticsBaseTests(BaseTestCase):
 
         return v
 
+    def create_voting_webster(self):
+        q = Question(desc='test question')
+        q.save()
+        for i in range(5):
+            opt = QuestionOption(question=q, option='option {}'.format(i+1))
+            opt.save()
+        v = Voting(name='test voting',method='WEBSTER', question=q, seats=100)
+        v.save()
+
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        v.auths.add(a)
+
+        return v
+
     def create_voters(self, v):
         for i in range(100):
             u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
@@ -308,6 +324,25 @@ class LiveStaticticsBaseTests(BaseTestCase):
     def test_liveStaticticsDhont(self):
         
         v = self.create_voting_dhont()
+        self.create_voters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        clear = self.store_votes(v)
+
+        self.login(user='admin')
+
+        live_tally = v.live_tally(self.token)
+        v.tally_votes(self.token)
+        tally = v.postproc
+
+        self.assertEqual(tally, live_tally)
+
+    def test_liveStaticticsWebster(self):
+        
+        v = self.create_voting_webster()
         self.create_voters(v)
 
         v.create_pubkey()
