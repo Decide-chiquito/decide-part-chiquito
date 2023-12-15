@@ -41,7 +41,7 @@ class VisualizerView(TemplateView):
             if r[0]['question']['options'] == yesno and r[0]['postproc']:
                 r[0]['question']['type'] = 'YESNO'
                 #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles
-                r[0]['postproc'][0]['option'] = 'Sí' 
+                r[0]['postproc'][0]['option'] = 'Sí'
             context['voting'] = json.dumps(r[0])
         except:
             raise Http404
