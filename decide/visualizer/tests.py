@@ -12,9 +12,8 @@ from django.urls import reverse_lazy
 from census.models import Census
 from voting.models import Voting
 from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import timedelta
 
-from store.models import Vote
 from mixnet.models import Auth
 
 from mixnet.mixcrypt import ElGamal
@@ -27,8 +26,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
 
-import time
-import random
 from base import mods
 
 
@@ -288,7 +285,7 @@ class LiveStaticticsBaseTests(BaseTestCase):
         clear = {}
         for opt in v.question.options.all():
             clear[opt.number] = 0
-            for i in range(random.randint(0, 5)):
+            for _ in range(4):
                 a, b = self.encrypt_msg(opt.number, v)
                 data = {
                     'voting': v.id,
@@ -311,7 +308,7 @@ class LiveStaticticsBaseTests(BaseTestCase):
         v.start_date = timezone.now()
         v.save()
 
-        clear = self.store_votes(v)
+        self.store_votes(v)
 
         self.login(user='admin')
 
@@ -330,7 +327,7 @@ class LiveStaticticsBaseTests(BaseTestCase):
         v.start_date = timezone.now()
         v.save()
 
-        clear = self.store_votes(v)
+        self.store_votes(v)
 
         self.login(user='admin')
 
@@ -349,7 +346,7 @@ class LiveStaticticsBaseTests(BaseTestCase):
         v.start_date = timezone.now()
         v.save()
 
-        clear = self.store_votes(v)
+        self.store_votes(v)
 
         self.login(user='admin')
 
