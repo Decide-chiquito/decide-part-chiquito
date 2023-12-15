@@ -252,3 +252,12 @@
     font-size: 30px;
     margin-top: 25px;
 }
+
+.graph-mobile {
+    width: 100%;
+}
+
+.graph-bar-mobile {
+    height:30px;
+    margin:10px 0px 10px 0px;
+}

@@ -1,8 +1,9 @@
 from django.db import models
 from django.db.models import JSONField
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _ 
+
+from auditlog.registry import auditlog
+from auditlog.models import AuditlogHistoryField
 
 from base import mods
 from base.models import Auth, Key
@@ -10,6 +11,42 @@ from base.models import Auth, Key
 
 class Question(models.Model):
     desc = models.TextField()
+    history = AuditlogHistoryField()
+
+    VOTE_TYPE = (
+        ('MULTIPLE','Multiple'),
+        ('YESNO',"Yes/No"),
+    )
+
+    type = models.CharField(max_length=8,choices=VOTE_TYPE,default='IDENTITY',verbose_name=_("type"))
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.type == 'YESNO':
+            # Eliminar todas las QuestionOptions asociadas
+            self.options.all().delete()
+
+            # Crear dos nuevas QuestionOptions
+            optYes = QuestionOption(
+                question_id=self.id,
+                number=0,
+                option='Yes',
+            )
+            optYes.save()
+
+            optNo = QuestionOption(
+                question_id=self.id,
+                number=1,
+                option='No',
+            )
+            optNo.save()
+        if self.type == 'MULTIPLE':
+            option = QuestionOption.objects.filter(number=2, option='No')
+            option.delete()
+            option = QuestionOption.objects.filter(number=3, option='Yes')
+            option.delete()
+
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.desc
@@ -21,13 +58,14 @@ class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE,verbose_name=_("question"))
     number = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("number"))
     option = models.TextField(verbose_name=_("option"))
+    history = AuditlogHistoryField()
     class Meta:
         verbose_name=_("QuestionOption")
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.number:
             self.number = self.question.options.count() + 2
-        return super().save()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
@@ -47,14 +85,15 @@ class Voting(models.Model):
 
     tally = JSONField(blank=True, null=True,verbose_name=_("tally"))
     postproc = JSONField(blank=True, null=True)
+    history = AuditlogHistoryField()
 
-    VOTE_TYPES = (
+    VOTE_METHODS = (
         ('IDENTITY','Identity'),
         ('DHONDT',"D'Hondt"),
         ('WEBSTER',"Webster"),
     )
 
-    type = models.CharField(max_length=8,choices=VOTE_TYPES,default='IDENTITY',verbose_name=_("type"))
+    method = models.CharField(max_length=8,choices=VOTE_METHODS,default='IDENTITY',verbose_name=_("method"))
 
     seats = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("seats"))
     
@@ -91,6 +130,42 @@ class Voting(models.Model):
             vote_list.append(votes_format)
             votes_format = []
         return vote_list
+    
+    def live_tally(self, token=''):
+        votes = self.get_votes(token)
+
+        auth = self.auths.first()
+        shuffle_url = "/shuffle/{}/".format(self.id)
+        decrypt_url = "/decrypt/{}/".format(self.id)
+        auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+        data = { "msgs": votes }
+        response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=data,
+                response=True)
+        data = {"msgs": response.json()}
+        response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=data,
+                response=True)
+
+        tally = response.json()
+        if(type(tally) is list):
+            options = self.question.options.all()
+            opts = []
+            for opt in options:
+                if self.method == 'IDENTITY':
+                    votes = tally.count(opt.number)
+                elif self.method == 'DHONDT':
+                    votes = tally.count(opt.number)
+                elif self.method == 'WEBSTER':
+                    votes = tally.count(opt.number)
+                else:
+                    votes = 0
+                opts.append({
+                    'option': opt.option,
+                    'number': opt.number,
+                    'votes': votes
+                })
+            data = { 'method': self.method, 'options': opts, 'seats': self.seats }
+            postp = mods.post('postproc', json=data)
+        return postp
 
     def tally_votes(self, token=''):
         '''
@@ -130,11 +205,11 @@ class Voting(models.Model):
             options = self.question.options.all()
             opts = []
             for opt in options:
-                if self.type == 'IDENTITY':
+                if self.method == 'IDENTITY':
                     votes = tally.count(opt.number)
-                elif self.type == 'DHONDT':
+                elif self.method == 'DHONDT':
                     votes = tally.count(opt.number)
-                elif self.type == 'WEBSTER':
+                elif self.method == 'WEBSTER':
                     votes = tally.count(opt.number)    
                 else:
                     votes = 0
@@ -143,7 +218,7 @@ class Voting(models.Model):
                     'number': opt.number,
                     'votes': votes
                 })
-            data = { 'type': self.type, 'options': opts, 'seats': self.seats }
+            data = { 'method': self.method, 'options': opts, 'seats': self.seats }
             postp = mods.post('postproc', json=data)
             self.postproc = postp
             self.save()
@@ -151,3 +226,8 @@ class Voting(models.Model):
 
     def __str__(self):
         return self.name
+
+
+auditlog.register(Question, serialize_data=True,)
+auditlog.register(QuestionOption, serialize_data=True,)
+auditlog.register(Voting, serialize_data=True,)

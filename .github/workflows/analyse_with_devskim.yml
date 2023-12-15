@@ -1,0 +1,46 @@
+# DevSkim Code Scanning
+#
+# This workflow runs the DevSkim scanner on code changes in the main branch and scheduled on every Friday at 23:28 UTC.
+# It reports the scan results to the GitHub Security tab.
+#
+# DevSkim: https://github.com/microsoft/DevSkim
+# DevSkim Action: https://github.com/microsoft/DevSkim-Action
+# CodeQL Action: https://github.com/github/codeql-action
+
+name: DevSkim
+
+on:
+  push:
+    # Este flujo de trabajo se activará cuando se hagan cambios en la rama principal.
+    branches:
+      - main
+  pull_request:
+    # Este flujo de trabajo se activará cuando se abra o actualice una Pull Request.
+    # Si no se especifican las ramas de destino en el evento de Pull Request, se activará para todas las ramas.
+  schedule:
+    # Este flujo de trabajo se ejecutará según el horario programado.
+    - cron: '28 23 * * 5' # Every Friday at 23:28 UTC
+
+jobs:
+  lint:
+    name: DevSkim Scanner
+    runs-on: ubuntu-20.04
+    permissions:
+      # Configuración de permisos necesarios para ejecutar el flujo de trabajo.
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        # Clonar el código fuente del repositorio en la máquina de ejecución.
+        uses: actions/checkout@v4
+
+      - name: Run DevSkim scanner
+        # Utilizar la acción "microsoft/DevSkim-Action@v1" para ejecutar el escáner DevSkim.
+        uses: microsoft/DevSkim-Action@v1
+
+      - name: Upload DevSkim scan results to GitHub Security tab
+        # Utilizar la acción "github/codeql-action/upload-sarif@v2" para cargar los resultados del escaneo DevSkim en la pestaña de Seguridad de GitHub.
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: devskim-results.sarif

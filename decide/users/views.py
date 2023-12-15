@@ -5,7 +5,6 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
-from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
@@ -16,18 +15,25 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.forms import EmailForm, PasswordForm
-
 from decide import settings
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import gettext as _
+from .forms import CertificateLoginForm
+from django.contrib.auth.backends import ModelBackend
+from django.views.generic import TemplateView
+from base import mods
+import json
+from django.http import Http404
+
 
 
 class RegisterView(APIView):
     def get(self, request):
-        return render(request, 'users/register.html')
+        context = {'is_mobile': request.user_agent.is_mobile}
+        if request.user_agent.is_mobile:
+            return render(request, 'users/register_mobile.html', context)
+        else:
+            return render(request, 'users/register.html')
 
     def post(self, request):
         username = request.data.get('username', '')
@@ -36,18 +42,28 @@ class RegisterView(APIView):
         email = request.data.get('email', '') 
 
         if not username or not password or not confirm_password:
-            return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('Nombre de usuario y contraseña son obligatorios.'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return Response({'error': _('Username and password are required.')}, status=status.HTTP_400_BAD_REQUEST)
         
         if password != confirm_password:
-            return Response({'error': _('The passwords do not match.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('Las contraseñas no coinciden.'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, 'registration/register_fail.html', {'error': _('The passwords do not match.')})
         
         try:
             user = User.objects.create_user(username, password=password, email=email)
-            token, created = Token.objects.get_or_create(user=user)
-            success_message = _('Successful registration. You are now registered.')
-            return Response({'user_pk': user.pk, 'token': token.key}, status=status.HTTP_201_CREATED)
+            if request.user_agent.is_mobile:
+                return redirect('/')
+            else:
+                return render(request, 'registration/register_success.html', {'message': _('Successful registration. You are now registered.')})   
         except IntegrityError:
-            return Response({'error': _('The username is already in use.')}, status=status.HTTP_400_BAD_REQUEST)
+            if request.user_agent.is_mobile:
+                return render(request, 'users/register_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, 'registration/register_fail.html', {'error': _('The username is already in use.')})   
 
 
 
@@ -56,7 +72,10 @@ class LoginView(APIView):
 
     def get(self, request):
         user = request.user
-        return render(request, self.template_name, {'user': user})
+        if request.user_agent.is_mobile:
+            return render(request, 'users/login_mobile.html', {'user': user, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, self.template_name, {'user': user})
 
     def post(self, request):
         username = request.POST.get('username')
@@ -68,10 +87,17 @@ class LoginView(APIView):
             login(request, user)
             return redirect('/')
         else:
-            return render(request, self.template_name, {'error': _('invalid credentials')})
+            if request.user_agent.is_mobile:
+                return render(request, 'users/login_mobile.html', {'error': _('Credenciales inválidas'), 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, self.template_name, {'error': _('invalid credentials')})
 
 class LogoutView(APIView):
     def post(self, request):
+        logout(request)
+        return redirect('/')
+    
+    def get(self,request):
         logout(request)
         return redirect('/')
 
@@ -79,7 +105,14 @@ class RequestPasswordReset(APIView):
     def post(self, request):
         form = EmailForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(User, email=form.cleaned_data['email'])
+            try:
+                user = get_object_or_404(User, email=form.cleaned_data['email'])
+            except:
+                if request.user_agent.is_mobile:
+                    return render(request, 'registration/make_petition_form_mobile.html', {'is_mobile': request.user_agent.is_mobile, 'error': _('No existe un usuario con ese correo electrónico.')})
+                else:
+                    return Response({'error': _('There is no user with that email.')}, status=status.HTTP_400_BAD_REQUEST)
+                
 
             if self.validate_email(user.email):
                 # Generar el token único
@@ -107,7 +140,10 @@ class RequestPasswordReset(APIView):
 
     def get(self, request):
         form = EmailForm()
-        return render(request, 'registration/make_petition_form.html', {'form': form})
+        if request.user_agent.is_mobile:
+            return render(request, 'registration/make_petition_form_mobile.html', {'form': form, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, 'registration/make_petition_form.html', {'form': form})
 
     def validate_email(self, email):
         patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -148,3 +184,88 @@ class ChangePassword(APIView):
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         return user
+
+
+class CertLoginView(APIView):
+    template_name = 'registration/cert_login.html'
+
+    def get(self, request, *args, **kwargs):
+        cert_form = CertificateLoginForm()
+        if request.user_agent.is_mobile:
+            return render(request, 'registration/cert_login_mobile.html', {'cert_form': cert_form, 'is_mobile': request.user_agent.is_mobile})
+        else:
+            return render(request, self.template_name, {'cert_form': cert_form})
+
+    def post(self, request, *args, **kwargs):
+        cert_form = CertificateLoginForm(request.POST, request.FILES)
+        if cert_form.is_valid():
+            user = cert_form.get_or_create_user()
+            if user:
+                backend = ModelBackend()
+                user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
+                login(request, user)
+                if request.user_agent.is_mobile:
+                    return redirect('/')
+                else: 
+                    return render(request, 'registration/cert_success.html', {'user': user})
+            else:
+                if request.user_agent.is_mobile:
+                    return render(request, 'registration/cert_login_mobile.html', {'is_mobile': request.user_agent.is_mobile, 'error': _('Credenciales inválidas')})
+                else:
+                    return render(request, 'registration/cert_fail.html')
+
+        return render(request, 'registration/cert_fail.html')
+
+
+class EditProfileView(TemplateView):
+    template_name = 'users/edit_profile.html'
+
+    def get_template_names(self):
+        if self.request.user_agent.is_mobile:
+            return ['users/edit_profile_mobile.html']
+        else:
+            return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_mobile'] = self.request.user_agent.is_mobile
+        return context
+    
+    def post(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated and not request.user.is_superuser:
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+
+            if not username:
+                if request.user_agent.is_mobile:
+                    return render(request, 'users/edit_profile_mobile.html', {'error': _('El nombre de usuario es obligatorio.'), 'is_mobile': request.user_agent.is_mobile})
+                else:
+                    return render(request, self.template_name, {'error': _('El nombre de usuario es obligatorio.')})
+
+            try:
+                user = request.user
+                user.username = username
+                user.first_name = first_name
+                user.last_name = last_name
+                user.email = email
+                user.save()
+
+                return redirect('/')
+            
+            except IntegrityError:
+                if request.user_agent.is_mobile:
+                    return render(request, 'users/edit_profile_mobile.html', {'error': _('El nombre de usuario ya está en uso.'), 'is_mobile': request.user_agent.is_mobile})
+                else:
+                    return render(request, self.template_name, {'error': _('El nombre de usuario ya está en uso.')})
+
+        else:
+            error_message = _('You must be logged in to edit your profile.')
+            if request.user_agent.is_mobile:
+                return render(request, 'users/edit_profile_mobile.html', {'error': error_message, 'is_mobile': request.user_agent.is_mobile})
+            else:
+                return render(request, self.template_name, {'error': error_message})
+        
+

@@ -34,11 +34,14 @@
             <div class="csv-description">
                 <h4>Formato aceptado:</h4>
                 <p>La primera fila es la cabecera y las siguientes filas son los censos. </p>
-                <p>Los distintos votadores de una votacion se separan por comas</p>
+                <p>Primero se escribe el id de la votación, luego el del votante, el centro adscrito, y finalmente las tags si es que tiene</p>
                 <p>Ejemplo:</p>
-                <textarea name="textarea" rows="4" cols="30">votingID;voterID
-2;2
-1;"2,3"
+                <textarea name="textarea" rows="4" cols="30">votingID,voterID,center,tags...
+2,2,ETSII,tag1,tag2,tag3
+2,3,ETSA
+
+3,4,ETSI,tag1,tag2
+3,2,ETSII,tag1
                 </textarea>  
             </div>
         </div>
