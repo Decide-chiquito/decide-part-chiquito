@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+<link type="text/css" rel="stylesheet" href="{% static "users/certificate.css" %}" />
+{% endblock %}
+
+{% block content %}
+  <div class="background-certificate">
+    <div class="container">
+      <div class="login-container">
+        <h2 class="login-header">Iniciar sesión con Certificado Digital</h2>
+        <form method="post" enctype="multipart/form-data" class="login-form">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ cert_form.cert_file.label_tag }}
+            {{ cert_form.cert_file }}
+          </div>
+          <div class="form-group">
+            {{ cert_form.cert_password.label_tag }}
+            {{ cert_form.cert_password }}
+          </div>
+          <button type="submit" class="login-button">Iniciar Sesión</button>
+        </form>
+        <button type="button" class="login-button" id="goToIndexButton">Volver a la página inicial</button>
+        <script>
+            document.getElementById('goToIndexButton').addEventListener('click', function() {
+                window.location.href = "/";
+            });
+        </script>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

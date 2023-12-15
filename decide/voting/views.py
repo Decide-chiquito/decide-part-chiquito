@@ -19,7 +19,7 @@ class VotingView(generics.ListCreateAPIView):
     filterset_fields = ('id',)
 
     def get(self, request, *args, **kwargs):
-        idpath = kwargs.get('voting_id')
+        kwargs.get('voting_id')
         self.queryset = Voting.objects.all()
         version = request.version
         if version not in settings.ALLOWED_VERSIONS:

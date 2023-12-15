@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 from django.utils.translation import gettext_lazy as _
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '^##ydkswfu0+=ofw0l#$kv^8n)0$i(qd&d&ol#p9!b$8*5%j1+'
+SECRET_KEY = config('SECRET_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'admin_auto_filters',
     'corsheaders',
     'django_filters',
@@ -50,15 +50,13 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'gateway',
     'livereload',
-    'users',
+    'auditlog',
     'social_django',
-    'mailer',
     'django_user_agents',
-
 ]
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '591203465714-9ng1mqkp902c0gkjmkun63ctsapvofgp.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', default='')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', default='')
 SOCIAL_AUTH_URL_NAMESPACE = "social"
 LOGIN_URL = '/authentication/complete/google-oauth2/'
 LOGOUT_URL = '/logout/'
@@ -90,6 +88,7 @@ MODULES = [
     'visualizer',
     'voting',
     'users',
+    'mailer',
 ]
 
 BASEURL = 'http://localhost:8000'
@@ -104,9 +103,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
+    'auditlog.middleware.AuditlogMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
-
 ]
 
 ROOT_URLCONF = 'decide.urls'
@@ -165,6 +164,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#AUTH_USER_MODEL = 'users.User'
+
+AUDITLOG = {
+    'LOG_ENTRY_MODEL': 'base.models.CustomLogEntry',
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -222,5 +227,5 @@ INSTALLED_APPS = INSTALLED_APPS + MODULES
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'decide202324@gmail.com'
-EMAIL_HOST_PASSWORD = 'hulp rfpq boxy otqa'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')

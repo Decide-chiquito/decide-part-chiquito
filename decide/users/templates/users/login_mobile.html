@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link type="text/css" rel="stylesheet" href='{% static "users/style.css" %}' />
+{% endblock %}
+
+{% block content %}
+    <div id="app-visualizer">
+
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-mobile">Cerrar sesión</button>
+            </form>
+        {% endif %}
+
+        {% if not user.is_authenticated %}
+
+            <h1 class="register-title-mobile">Iniciar sesión</h1>
+
+            <form method="post" action="{% url 'users:login' %}" class="form-mobile">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="username" class="label-mobile">Nombre de usuario</label>
+                    <input id="id_username" type="text" name="username" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="label-mobile">Contraseña</label>
+                    <input id="id_password" type="password" name="password" class="form-control" required>
+                </div>
+
+                {% if not user.is_authenticated %}
+                    <h3>¿No tienes una cuenta? <a href="{% url 'users:register' %}"> Regístrate</a></h3>
+                {% endif %}
+
+                <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
+                <button type="submit" class="btn-mobile">Iniciar sesión</button>
+
+                <h3>¿Olvidó su contraseña? <a href="{% url 'users:password_reset' %}"> Recuperar contraseña</a></h3>
+
+                <div class="subtitle-line-mobile"></div>
+
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn-mobile">Iniciar sesión con Google</a>
+                <a href="{% url 'users:cert_login' %}" class="btn-mobile">Iniciar sesión con Certificado Digital</a>
+
+            </form>
+        
+        {% endif %}
+
+    </div>
+{% endblock %}
