@@ -37,12 +37,12 @@ class VisualizerView(TemplateView):
             context['is_mobile'] = self.request.user_agent.is_mobile
 
             yesno = [{'number': 2, 'option': 'Yes'}, {'number': 1, 'option': 'No'}]
-            voting['question']['type'] = 'MULTIPLE'
-            if r[0]['question']['options'] == yesno and r[0]['postproc']:
-                r[0]['question']['type'] = 'YESNO'
-                #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles
-                r[0]['postproc'][0]['option'] = 'Sí'
-            context['voting'] = json.dumps(r[0])
+            for question in voting['questions']:
+                question['type'] = 'MULTIPLE'
+
+                if question['options'] == yesno and voting['postproc']:
+                    question['type'] = 'YESNO'
+            context['voting'] = json.dumps(voting)
         except:
             raise Http404
         

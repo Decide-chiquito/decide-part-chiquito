@@ -81,7 +81,7 @@
                 </div>
                 
                 <div v-else-if="voting.question.type == 'YESNO'">
-                  <div id="container3"></div>
+                  <div id="container3-' + question.id"></div>
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@
               });
             }
         </component>
-        
+
         <component :is="'script'">            
           Highcharts.chart('container3', {
             chart: {
