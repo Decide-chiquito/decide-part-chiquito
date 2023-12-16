@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link type="text/css" rel="stylesheet" href='{% static "users/style.css" %}' />
+{% endblock %}
+
+{% block content %}
+    <div id="app-visualizer">
+
+        <h1 class="register-title-mobile">Recuperar contraseña</h1>
+
+        <form method="post" class="form-mobile">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="label-mobile">Correo electrónico</label>
+                <input type="text" name="email" placeholder="usuario@dominio.com" required="" id="id_email" class="form-control">
+            </div>
+
+            <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
+
+            <button type="submit" class="btn-mobile">Enviar solicitud</button>
+          </form>
+
+    </div>
+{% endblock %}

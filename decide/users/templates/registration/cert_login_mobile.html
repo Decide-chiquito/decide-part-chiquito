@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link type="text/css" rel="stylesheet" href='{% static "users/style.css" %}' />
+    <script>
+        function updateFileInfo() {
+            var input = document.getElementById('id_cert_file');
+            var fileInfo = document.getElementById('file-info');
+
+            if (input.files.length > 0) {
+                var file = input.files[0];
+                fileInfo.textContent = 'Archivo seleccionado: ' + file.name;
+            } else {
+                fileInfo.textContent = 'No hay ningún archivo seleccionado';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('id_form');
+            var fileInput = document.getElementById('id_cert_file');
+            var password = document.getElementById('id_cert_password');
+
+            form.addEventListener('submit', function(event) {
+                if (fileInput.files.length == 0) {
+                    document.getElementById('error-message-mobile').textContent = 'Debe seleccionar algún archivo';
+                    event.preventDefault();
+                } else if (password.value == '') {
+                    document.getElementById('error-message-mobile').textContent = 'Debe introducir una contraseña';
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="app-visualizer">
+
+        <h1 class="register-title-mobile">Iniciar sesión con certificado digital</h1>
+
+        <form id="id_form" method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="card-container-mobile">
+                <div class="card-mobile">
+                    <label class="label-mobile">Fichero de certificado</label>
+                    <label class="button-mobile">Seleccionar
+                        <input class="hidden-mobile" type="file" name="cert_file" required="" id="id_cert_file" onchange="updateFileInfo()">
+                    </label>
+                </div>
+
+                <p class="file-name-mobile" id="file-info">No hay ningún archivo seleccionado</p>
+
+                <div class="form-group">
+                    <label for="id_cert_password" class="label-mobile">Contraseña del certificado</label>
+                    <input type="password" name="cert_password" required="" id="id_cert_password" class="form-control">
+                </div>
+
+                <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
+            
+                <button type="submit" class="btn-mobile">Iniciar sesión</button>
+
+            </div>
+        </form>
+
+    </div>
+{% endblock %}

@@ -1,6 +1,4 @@
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
-]{% extends "base.html" %}
+{% extends "base.html" %}
 {% load i18n static %}
 
 {% load static %}
@@ -42,10 +40,13 @@ LOCALE_PATHS = [
                             <label for="password">{% trans "Password" %}</label>
                             <input type="password" name="password" class="form-control" required>
                         </div>
+
+
                         <div class="login-button" style="display: flex; justify-content: space-between;">
                             <button type="submit" class="btn btn-primary">{% trans "Login" %}</button>
                             <a href="{% url 'users:password_reset' %}" style="margin-top: 15px;">¿Olvidó su contraseña?</a>
                             <a href="{% url 'social:begin' 'google-oauth2' %}" style="margin-top: 15px;">Iniciar sesión con Google</a>
+                            <a href="{% url 'users:cert_login' %}" style="margin-top: 15px;">Iniciar sesión con Certificado Digital</a>
                         </div>
                     </form>
 

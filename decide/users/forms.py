@@ -1,4 +1,8 @@
 from django import forms
+from django.contrib.auth.models import User
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.x509 import NameOID
 
 class EmailForm(forms.Form):
     email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'usuario@dominio.com'}))
@@ -36,5 +40,38 @@ class PasswordForm(forms.Form):
                 self.add_error('password', 'La contraseña debe contener al menos un carácter especial.')
 
         return cleaned_data
+
+
+
+class CertificateLoginForm(forms.Form):
+    cert_file = forms.FileField(label='Certificate File', required=True)
+    cert_password = forms.CharField(label='Certificate Password', widget=forms.PasswordInput, required=True)
+
+    def get_or_create_user(self):
+        try:
+            if not self.is_valid():
+                return None
+
+            cert_content = self.cleaned_data['cert_file'].read()
+            cert_password = self.cleaned_data['cert_password']
+
+            _, cert, _ = pkcs12.load_key_and_certificates(cert_content, cert_password.encode('utf-8'), backend=default_backend())
+
+            cert_json = {
+                'subject': cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value,
+            }
+
+
+            if '-' in cert_json['subject']:
+                subject_name = cert_json['subject'].split('-')[0].strip()
+            else:
+                subject_name = cert_json['subject'].strip()
+
+            user, _ = User.objects.get_or_create(username=subject_name)
+
+            return user
+
+        except Exception:
+            return None
 
 

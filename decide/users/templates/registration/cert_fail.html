@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Failed login</h2>
+    <h2>Invalid certificate or password</h2>
+    <p>Redirecting to the form...</p>
+    <script>
+        setTimeout(function() {
+            window.location.href = "{% url 'users:cert_login' %}";
+        }, 3000);  <!-- Redirect after 3 seconds -->
+    </script>
+{% endblock %}
