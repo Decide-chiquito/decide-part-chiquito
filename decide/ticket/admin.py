@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from unfold.admin import ModelAdmin
 
-from .models import Ticket, TicketStatus
+from .models import Ticket
 from .filters import StatusFilter
 
 
