@@ -16,29 +16,38 @@
   <form method="get" action="{% url 'users:notice' %}">
     <div class="form-group">
       <input type="text" id="name" name="name" class="form-control" placeholder="Buscar" value="{{ request.GET.name }}">
-  </div>
-  <div class="form-group">
-    <label for="date" class="form-label">Periodo</label>
-    <div id="date" class="input-group">
-        <input type="date" id="start_date" name="start_date" class="form-control" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.start_date }}">
-        <input type="date" id="end_date" name="end_date" class="form-control" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.end_date }}">
     </div>
-  </div>
+    <div class="form-group">
+      <label for="date" class="form-label">Periodo</label>
+      <div id="date" class="input-group">
+          <input type="date" id="start_date" name="start_date" class="form-control" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.start_date }}">
+          <input type="date" id="end_date" name="end_date" class="form-control" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.end_date }}">
+      </div>
+    </div>
 
     <button type="submit">{% trans 'Filter' %}</button>
   </form>
 
+
   {% if voting_info %}
     <div class="voting-cards">
       {% for info in voting_info %}
-        <div class="voting-card">
+        <div class="voting-card" onclick="redirigir({{ info.voting_id }})">
           <h3>{{ info.voting_name }}</h3>
           <p><strong>Estado:</strong> {{ info.status }}</p>
-          
         </div>
+
       {% endfor %}
     </div>
   {% else %}
     <p>{% trans 'You are not associated with any voting notices.' %}</p>
   {% endif %}
+
+
+  <script>
+    function redirigir(id) {
+      window.location.href = "/visualizer/" + id;
+    }
+  </script>
+
 {% endblock %}
