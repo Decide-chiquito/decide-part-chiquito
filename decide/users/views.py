@@ -217,9 +217,12 @@ class NoticeView(TemplateView):
             # Replace 'Voting' with the actual name of your Voting model
             voting_ids = Voting.objects.filter(name__icontains=name_query).values_list('id', flat=True)
             censos = censos.filter(voting_id__in=voting_ids)
-        if start_date or end_date:
-            # Join Voting model to Census and filter based on start_date and end_date
-            voting_ids = Voting.objects.filter(start_date__gte=start_date, end_date__lte=end_date).values_list('id', flat=True)
+
+        if start_date is not None:
+            voting_ids = Voting.objects.filter(start_date__gte=start_date).values_list('id', flat=True)
+            censos = censos.filter(voting_id__in=voting_ids)
+        if end_date is not None:
+            voting_ids = Voting.objects.filter(end_date__lte=end_date).values_list('id', flat=True)
             censos = censos.filter(voting_id__in=voting_ids)
 
 
