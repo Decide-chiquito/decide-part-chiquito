@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+from urllib.parse import urlencode
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
@@ -8,6 +9,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
@@ -159,22 +161,11 @@ class NoticeView(TemplateView):
     template_name = 'users/notice.html'
 
     def get_context_data(self, **kwargs):
-        context = super(NoticeView,self).get_context_data(**kwargs)
-       
-        # Obtener censos asociados al usuario actual
-        censos = Census.objects.filter(voter_id=self.request.user.id)
+        context = super(NoticeView, self).get_context_data(**kwargs)
 
-        # Obtener la fecha de inicio y fin para filtrar votaciones
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
-        filtered_votings = Voting.objects.all()
+        # Use the filtered censos from the request
+        censos = getattr(self.request, 'censos', Census.objects.filter(voter_id=self.request.user.id))
 
-        if start_date and end_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-            filtered_votings = filtered_votings.filter(start_date__gte=start_date, end_date__lte=end_date)
-
-        # Crear una lista con información de las votaciones y su estado
         voting_info = []
         for censo in censos:
             voting = Voting.objects.get(id=censo.voting_id)
@@ -188,6 +179,63 @@ class NoticeView(TemplateView):
             })
         context['voting_info'] = voting_info
         return context
+
+    def filtro(self, request):
+        # Filtros
+        name_query = request.GET.get('name')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+        except ValueError:
+            start_date = None
+        try:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+        except ValueError:
+            end_date = None
+
+        if start_date and end_date and start_date > end_date:
+            end_date = None
+
+        valid_query_params = {
+            'name': name_query or '',
+            'start_date': start_date.strftime('%Y-%m-%d') if start_date else '',
+            'end_date': end_date.strftime('%Y-%m-%d') if end_date else ''
+        }
+
+        valid_query_string = urlencode(valid_query_params, doseq=True)
+
+        current_query_string = self.request.GET.urlencode()
+        if current_query_string != valid_query_string:
+            return HttpResponseRedirect(f'{self.request.path}?{valid_query_string}')
+
+       # Apply filters to the queryset
+        censos = Census.objects.filter(voter_id=self.request.user.id)
+        if name_query:
+            # Assuming there is a Voting model linked by the voting_id field
+            # Replace 'Voting' with the actual name of your Voting model
+            voting_ids = Voting.objects.filter(name__icontains=name_query).values_list('id', flat=True)
+            censos = censos.filter(voting_id__in=voting_ids)
+        if start_date or end_date:
+            # Join Voting model to Census and filter based on start_date and end_date
+            voting_ids = Voting.objects.filter(start_date__gte=start_date, end_date__lte=end_date).values_list('id', flat=True)
+            censos = censos.filter(voting_id__in=voting_ids)
+
+
+        # Save the filtered queryset to the request for later use
+        self.request.censos = censos
+
+        # Redirect to the same view after applying the filters
+        return HttpResponseRedirect(f'{self.request.path}?{valid_query_string}')
+
+    def get(self, request, *args, **kwargs):
+        # Call the filtro method for filtering
+        self.filtro(request)
+        # Call the get method to process the request
+        return super().get(request, *args, **kwargs)
+
+    
 
     def get_voting_status(self, voting):
         if voting.start_date and not voting.end_date:
