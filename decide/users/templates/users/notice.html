@@ -48,6 +48,39 @@
     function redirigir(id) {
       window.location.href = "/visualizer/" + id;
     }
+
+        // Validación para fechas
+        var startDateInput = document.getElementById('start_date');
+    var endDateInput = document.getElementById('end_date');
+
+    function validateDates() {
+        var startDate = new Date(startDateInput.value);
+        var endDate = new Date(endDateInput.value);
+
+        if (startDate && endDate && startDate > endDate) {
+            endDateInput.value = "";
+        }
+    }
+
+    startDateInput.addEventListener('blur', validateDates);
+    endDateInput.addEventListener('blur', validateDates);
+
+    document.querySelector('form').addEventListener('submit', function(event) {
+        // Obtén los valores de los campos
+        var start_date = document.getElementById('start_date').value;
+        var end_date = document.getElementById('end_date').value;
+        
+        // Conviértelos a objetos Date para comparar
+        var startDate = start_date ? new Date(start_date) : null;
+        var endDate = end_date ? new Date(end_date) : null;
+
+        // Validación de fechas
+        if (startDate && endDate && startDate > endDate) {
+            endDateInput.value = "";
+        }
+        
+    });
+    
   </script>
 
 {% endblock %}
