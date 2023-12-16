@@ -42,318 +42,214 @@
 {% endblock %}
 
 {% block content %}
-    <div id="app-visualizer">
-        <!-- Navbar -->
-        <div class="navigator">
-            <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
-            <h2 v-if="!voting.start_date">Votación no comenzada</h2>
-            <h2 v-else-if="!voting.end_date">Votación en curso</h2>
-            <div v-else>
-              <div v-for="question in voting.questions" :key="question.id">
-                <h2 class="heading">Resultados de la pregunta: [[ question.desc ]]</h2>
-                <h2 v-if="question.type == 'YESNO'">Votación de tipo SI/NO</h2>
-
-                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños: [[voting.seats]] </h3>
-
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Opción</th>
-                            <th v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">Puntuación</th>
-                            <th>Votos</th>
-                            <th v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="opt in findPostprocData(question.id)" :key="opt.number">
-                            <th>[[opt.option]]</th>
-                            <td v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">[[opt.postproc]]</td>
-                            <td class="text-muted">[[opt.votes]]</td>
-                            <td v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">[[opt.deputies]]</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div v-if="voting.method == 'IDENTITY'" >
-                  <div :id="'container-' + question.id"></div>
-                </div>
-                <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
-                  <div :id="'container2-' + question.id"></div>
-                </div>
-              </div>
-            </div>
-
-            {% if live_tally %}
-                <h2 class="heading" style="color: red;">Votos en directo:</h2>
-                <div class="pies">
-                    <div class="pie" id="pieChart1"></div>
-                    <div class="pie" id="pieChart2"></div>
-                    <div class="pie" id="pieChart3"></div>
-                </div>
-            {% endif %}
-
-        </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-              var datos1 = {{ votes | safe }};
-              var data1 = datos1.map(function(item) {
-                return {
-                  name: item.name,
-                  y: item.value
-                };
-              });
-        
-              var options1 = {
-                chart: {
-                  type: 'pie'
-                },
-                title: {
-                  text: 'Personas que han votado'
-                },
-                series: [{
-                  name: 'Votos',
-                  data: data1
-                }]
-              };
-        
-              Highcharts.chart('pieChart1', options1);
-        
-              var datos2 = {{ live_tally | safe }};
-              var data2 = datos2.map(function(item) {
-                return {
-                  name: item.option,
-                  y: item.votes
-                };
-              });
-        
-              var options2 = {
-                chart: {
-                  type: 'pie'
-                },
-                title: {
-                  text: 'Resultados'
-                },
-                series: [{
-                  name: 'Votos',
-                  data: data2
-                }]
-              };
-        
-              Highcharts.chart('pieChart2', options2);
-        
-              var datos3 = {{ census | safe }};
-              var data3 = datos3.map(function(item) {
-                return {
-                  name: item.name,
-                  y: item.value
-                };
-              });
-        
-              var options3 = {
-                chart: {
-                  type: 'pie'
-                },
-                title: {
-                  text: 'Division por centros de adscripcion'
-                },
-                series: [{
-                  name: 'Votos',
-                  data: data3
-                }]
-              };
-        
-              Highcharts.chart('pieChart3', options3);
-            });
-        </script>
-
-        <component :is="'script'">
-            var voting = {{live_tally|safe}};
-            const data = voting.map(x => [x.option, x.votes]);
-
-            Highcharts.chart('live', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Resultados',
-                },
-                subtitle: {
-                    text:""
-                },
-                xAxis: {
-                    categories: [...new Set(data.map(x => x[0]))]
-                },
-                yAxis: {
-                    allowDecimals: false,
-                    min: 0,
-                    title: {
-                        text: 'Votos'
-                    }
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                    }
-                },
-                series: [{ colorByPoint: true, data, name: "[[ voting.name]]", showInLegend: false }]
-            });
-        </component>
-        
-        <component :is="'script'">
-            var voting = {{voting|safe}};
-
-            if (voting.method != 'DHONDT' && voting.method != 'WEBSTER') {
-
-              voting.questions.forEach(question => {
-                const questionData = voting.postproc.find(item => item.question_id === question.id);
-        
-                const data = questionData.postproc.map(x => [x.option, x.votes]);
-
-                if (question.type != 'YESNO') {
-                  Highcharts.chart('container-' + question.id, {
-                    chart: {
-                        type: 'column'
-                    },
-                    title: {
-                        text: "",
-                    },
-                    subtitle: {
-                        text:""
-                    },
-                    xAxis: {
-                        categories: [...new Set(data.map(x => x[0]))]
-                    },
-                    yAxis: {
-                        allowDecimals: false,
-                        min: 0,
-                        title: {
-                            text: 'Votos'
-                        }
-                    },
-                    plotOptions: {
-                        column: {
-                            pointPadding: 0.2,
-                            borderWidth: 0
-                        },
-                    },
-                    series: [{ colorByPoint: true, data, name: "", showInLegend: false }]
-                  });
-                }
-              });
-            }
-        </component>
-
-        <component :is="'script'">
-            var voting = {{voting|safe}};
-
-            if (voting.method == 'DHONDT' || voting.method == 'WEBSTER') {
-              
-              voting.questions.forEach(question => {
-                const questionData = voting.postproc.find(item => item.question_id === question.id);
+<div id="app-visualizer">
+  <!-- Navbar -->
+  <div class="navigator">
+      <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
+      <h2 v-if="!voting.start_date">Votación no comenzada</h2>
+      <div v-else-if="!voting.end_date">Votación en curso
+        <h2>Votación en curso</h2>
+        <div class="pies">
+          <div id="participationChart"></div>
   
-                const chartData = questionData.postproc.map(opt => ({
-                    name: opt.option,
-                    y: opt.deputies ? Number(opt.deputies) : 0,
-                  }));
-                
-                Highcharts.chart('container2-' + question.id, {
-                    chart: {
-                      plotBackgroundColor: null,
-                      plotBorderWidth: 0,
-                      plotShadow: false
-                    },
-                    title: {
-                      text: 'Reparto de escaños',
-                      align: 'center',
-                      verticalAlign: 'middle',
-                      y: 60
-                    },
-                    tooltip: {
-                      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-                    },
-                    accessibility: {
-                      point: {
-                        valueSuffix: '%'
-                      }
-                    },
-                    plotOptions: {
-                      pie: {
-                        dataLabels: {
-                          enabled: true,
-                          distance: -50,
-                          style: {
-                            fontWeight: 'bold',
-                            color: 'white'
-                          }
-                        },
-                        startAngle: -90,
-                        endAngle: 90,
-                        center: ['50%', '75%'],
-                        size: '110%'
-                      }
-                    },
-                    series: [{
-                      type: 'pie',
-                      name: 'Reparto de escaños',
-                      innerSize: '50%',
-                      data: chartData,
-                    }]
-                  })
-              });
-            }
-        </component>
+          <div id="adscriptionCentersChart"></div>
+        </div>
+      </div>
+      <div v-else>
+        <div class="pies">
+          <div id="participationChart"></div>
+  
+          <div id="adscriptionCentersChart"></div>
+        </div>
+        <div v-for="question in voting.questions" :key="question.id">
+          <h2 class="heading">Resultados de la pregunta: [[ question.desc ]]</h2>
+          <h2 v-if="question.type == 'YESNO'">Votación de tipo SI/NO</h2>
 
-        <component :is="'script'">
-          var voting = {{voting|safe}};
+          <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños: [[voting.seats]] </h3>
 
-          if (voting.method != 'DHONDT' && voting.method != 'WEBSTER') {
-            voting.questions.forEach(question => {
-              const questionData = voting.postproc.find(item => item.question_id === question.id);
-      
-              const data = questionData.postproc.map(x => [x.option, x.votes]);
+          <table class="table table-bordered table-striped">
+              <thead>
+                  <tr>
+                      <th>Opción</th>
+                      <th v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">Puntuación</th>
+                      <th>Votos</th>
+                      <th v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr v-for="opt in findPostprocData(question.id)" :key="opt.number">
+                      <th>[[opt.option]]</th>
+                      <td v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">[[opt.postproc]]</td>
+                      <td class="text-muted">[[opt.votes]]</td>
+                      <td v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">[[opt.deputies]]</td>
+                  </tr>
+              </tbody>
+          </table>
+          <div v-if="voting.method == 'IDENTITY'" >
+            <div :id="'container-' + question.id"></div>
+          </div>
+          <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">
+            <div :id="'container2-' + question.id"></div>
+          </div>
+        </div>
+      </div>
 
-              if (question.type == 'YESNO') {
-                Highcharts.chart('container-' + question.id, {
-                  chart: {
-                      type: 'pie'
-                  },
+  </div>
+        
+  <component :is="'script'">
+      var voting = {{voting|safe}};
+
+      if (voting.method != 'DHONDT' && voting.method != 'WEBSTER') {
+
+        voting.questions.forEach(question => {
+          const questionData = voting.postproc.find(item => item.question_id === question.id);
+  
+          const data = questionData.postproc.map(x => [x.option, x.votes]);
+
+          if (question.type != 'YESNO') {
+            Highcharts.chart('container-' + question.id, {
+              chart: {
+                  type: 'column'
+              },
+              title: {
+                  text: "",
+              },
+              subtitle: {
+                  text:""
+              },
+              xAxis: {
+                  categories: [...new Set(data.map(x => x[0]))]
+              },
+              yAxis: {
+                  allowDecimals: false,
+                  min: 0,
                   title: {
-                      text: "",
+                      text: 'Votos'
+                  }
+              },
+              plotOptions: {
+                  column: {
+                      pointPadding: 0.2,
+                      borderWidth: 0
                   },
-                  subtitle: {
-                      text:""
-                  },
-                  xAxis: {
-                      categories: [...new Set(data.map(x => x[0]))]
-                  },
-                  yAxis: {
-                      allowDecimals: false,
-                      min: 0,
-                      title: {
-                          text: 'Votos'
-                      }
-                  },
-                  plotOptions: {
-                      pie: {
-                          allowPointSelect: true,
-                          cursor: 'pointer',
-                      }
-                  },
-                  series: [{ colorByPoint: true, data, name: "", showInLegend: false }]
-                });
-              }
+              },
+              series: [{ colorByPoint: true, data, name: "", showInLegend: false }]
             });
           }
-      </component>
-        
-        <div class="center">
-            <button class="btn btn-primary mt-3" v-on:click="comeBack">
-                {% trans "Volver" %}
-            </button>
-        </div>
+        });
+      }
+  </component>
 
-    </div>
+  <component :is="'script'">
+      var voting = {{voting|safe}};
+
+      if (voting.method == 'DHONDT' || voting.method == 'WEBSTER') {
+        
+        voting.questions.forEach(question => {
+          const questionData = voting.postproc.find(item => item.question_id === question.id);
+
+          const chartData = questionData.postproc.map(opt => ({
+              name: opt.option,
+              y: opt.deputies ? Number(opt.deputies) : 0,
+            }));
+          
+          Highcharts.chart('container2-' + question.id, {
+              chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: 0,
+                plotShadow: false
+              },
+              title: {
+                text: 'Reparto de escaños',
+                align: 'center',
+                verticalAlign: 'middle',
+                y: 60
+              },
+              tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+              },
+              accessibility: {
+                point: {
+                  valueSuffix: '%'
+                }
+              },
+              plotOptions: {
+                pie: {
+                  dataLabels: {
+                    enabled: true,
+                    distance: -50,
+                    style: {
+                      fontWeight: 'bold',
+                      color: 'white'
+                    }
+                  },
+                  startAngle: -90,
+                  endAngle: 90,
+                  center: ['50%', '75%'],
+                  size: '110%'
+                }
+              },
+              series: [{
+                type: 'pie',
+                name: 'Reparto de escaños',
+                innerSize: '50%',
+                data: chartData,
+              }]
+            })
+        });
+      }
+  </component>
+
+  <component :is="'script'">
+    var voting = {{voting|safe}};
+
+    if (voting.method != 'DHONDT' && voting.method != 'WEBSTER') {
+      voting.questions.forEach(question => {
+        const questionData = voting.postproc.find(item => item.question_id === question.id);
+
+        const data = questionData.postproc.map(x => [x.option, x.votes]);
+
+        if (question.type == 'YESNO') {
+          Highcharts.chart('container-' + question.id, {
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: "",
+            },
+            subtitle: {
+                text:""
+            },
+            xAxis: {
+                categories: [...new Set(data.map(x => x[0]))]
+            },
+            yAxis: {
+                allowDecimals: false,
+                min: 0,
+                title: {
+                    text: 'Votos'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                }
+            },
+            series: [{ colorByPoint: true, data, name: "", showInLegend: false }]
+          });
+        }
+      });
+    }
+  </component>
+  
+  <div class="center">
+      <button class="btn btn-primary mt-3" v-on:click="comeBack">
+          {% trans "Volver" %}
+      </button>
+  </div>
+
+</div>
 {% endblock %}
 
 {% block extrabody %}
@@ -384,7 +280,53 @@
               }
             }
         }).mount('#app-visualizer')
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            var totalVotes = {{ total_votes | safe }};
+            var noVotes = {{ no_votes | safe }};
+            var dataVoting = [
+                { name: 'Votantes', y: totalVotes },
+                { name: 'No Votantes', y: noVotes }
+            ];
 
+            var optionsVoting = {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Participación en Votación'
+                },
+                series: [{
+                    name: 'Cantidad',
+                    data: dataVoting
+                }]
+            };
+
+            Highcharts.chart('participationChart', optionsVoting);
+
+            var censusData = {{ census | safe }};
+            var dataCenters = censusData.map(function(item) {
+                return {
+                    name: item.name,
+                    y: item.value
+                };
+            });
+
+            var optionsCenters = {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'División por Centros de Adscripción'
+                },
+                series: [{
+                    name: 'Cantidad',
+                    data: dataCenters
+                }]
+            };
+
+            Highcharts.chart('adscriptionCentersChart', optionsCenters);
+        });
         
     </script>
 

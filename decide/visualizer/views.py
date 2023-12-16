@@ -6,6 +6,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from base import mods
 from census.models import Census
 from voting.models import Voting
+from store.models import Vote
 
 class VisualizerView(TemplateView):
     template_name = 'visualizer/visualizer.html'
@@ -20,64 +21,53 @@ class VisualizerView(TemplateView):
 
         
         return [self.template_name]
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
 
         try:
             r = mods.get('voting', params={'id': vid})
-
-            voting = r[0]
             
-            token = self.request.session.get('auth-token', '')
-            v = r[0]
-            v_id = v['id']
-            
+            context['voting'] = json.dumps(r[0])
             context['is_mobile'] = self.request.user_agent.is_mobile
 
-            yesno = [{'number': 2, 'option': 'Yes'}, {'number': 1, 'option': 'No'}]
-            for question in voting['questions']:
-                question['type'] = 'MULTIPLE'
+            token = self.request.session.get('auth-token', '')
 
-                if question['options'] == yesno and voting['postproc']:
-                    question['type'] = 'YESNO'
-            context['voting'] = json.dumps(voting)
+            v = r[0]
+            v_id = v['id']
+
+            voting = get_object_or_404(Voting, id=vid)
+
+            if voting.end_date is None:
+                voting.live_tally(token)
+
+            census = Census.objects.filter(voting_id=vid)
+        
+            total_unique_voters = Vote.objects.filter(voting_id=vid).values('voter_id').distinct().count()
+
+            total_voters_in_census = census.count()
+
+            no_votes = total_voters_in_census - total_unique_voters
+
+            centros_distintos = Census.objects.values('adscription_center').distinct()
+            centros = [censo['adscription_center'] for censo in centros_distintos]
+
+            for centro in centros:
+                votos = 0
+                for censo in census:
+                    if censo.adscription_center == centro:
+                        votos += 1
+                centros[centros.index(centro)] = {'name': centro, 'value': votos}
+
+            context['census'] = json.dumps(centros)
+            context['total_votes'] = json.dumps(total_unique_voters)
+            context['no_votes'] = json.dumps(no_votes)
+
         except:
             raise Http404
-        
-        try:
-            voting_instance = get_object_or_404(Voting, id=v_id)
-
-            if voting_instance.end_date is None:
-                live_tally = voting_instance.live_tally(token)
-                context['live_tally'] = json.dumps(live_tally)
-
-                census = Census.objects.filter(voting_id=v_id)
-                total_votes = 0
-                for opcion in live_tally:
-                    total_votes += opcion['votes']
-                no_votes = census.count() - total_votes
-                
-                context['votes'] = json.dumps([{'name': 'Voto Realizado', 'value': total_votes}, {'name': 'Voto No Realizado', 'value': no_votes}])
-
-                centros_distintos = Census.objects.values('adscription_center').distinct()
-                centros = [censo['adscription_center'] for censo in centros_distintos]
-
-                for centro in centros:
-                    votos = 0
-                    for censo in census:
-                        if censo.adscription_center == centro:
-                            votos += 1
-                    centros[centros.index(centro)] = {'name': centro, 'value': votos}
-
-                context['census'] = json.dumps(centros)
-        except:
-            pass
 
         return context
-
-    
     
 def listVisualizer(request):
     if request.user.is_superuser:
