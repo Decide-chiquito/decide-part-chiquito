@@ -316,3 +316,45 @@ p {
     box-shadow: 0 0 10px 5px rgba(200, 200, 200, 0.5);
 }
 
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(49, 108, 244);
+    padding: 10px;
+    color: white;
+}
+
+.title {
+    font-size: 40px;
+}
+
+.button-ticket {
+  background-color: white;
+  color: rgb(49, 108, 244);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 30px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 60px;
+  margin-bottom: 20px;
+}
+
+
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(49, 108, 244);
+    padding: 10px;
+    color: white;
+}
+
+.title-decide {
+    font-size: 40px;
+
+}
+
+

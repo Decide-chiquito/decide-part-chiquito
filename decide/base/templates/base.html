@@ -9,9 +9,11 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         {% if not is_mobile %}
             <div class="title">
-                <header>
-                    Decide
-                </header>
+                    <div class="column">
+                        <span class="title-decide">Decide</span>
+                        <button class="button-ticket" onclick="button_go_to_route('ticket/add-ticket/')">Report Incidence</button>
+                    </div>
+                
                 <div class="subtitle">
                     <p>
                         Bienvenido a Decide, el sistema de votaciones online implementado por el grupo decide-part-chiquito.
