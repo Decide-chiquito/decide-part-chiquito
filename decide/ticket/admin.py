@@ -7,14 +7,6 @@ from .filters import StatusFilter
 
 
 
-def solve_ticket(ModelAdmin, request, queryset):
-    for t in queryset.all():
-        t.status = 'SOLVED'
-        t.save()
-
-def reject_ticket(ModelAdmin, resquest, queryset):
-    queryset.update(status='REJECTED')
-
 
 @admin.register(Ticket)
 class TicketAdmin(ModelAdmin):
@@ -22,6 +14,14 @@ class TicketAdmin(ModelAdmin):
 
     list_filter = (StatusFilter,)
     search_fields = ('title','status')
+
+    def solve_ticket(ModelAdmin, request, queryset):
+        for t in queryset.all():
+            t.status = 'SOLVED'
+            t.save()
+
+    def reject_ticket(ModelAdmin, resquest, queryset):
+        queryset.update(status='REJECTED')
 
     actions = [solve_ticket, reject_ticket]
 

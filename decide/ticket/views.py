@@ -9,7 +9,7 @@ def add_ticket(request):
             ticket = form.save(commit=False)
             ticket.save()
 
-            return redirect(request.META.get('HTTP_REFERER', ''))
+            return redirect('add_ticket')
     else:
         form = TicketForm()
 
