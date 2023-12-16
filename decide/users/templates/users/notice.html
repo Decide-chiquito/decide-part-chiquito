@@ -15,16 +15,15 @@
   
   <form method="get" action="{% url 'users:notice' %}">
     <div class="form-group">
-      <input type="text" id="name" name="name" class="form-control" placeholder="Buscar" value="{{ request.GET.name }}">
+      <input type="text" id="name" name="name" class="form-filter" placeholder="Buscar" value="{{ request.GET.name }}">
     </div>
-    <div class="form-group">
-      <label for="date" class="form-label">Periodo</label>
+    <div class="columna">
+      <label for="date" class="form-label">Filtrado:</label>
       <div id="date" class="input-group">
-          <input type="date" id="start_date" name="start_date" class="form-control" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.start_date }}">
-          <input type="date" id="end_date" name="end_date" class="form-control" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.end_date }}">
+        <input type="date" id="start_date" name="start_date" class="form-filter" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.start_date }}">
+        <input type="date" id="end_date" name="end_date" class="form-filter" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.end_date }}">
       </div>
     </div>
-
     <button type="submit">{% trans 'Filter' %}</button>
   </form>
 

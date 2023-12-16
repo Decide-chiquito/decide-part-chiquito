@@ -74,6 +74,31 @@
     margin-bottom: 1.5em;
 }
 
+.form-label {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #1D1D1D !important;
+}
+
+.entrada {
+    width: 40%;
+    margin-top: 10px;
+    color: black;
+}
+
+.columna {
+    display: flex;
+    column-gap: 15px;
+}
+
+.form-filter {
+    height: 1.5em;
+    border-radius: 6px;
+    font-size: 1.2em;
+    padding: 5px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.200);
+}
+
 .form-control {
     height: 2.5em;
     border-radius: 10px;
