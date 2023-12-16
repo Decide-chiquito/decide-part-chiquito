@@ -969,7 +969,7 @@ class EmailVotingTests(StaticLiveServerTestCase):
         user.save()
 
         self.census = Census(voting_id=v.pk, voter_id=user.pk)
-        self.census.save()  
+        self.census.save()
 
         votingURL = f'{self.live_server_url}/admin/voting/voting/'
         self.driver.get(votingURL)
@@ -1000,7 +1000,7 @@ class EmailVotingTests(StaticLiveServerTestCase):
         actions.move_to_element(element).release().perform()
         self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
 
-        self.assertEqual(mail.outbox[1].to, [user.email])                  
-        self.assertEqual(len(mail.outbox), 2)               
+        self.assertEqual(mail.outbox[1].to, [user.email])
+        self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[1].subject, 'New voting available')
         self.assertEqual(mail.outbox[1].body, strip_tags(render_to_string('start_email_template.html', {'username': user.username, 'voting_name': v.name})))
