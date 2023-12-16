@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-RUN git clone -b 'feat/script-construction' https://github.com/Decide-chiquito/decide-part-chiquito.git . && \
+RUN git clone https://github.com/Decide-chiquito/decide-part-chiquito.git . && \
     pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app/decide
