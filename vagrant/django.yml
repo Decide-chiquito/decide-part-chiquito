@@ -6,10 +6,24 @@
   args:
     chdir: /home/decide/decide/decide
 
+- name: Database makemigration
+  become: yes
+  become_user: decide
+  shell: ~/venv/bin/python manage.py makemigrations --noinput
+  args:
+    chdir: /home/decide/decide/decide
+
 - name: Database migration
   become: yes
   become_user: decide
   shell: ~/venv/bin/python manage.py migrate --noinput
+  args:
+    chdir: /home/decide/decide/decide
+
+- name: Database populate
+  become: yes
+  become_user: decide
+  shell: ~/venv/bin/python manage.py loaddata populate.json
   args:
     chdir: /home/decide/decide/decide
 
