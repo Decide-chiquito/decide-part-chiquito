@@ -17,6 +17,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import TemplateView
 from census.models import Census
+from store.models import Vote
 from voting.models import Voting
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -163,25 +164,28 @@ class NoticeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(NoticeView, self).get_context_data(**kwargs)
 
-        # Use the filtered censos from the request
+        # Utiliza los censos filtrados de la petición
         censos = getattr(self.request, 'censos', Census.objects.filter(voter_id=self.request.user.id))
 
         voting_info = []
         for censo in censos:
             voting = Voting.objects.get(id=censo.voting_id)
             status = self.get_voting_status(voting)
+            has_voted = self.has_voted(voting, self.request.user)
+            has_voted_str = str(self.has_voted(voting, self.request.user)).lower()
             voting_info.append({
                 'voting_id': voting.id,
                 'voting_name': voting.name,
                 'voting_question': voting.question,
                 'voting_endDate': voting.end_date,
-                'status': status
+                'status': status,
+                'has_voted': has_voted,
+                'has_voted_str': has_voted_str
             })
         context['voting_info'] = voting_info
         return context
 
     def filtro(self, request):
-        # Filtros
         name_query = request.GET.get('name')
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
@@ -210,11 +214,9 @@ class NoticeView(TemplateView):
         if current_query_string != valid_query_string:
             return HttpResponseRedirect(f'{self.request.path}?{valid_query_string}')
 
-       # Apply filters to the queryset
+        # Aplicar filtros al conjunto a queryset
         censos = Census.objects.filter(voter_id=self.request.user.id)
         if name_query:
-            # Assuming there is a Voting model linked by the voting_id field
-            # Replace 'Voting' with the actual name of your Voting model
             voting_ids = Voting.objects.filter(name__icontains=name_query).values_list('id', flat=True)
             censos = censos.filter(voting_id__in=voting_ids)
 
@@ -225,20 +227,18 @@ class NoticeView(TemplateView):
             voting_ids = Voting.objects.filter(end_date__lte=end_date).values_list('id', flat=True)
             censos = censos.filter(voting_id__in=voting_ids)
 
-
-        # Save the filtered queryset to the request for later use
+        # Guardar el conjunto de consultas filtrado en la solicitud para su uso posterior.
         self.request.censos = censos
 
-        # Redirect to the same view after applying the filters
+        # Redirigir a la misma vista después de aplicar los filtros
         return HttpResponseRedirect(f'{self.request.path}?{valid_query_string}')
 
     def get(self, request, *args, **kwargs):
-        # Call the filtro method for filtering
+        # Llama al método filtro para filtrar
         self.filtro(request)
-        # Call the get method to process the request
+        # Llama al método get para procesar la petición
         return super().get(request, *args, **kwargs)
 
-    
 
     def get_voting_status(self, voting):
         if voting.start_date and not voting.end_date:
@@ -249,4 +249,12 @@ class NoticeView(TemplateView):
             return 'La votación se encuentra Cerrada, los resultados ya están disponibles'
         else:
             return 'Estado desconocido'
-   
+        
+    def has_voted(self, voting, user):
+        try:
+            # Intenta obtener el voto del usuario para esta votación
+            vote = Vote.objects.get(voting_id=voting.id, voter_id=user.id)
+            return vote.voted is not None
+        except Vote.DoesNotExist:
+            # Si no se encuentra un voto para esta votación y usuario, no ha votado
+            return False

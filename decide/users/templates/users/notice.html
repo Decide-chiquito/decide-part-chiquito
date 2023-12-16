@@ -32,9 +32,14 @@
   {% if voting_info %}
     <div class="voting-cards">
       {% for info in voting_info %}
-        <div class="voting-card" onclick="redirigir({{ info.voting_id }})">
+        <div class="voting-card" onclick="redirigir({{ info.voting_id }}, {{ info.has_voted_str }}, '{{ info.status }}')">
           <h3>{{ info.voting_name }}</h3>
-          <p><strong>Estado:</strong> {{ info.status }}</p>
+          <p><strong>Estado de la votación:</strong> {{ info.status }}</p>
+          {% if info.has_voted %}
+            <p><strong>¡Ya has votado!</strong></p>
+          {% else %}
+            <p><strong>Aún no has votado</strong></p>
+          {% endif %}
         </div>
 
       {% endfor %}
@@ -43,10 +48,14 @@
     <p>{% trans 'You are not associated with any voting notices.' %}</p>
   {% endif %}
 
-
   <script>
-    function redirigir(id) {
-      window.location.href = "/visualizer/" + id;
+    function redirigir(id, hasVoted, status) {
+      console.log(status + hasVoted)
+      if (!hasVoted && status == "La votación sigue Abierta") {
+        window.location.href = "/booth/" + id;
+      } else {
+        window.location.href = "/visualizer/" + id;
+      }
     }
 
         // Validación para fechas
@@ -78,7 +87,7 @@
         if (startDate && endDate && startDate > endDate) {
             endDateInput.value = "";
         }
-        
+
     });
     
   </script>
