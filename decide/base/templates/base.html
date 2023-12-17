@@ -11,7 +11,7 @@
             <div class="title">
                     <div class="column">
                         <span class="title-decide">Decide</span>
-                        <button class="button-ticket" onclick="button_go_to_route('ticket/add-ticket/')">Report Incidence</button>
+                        <button class="button-ticket" onclick="button_go_to_route('/ticket/add-ticket/')">Report Incidence</button>
                     </div>
                 
                 <div class="subtitle">
@@ -47,6 +47,11 @@
             function comeBack() {
                 const baseUrl = `${window.location.protocol}//${window.location.host}`;
                 window.location.href = baseUrl;
+            }
+
+            function button_go_to_route(url) {
+                window.location.href = url;
+                
             }
         </script>
     </body>
