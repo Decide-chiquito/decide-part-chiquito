@@ -104,7 +104,6 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         vState= self.driver.find_element(By.ID,"container").text
         self.assertTrue(vState)
 
-
 class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
 
     def setUp(self):
@@ -188,7 +187,7 @@ class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
         voting_element = self.driver.find_elements(By.NAME, "question")[0]
         voting_element.click()
         voting_element = self.driver.find_elements(By.TAG_NAME, "button")
-        voting_element[2].click()
+        voting_element[3].click()
 
         self.driver.get(self.live_server_url + "/users/logout/")
 

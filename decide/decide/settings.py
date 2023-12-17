@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'auditlog',
     'social_django',
     'django_user_agents',
+    'ticket',
+
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', default='')
@@ -88,6 +90,7 @@ MODULES = [
     'voting',
     'users',
     'mailer',
+    'ticket',
 ]
 
 BASEURL = 'http://localhost:8000'
