@@ -98,6 +98,59 @@ class TestCerrado(StaticLiveServerTestCase):
     self.driver.find_element(By.NAME, "password").send_keys("admin")
     self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
     self.driver.find_element(By.LINK_TEXT, "Acceso").click()
-    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(1) > p:nth-child(2) > strong").click()
+    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(1)").click()
+    self.assertEqual(self.driver.current_url, "http://localhost:8000/visualizer/1/")
     self.driver.get("http://localhost:8000/logout")
-    # http://localhost:8000/visualizer/1/
+
+class TestAbierto(StaticLiveServerTestCase):
+  def setUp(self):
+    self.base = BaseTestCase()
+    self.base.setUp()
+    options = webdriver.ChromeOptions()
+    options.headless = True
+    self.driver = webdriver.Chrome(options=options)
+    super().setUp()
+  
+  def tearDown(self):
+    super().tearDown()
+    self.driver.quit()
+    self.base.tearDown()
+  
+  def test_testAbierto(self):
+    self.driver.get("http://localhost:8000/")
+    self.driver.set_window_size(1392, 774)
+    self.driver.find_element(By.LINK_TEXT, "Login").click()
+    self.driver.find_element(By.NAME, "username").send_keys("prueba")
+    self.driver.find_element(By.NAME, "password").send_keys("admin")
+    self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
+    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(2)").click()
+    self.assertEqual(self.driver.current_url, "http://localhost:8000/booth/2/")
+    self.driver.get("http://localhost:8000/logout") 
+    
+class TestCreado(StaticLiveServerTestCase):
+  def setUp(self):
+    self.base = BaseTestCase()
+    self.base.setUp()
+    options = webdriver.ChromeOptions()
+    options.headless = True
+    self.driver = webdriver.Chrome(options=options)
+    super().setUp()
+  
+  def tearDown(self):
+    super().tearDown()
+    self.driver.quit()
+    self.base.tearDown()
+  
+  def test_testCreado(self):
+    self.driver.get("http://localhost:8000/")
+    self.driver.set_window_size(1392, 774)
+    self.driver.find_element(By.LINK_TEXT, "Login").click()
+    self.driver.find_element(By.NAME, "username").send_keys("prueba")
+    self.driver.find_element(By.NAME, "password").send_keys("admin")
+    self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
+    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(3)").click()
+    self.assertEqual(self.driver.current_url, "http://localhost:8000/visualizer/3/")
+    self.driver.get("http://localhost:8000/logout")
+    
