@@ -23,7 +23,10 @@ class AuthBackend(ModelBackend):
                 'username': username,
                 'password': password,
             }
-            token = mods.post('authentication', entry_point='/login/', json=data)
-            request.session['auth-token'] = token['token']
+            try: 
+                token = mods.post('authentication', entry_point='/login/', json=data)
+                request.session['auth-token'] = token['token']
+            except Exception as e:
+                print(f"Error al obtener el token: {e}")
 
         return u
