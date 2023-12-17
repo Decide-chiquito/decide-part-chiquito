@@ -280,14 +280,14 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(Voting.objects.filter(pk=voting.pk).count(), 0)
 
     def test_update_voting_staff(self):
-        voting = self.create_voting()
-        self.login()
-        data = { 'name': 'Updated' }
-        voting.name = 'Updated'
-        response = self.client.put('/voting/{}/staff/'.format(voting.pk), data, format='json')
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get('/voting/{}/staff/'.format(voting.pk))
-        self.assertEqual(response.json()['name'], "Updated")
+            voting = self.create_voting()
+            self.login()
+            data = { 'name': 'Updated' }
+            voting.name = 'Updated'
+            response = self.client.put('/voting/{}/staff/'.format(voting.pk), data, format='json')
+            self.assertEqual(response.status_code, 200)
+            response = self.client.get('/voting/{}/staff/'.format(voting.pk))
+            self.assertEqual(response.json()['name'], "Updated")
 
 class LogInSuccessTests(StaticLiveServerTestCase):
 
@@ -402,8 +402,9 @@ class ExportCensusTestCase(StaticLiveServerTestCase):
     def test_export_census_empty(self):
         q = Question(desc='test question')
         q.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
 
         votingURL = f'{self.live_server_url}/admin/voting/voting/'
         self.driver.get(votingURL)
@@ -443,8 +444,9 @@ class ExportCensusTestCase(StaticLiveServerTestCase):
     def test_export_census_success(self):
         q = Question(desc='test question')
         q.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
         u = User(username='testvoter')
         u.save()
         c = Census(voter_id=u.id, voting_id=v.id)
@@ -606,8 +608,9 @@ class AuditVotingModelTestCase(BaseTestCase):
         opt1 = QuestionOption(question=q, option='opcion 2')
         opt1.save()
 
-        self.v = Voting(name='Votacion', question=q)
+        self.v = Voting(name='Votacion')
         self.v.save()
+        self.v.questions.add(q)
         super().setUp()
 
     def tearDown(self):
@@ -670,8 +673,9 @@ class ReuseCensusTests(StaticLiveServerTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -897,8 +901,9 @@ class VotingAdminTests(StaticLiveServerTestCase):
     def test_voting_methods(self):
         q = Question(desc='test question')
         q.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
 
         votingURL = f'{self.live_server_url}/admin/voting/voting/'
         self.driver.get(votingURL)
