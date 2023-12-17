@@ -113,9 +113,9 @@ class TestFiltrofecha(StaticLiveServerTestCase):
     self.driver.find_element(By.ID, "start_date").send_keys("2022-12-04")
     self.driver.find_element(By.ID, "end_date").click()
     self.driver.find_element(By.ID, "end_date").send_keys("2022-12-06")
-    self.driver.find_element(By.CSS_SELECTOR, "button").click()
+    self.driver.find_element(By.CSS_SELECTOR, "button:nth-child(3)").click()    
     self.driver.find_element(By.ID, "end_date").send_keys("")
-    self.driver.find_element(By.CSS_SELECTOR, "button").click()
+    self.driver.find_element(By.CSS_SELECTOR, "button:nth-child(3)").click()    
     self.driver.get(self.live_server_url + "/logout")
 
 class TestCerrado(StaticLiveServerTestCase):
