@@ -24,7 +24,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -106,6 +105,8 @@ MIDDLEWARE = [
     'auditlog.middleware.AuditlogMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 ROOT_URLCONF = 'decide.urls'
@@ -200,6 +201,8 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
 
 # number of bits for the key, all auths should use the same number of bits
 KEYBITS = 256
