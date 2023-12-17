@@ -28,7 +28,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from base import mods
 
-'''
+
 class VisualizerTestCase(StaticLiveServerTestCase):
 
     def setUp(self):
@@ -103,7 +103,6 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.assertTrue(vState, "Resultados")
         vState= self.driver.find_element(By.ID,"container").text
         self.assertTrue(vState)
-'''
 
 class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
 
@@ -200,7 +199,7 @@ class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
         elements = self.driver.find_elements(By.CLASS_NAME, "title")
         assert len(elements) > 0
 
-'''
+
 class LiveStaticticsBaseTests(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -421,4 +420,3 @@ class VisualizerQuestionYesNoTestCase(StaticLiveServerTestCase):
         votosNo = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(1) > .text-muted").text
         self.assertEqual(votosSi, "2")
         self.assertEqual(votosNo, "1")
-'''
