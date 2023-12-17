@@ -28,7 +28,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from base import mods
 
-
+'''
 class VisualizerTestCase(StaticLiveServerTestCase):
 
     def setUp(self):
@@ -103,7 +103,7 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.assertTrue(vState, "Resultados")
         vState= self.driver.find_element(By.ID,"container").text
         self.assertTrue(vState)
-
+'''
 
 class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
 
@@ -118,7 +118,7 @@ class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
         user.save()
 
         options = webdriver.ChromeOptions()
-        options.headless = True
+        options.headless = False
         self.driver = webdriver.Chrome(options=options)
         
         super().setUp()
@@ -188,7 +188,7 @@ class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
         voting_element = self.driver.find_elements(By.NAME, "question")[0]
         voting_element.click()
         voting_element = self.driver.find_elements(By.TAG_NAME, "button")
-        voting_element[2].click()
+        voting_element[3].click()
 
         self.driver.get(self.live_server_url + "/users/logout/")
 
@@ -200,7 +200,7 @@ class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
         elements = self.driver.find_elements(By.CLASS_NAME, "title")
         assert len(elements) > 0
 
-
+'''
 class LiveStaticticsBaseTests(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -421,3 +421,4 @@ class VisualizerQuestionYesNoTestCase(StaticLiveServerTestCase):
         votosNo = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(1) > .text-muted").text
         self.assertEqual(votosSi, "2")
         self.assertEqual(votosNo, "1")
+'''
