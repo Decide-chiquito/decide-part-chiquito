@@ -163,6 +163,12 @@ a.btn-primary:link, a.btn-primary:visited {
     width: 60%;
 }
 
+.card-container-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 @media (orientation: landscape) {
     .register-title-mobile, .edit-title-mobile {
         font-size: 50px;

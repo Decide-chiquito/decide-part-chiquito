@@ -11,6 +11,8 @@ from rest_framework.test import APIClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from django.core.files.uploadedfile import SimpleUploadedFile
+import os
+import tempfile
 
 
 class RegisterViewTest(TestCase):
@@ -464,5 +466,78 @@ class MobileTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
         self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/edit-profile/")
         self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".error-mobile").text == "El nombre de usuario ya está en uso.")
+    
+    def test_cert_login_empty_mobile(self):
+        self.driver.get(f"{self.live_server_url}/users/cert-login/")
+        self.assertTrue(self.driver.find_element(By.ID, "file-info").text == "No hay ningún archivo seleccionado")
+        self.assertTrue(self.driver.find_element(By.ID, "id_cert_password").text == "")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.find_element(By.ID, "error-message-mobile").text == "Debe seleccionar algún archivo")
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/cert-login/")
         
+    def test_no_password_cert_login_mobile(self):
+        directorio_test_scripts = os.path.join(os.path.dirname(__file__), '..', 'test-scripts')
 
+        nombre_archivo = "invalid_file.txt"
+        ruta_archivo = os.path.join(directorio_test_scripts, nombre_archivo)
+
+        with open(ruta_archivo, 'wb') as archivo:
+            archivo.write(b"soy un archivo que no es un certificado digital, por lo tanto no debe funcionar el login")
+
+        ruta_archivo_canonica = os.path.abspath(ruta_archivo)
+
+        self.driver.get(f"{self.live_server_url}/users/cert-login/")
+        self.driver.find_element(By.ID, "id_cert_file").send_keys(ruta_archivo_canonica)
+        self.assertTrue(self.driver.find_element(By.ID, "file-info").text == "Archivo seleccionado: invalid_file.txt")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.find_element(By.ID, "error-message-mobile").text == "Debe introducir una contraseña")
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/cert-login/")
+
+        os.remove(ruta_archivo_canonica)
+        self.assertFalse(os.path.exists(ruta_archivo_canonica))
+
+    def test_invalid_cert_login_mobile(self):
+        directorio_test_scripts = os.path.join(os.path.dirname(__file__), '..', 'test-scripts')
+
+        nombre_archivo = "invalid_file.txt"
+        ruta_archivo = os.path.join(directorio_test_scripts, nombre_archivo)
+
+        with open(ruta_archivo, 'wb') as archivo:
+            archivo.write(b"soy un archivo que no es un certificado digital, por lo tanto no debe funcionar el login")
+
+        ruta_archivo_canonica = os.path.abspath(ruta_archivo)
+
+        self.driver.get(f"{self.live_server_url}/users/cert-login/")
+        self.driver.find_element(By.ID, "id_cert_file").send_keys(ruta_archivo_canonica)
+        self.assertTrue(self.driver.find_element(By.ID, "file-info").text == "Archivo seleccionado: invalid_file.txt")
+        self.driver.find_element(By.ID, "id_cert_password").send_keys("testpassword")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.find_element(By.ID, "error-message-mobile").text == "Credenciales inválidas")
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/users/cert-login/")
+
+        os.remove(ruta_archivo_canonica)
+        self.assertFalse(os.path.exists(ruta_archivo_canonica))
+
+    def test_cert_login_success_mobile(self):
+        directorio_test_scripts = os.path.join(os.path.dirname(__file__), '..', 'test-scripts')
+        
+        with open('cert.pfx', 'rb') as cert_file:
+            cert_content = cert_file.read()
+
+        nombre_archivo = "cert.pfx"
+        ruta_archivo = os.path.join(directorio_test_scripts, nombre_archivo)
+
+        with open(ruta_archivo, 'wb') as archivo:
+            archivo.write(cert_content)
+
+        ruta_archivo_canonica = os.path.abspath(ruta_archivo)
+
+        self.driver.get(f"{self.live_server_url}/users/cert-login/")
+        self.driver.find_element(By.ID, "id_cert_file").send_keys(ruta_archivo_canonica)
+        self.assertTrue(self.driver.find_element(By.ID, "file-info").text == "Archivo seleccionado: cert.pfx")
+        self.driver.find_element(By.ID, "id_cert_password").send_keys("1111")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-mobile").click()
+        self.assertTrue(self.driver.current_url == f"{self.live_server_url}/")
+        
+        os.remove(ruta_archivo_canonica)
+        self.assertFalse(os.path.exists(ruta_archivo_canonica))
