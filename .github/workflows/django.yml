@@ -51,7 +51,13 @@ jobs:
       run: |
         cd decide
         coverage run --branch --source=. ./manage.py test  --keepdb 
-        coverage xml 
+        coverage xml
+      env:
+        EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+        EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY }}
+        SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET }}
     - name: Codacy Coverage Reporter
       uses: codacy/codacy-coverage-reporter-action@v1
       with:

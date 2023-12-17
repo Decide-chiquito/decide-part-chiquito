@@ -40,7 +40,8 @@ class VisualizerView(TemplateView):
             voting['question']['type'] = 'MULTIPLE'
             if r[0]['question']['options'] == yesno and r[0]['postproc']:
                 r[0]['question']['type'] = 'YESNO'
-                r[0]['postproc'][0]['option'] = 'Sí' #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles, igual en el html de BOOTH
+                #TODO: Cuando se implemente el cambio de idioma, esto no es necesario si la app es en ingles
+                r[0]['postproc'][0]['option'] = 'Sí'
             context['voting'] = json.dumps(r[0])
         except:
             raise Http404
@@ -48,7 +49,7 @@ class VisualizerView(TemplateView):
         try:
             voting_instance = get_object_or_404(Voting, id=v_id)
 
-            if voting_instance.end_date == None:
+            if voting_instance.end_date is None:
                 live_tally = voting_instance.live_tally(token)
                 context['live_tally'] = json.dumps(live_tally)
 
@@ -83,7 +84,7 @@ def listVisualizer(request):
         visualizers=[]
         visualizerAll=Voting.objects.all()
         for visualizer in visualizerAll:
-            if visualizer.start_date!= None:
+            if visualizer.start_date is not None:
                 visualizers.append(visualizer)
         return render(request,'visualizer/listVisualizer.html',{'visualizers': visualizers})
     elif request.user.is_authenticated:
