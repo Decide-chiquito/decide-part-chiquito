@@ -72,6 +72,24 @@
         }
     },
     {
+        "model": "auth.user",
+        "pk": 5,
+        "fields": {
+            "password": "pbkdf2_sha256$390000$5Vs4Wxo6xExNepVJ7vEH6o$ic8ndYcgdVI1JYfqtf73mnnu6oORvKZXreZ6aEhQgCU=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "prueba",
+            "first_name": "",
+            "last_name": "",
+            "email": "prueba@us.es",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2022-12-05T17:37:11Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
         "model": "base.auth",
         "pk": 1,
         "fields": {
@@ -178,6 +196,30 @@
         "fields": {
             "voting_id": 2,
             "voter_id": 4
+        }
+    },
+    {
+        "model": "census.census",
+        "pk": 6,
+        "fields": {
+            "voting_id": 1,
+            "voter_id": 5
+        }
+    },
+    {
+        "model": "census.census",
+        "pk": 7,
+        "fields": {
+            "voting_id": 2,
+            "voter_id": 5
+        }
+    },
+    {
+        "model": "census.census",
+        "pk": 8,
+        "fields": {
+            "voting_id": 3,
+            "voter_id": 5
         }
     },
     {

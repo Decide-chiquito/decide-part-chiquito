@@ -1,3 +1,51 @@
+.voting-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 20px;
+}
+
+.voting-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px; /* Ajusta el ancho según tu preferencia */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  background-color: white;
+}
+
+.voting-card:hover {
+  transform: scale(1.05);
+}
+
+.voting-card h3 {
+  margin-top: 0;
+}
+
+.voting-card a {
+  display: block;
+  margin-top: 15px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.voting-card a:hover {
+  text-decoration: underline;
+}
+
+.voting-title {
+  height: 80px;
+  width: 100%;
+  background-color: rgb(49, 108, 244);
+  align-items: center;
+  justify-content: end;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  font-size: 40px;
+}
+
 .register-title-mobile, .edit-title-mobile {
     text-align: center;
     font-size: 75px;
@@ -24,6 +72,31 @@
 .form-group {
     width: 75%;
     margin-bottom: 1.5em;
+}
+
+.form-label {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #1D1D1D !important;
+}
+
+.entrada {
+    width: 40%;
+    margin-top: 10px;
+    color: black;
+}
+
+.columna {
+    display: flex;
+    column-gap: 15px;
+}
+
+.form-filter {
+    height: 1.5em;
+    border-radius: 6px;
+    font-size: 1.2em;
+    padding: 5px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.200);
 }
 
 .form-control {
@@ -161,6 +234,12 @@ a.btn-primary:link, a.btn-primary:visited {
     margin-top: 2em;
     font-size: 2em;
     width: 60%;
+}
+
+.card-container-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 @media (orientation: landscape) {

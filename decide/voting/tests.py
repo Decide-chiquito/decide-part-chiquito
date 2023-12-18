@@ -16,6 +16,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core import mail
 
 from base import mods
 from base.tests import BaseTestCase
@@ -936,3 +939,68 @@ class VotingAdminTests(StaticLiveServerTestCase):
         self.assertTrue(v1.start_date)
         self.assertTrue(v1.end_date)
         
+class EmailVotingTests(StaticLiveServerTestCase):
+
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        user = User(username='admintest', is_staff=True)
+        user.is_superuser = True
+        user.set_password('qwerty')
+        user.save()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+    
+    def tearDown(self):
+        self.driver.quit()
+        super().tearDown()
+    
+    def test_start_email(self):
+        q = Question(desc='test question')
+        q.save()
+        v = Voting(name='test voting', question=q)
+        v.save()
+
+        user = User.objects.create(id=50, email='test@test.com', username='test', password='test')
+        user.save()
+
+        self.census = Census(voting_id=v.pk, voter_id=user.pk)
+        self.census.save()
+
+        votingURL = f'{self.live_server_url}/admin/voting/voting/'
+        self.driver.get(votingURL)
+        self.driver.find_element(By.ID, "id_username").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("admintest")
+
+        self.driver.find_element(By.ID, "id_password").click()
+        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
+        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
+
+        self.assertTrue(self.driver.current_url == votingURL)
+        self.assertFalse(v.start_date)
+        self.assertFalse(v.end_date)
+
+        #START
+        self.driver.set_window_size(1920, 1080)
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.CSS_SELECTOR, ".h-9\\.5 > .material-symbols-outlined").click()
+
+        self.assertEqual(mail.outbox[1].to, [user.email])
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[1].subject, 'New voting available')
+        self.assertEqual(mail.outbox[1].body, strip_tags(render_to_string('start_email_template.html', {'username': user.username, 'voting_name': v.name})))
