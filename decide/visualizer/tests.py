@@ -42,89 +42,121 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         self.base = BaseTestCase()
         self.base.setUp()
         options = webdriver.ChromeOptions()
-        options.headless = True
+        options.headless = False
         self.driver = webdriver.Chrome(options=options)
         super().setUp()
 
     def tearDown(self):
+        super().tearDown()
         self.driver.quit()
         self.base.tearDown()
-
-    def create_voting(self, method, data):
-        q = Question.objects.create(desc='test question')
-        q.save()
-        if data == None:
-            data = [
-                {'option': 'Option 1', 'votes': 5},
-                {'option': 'Option 2', 'votes': 3},
-                # Añadir más opciones según sea necesario
-            ]
-        for item in data:
-            QuestionOption.objects.create(question=q, option=item['option'])
-
-        v = Voting.objects.create(name='test voting', method=method, start_date=timezone.now(), end_date=timezone.now())
-        v.questions.add(q)
-        v.postproc=data
-        v.save()
-
-
-    def test_simple_visualizer(self):
-        v = self.create_voting('IDENTITY', None)
-        self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "h2")))
-        v_state = self.driver.find_element(By.TAG_NAME, "h2").text
-        self.assertIn("Resultados", v_state)
     
     def test_dhondt_voting_visualizer(self):
+
         q = Question(desc='test question')
         q.save()
+    
         data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
+            {
+                "postproc": [
+                    {
+                        "votes": 2,
+                        "number": 1,
+                        "option": "Option 1",
+                        "postproc": 2
+                    },
+                    {
+                        "votes": 0,
+                        "number": 2,
+                        "option": "Option 2",
+                        "postproc": 0
+                    }
+                ],
+                "question_id": q.pk
+            }
         ]
-        v = Voting(name='test voting', method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+
+        v = Voting(
+            name='test voting', 
+            method='DHONDT', 
+            seats=100, 
+            start_date=timezone.now(), 
+            end_date=timezone.now(), 
+            postproc=data)
         v.save()
         v.questions.add(q)
         self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
+        self.assertIn("Resultados:", vState, f"Votación no contiene el texto esperado: {vState}")
+        vState= self.driver.find_element(By.ID,"container2-" + str(q.pk)).text
         self.assertTrue(vState)
 
     def test_webster_voting_visualizer(self):
+
         q = Question(desc='test question')
         q.save()
+    
         data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
+            {
+                "postproc": [
+                    {
+                        "votes": 2,
+                        "number": 1,
+                        "option": "Option 1",
+                        "postproc": 2
+                    },
+                    {
+                        "votes": 0,
+                        "number": 2,
+                        "option": "Option 2",
+                        "postproc": 0
+                    }
+                ],
+                "question_id": q.pk
+            }
         ]
+
         v = Voting(name='test voting', method='WEBSTER',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
         v.questions.add(q)
         self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
+        self.assertIn("Resultados:", vState, f"Votación no contiene el texto esperado: {vState}")
+        vState= self.driver.find_element(By.ID,"container2-" + str(q.pk)).text
         self.assertTrue(vState)
 
     def test_identity_voting_visualizer(self):
+
         q = Question(desc='test question')
         q.save()
+    
         data = [
-            { 'option': 'Option 1', 'number': 1, 'votes': 5, 'postproc': 5 },
-            { 'option': 'Option 5', 'number': 5, 'votes': 5, 'postproc': 5 },
-            { 'option': 'Option 3', 'number': 3, 'votes': 3, 'postproc': 3 },
-            { 'option': 'Option 4', 'number': 4, 'votes': 2, 'postproc': 2 },
-            { 'option': 'Option 6', 'number': 6, 'votes': 1, 'postproc': 1 },
-            { 'option': 'Option 2', 'number': 2, 'votes': 0, 'postproc': 0 },
+            {
+                "postproc": [
+                    {
+                        "votes": 2,
+                        "number": 1,
+                        "option": "Option 1",
+                        "postproc": 2
+                    },
+                    {
+                        "votes": 0,
+                        "number": 2,
+                        "option": "Option 2",
+                        "postproc": 0
+                    }
+                ],
+                "question_id": q.pk
+            }
         ]
+
         v = Voting(name='test voting', method='IDENTITY',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
         v.questions.add(q)
         self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container").text
+        self.assertIn("Resultados:", vState, f"Votación no contiene el texto esperado: {vState}")
+        vState= self.driver.find_element(By.ID,"container-" + str(q.pk)).text
         self.assertTrue(vState)
 
 class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
