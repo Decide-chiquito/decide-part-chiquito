@@ -1,15 +1,24 @@
+from datetime import datetime
 import re
+from urllib.parse import urlencode
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.generic import TemplateView
+from census.models import Census
+from store.models import Vote
+from voting.models import Voting
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -269,3 +278,106 @@ class EditProfileView(TemplateView):
                 return render(request, self.template_name, {'error': error_message})
         
 
+
+
+
+class NoticeView(TemplateView):
+    template_name = 'users/notice.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(NoticeView, self).get_context_data(**kwargs)
+
+        # Utiliza los censos filtrados de la petición
+        censos = getattr(self.request, 'censos', Census.objects.filter(voter_id=self.request.user.id))
+
+        voting_info = []
+        for censo in censos:
+            voting = Voting.objects.get(id=censo.voting_id)
+            status = self.get_voting_status(voting)
+            has_voted = self.has_voted(voting, self.request.user)
+            has_voted_str = str(self.has_voted(voting, self.request.user)).lower()
+            voting_info.append({
+                'voting_id': voting.id,
+                'voting_name': voting.name,
+                'voting_question': voting.question,
+                'voting_endDate': voting.end_date,
+                'status': status,
+                'has_voted': has_voted,
+                'has_voted_str': has_voted_str
+            })
+        context['voting_info'] = voting_info
+        return context
+
+    def filtro(self, request):
+        name_query = request.GET.get('name')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+        except ValueError:
+            start_date = None
+        try:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+        except ValueError:
+            end_date = None
+
+        if start_date and end_date and start_date > end_date:
+            end_date = None
+
+        valid_query_params = {
+            'name': name_query or '',
+            'start_date': start_date.strftime('%Y-%m-%d') if start_date else '',
+            'end_date': end_date.strftime('%Y-%m-%d') if end_date else ''
+        }
+
+        valid_query_string = urlencode(valid_query_params, doseq=True)
+
+        current_query_string = self.request.GET.urlencode()
+        if current_query_string != valid_query_string:
+            return HttpResponseRedirect(f'{self.request.path}?{valid_query_string}')
+
+        # Aplicar filtros al conjunto a queryset
+        censos = Census.objects.filter(voter_id=self.request.user.id)
+        if name_query:
+            voting_ids = Voting.objects.filter(name__icontains=name_query).values_list('id', flat=True)
+            censos = censos.filter(voting_id__in=voting_ids)
+
+        if start_date is not None:
+            voting_ids = Voting.objects.filter(start_date__gte=start_date).values_list('id', flat=True)
+            censos = censos.filter(voting_id__in=voting_ids)
+        if end_date is not None:
+            voting_ids = Voting.objects.filter(end_date__lte=end_date).values_list('id', flat=True)
+            censos = censos.filter(voting_id__in=voting_ids)
+
+        # Guardar el conjunto de consultas filtrado en la solicitud para su uso posterior.
+        self.request.censos = censos
+
+        # Redirigir a la misma vista después de aplicar los filtros
+        return HttpResponseRedirect(f'{self.request.path}?{valid_query_string}')
+
+    def get(self, request, *args, **kwargs):
+        # Llama al método filtro para filtrar
+        self.filtro(request)
+        # Llama al método get para procesar la petición
+        return super().get(request, *args, **kwargs)
+
+
+    def get_voting_status(self, voting):
+        if voting.start_date and not voting.end_date:
+            return 'La votación sigue Abierta'
+        elif voting.end_date and not voting.tally:
+            return 'La votación se encuentra Cerrada, los resultados aún están pendientes'
+        elif voting.tally:
+            return 'La votación se encuentra Cerrada, los resultados ya están disponibles'
+        else:
+            return 'Estado desconocido'
+        
+    def has_voted(self, voting, user):
+        try:
+            # Intenta obtener el voto del usuario para esta votación
+            vote = Vote.objects.get(voting_id=voting.id, voter_id=user.id)
+            return vote.voted is not None
+        except Vote.DoesNotExist:
+            # Si no se encuentra un voto para esta votación y usuario, no ha votado
+            return False

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% load static %}
+{% block extrahead %}
+    <title>Notificaciones</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../../static/users/style.css">
+    
+{% endblock extrahead %}
+
+{% block content %}
+  <h1 class="voting-title">Notificaciones de las votaciones</h1>
+  
+  <form method="get" action="{% url 'users:notice' %}">
+    <div class="form-group">
+      <input type="text" id="name" name="name" class="form-filter" placeholder="Buscar" value="{{ request.GET.name }}">
+    </div>
+    <div class="columna">
+      <label for="date" class="form-label">Filtrado:</label>
+      <div id="date" class="input-group">
+        <input type="date" id="start_date" name="start_date" class="form-filter" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.start_date }}">
+        <input type="date" id="end_date" name="end_date" class="form-filter" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.end_date }}">
+      </div>
+    </div>
+    <button type="submit">{% trans 'Filter' %}</button>
+  </form>
+
+
+  {% if voting_info %}
+    <div class="voting-cards">
+      {% for info in voting_info %}
+        <div class="voting-card" onclick="redirigir({{ info.voting_id }}, {{ info.has_voted_str }}, '{{ info.status }}')">
+          <h3>{{ info.voting_name }}</h3>
+          <p><strong>Estado de la votación:</strong> {{ info.status }}</p>
+          {% if info.has_voted %}
+            <p><strong>¡Ya has votado!</strong></p>
+          {% else %}
+            <p><strong>Aún no has votado</strong></p>
+          {% endif %}
+        </div>
+
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{% trans 'You are not associated with any voting notices.' %}</p>
+  {% endif %}
+
+  <script>
+    function redirigir(id, hasVoted, status) {
+      console.log(status + hasVoted)
+      if (!hasVoted && status == "La votación sigue Abierta") {
+        window.location.href = "/booth/" + id;
+      } else {
+        window.location.href = "/visualizer/" + id;
+      }
+    }
+
+        // Validación para fechas
+        var startDateInput = document.getElementById('start_date');
+    var endDateInput = document.getElementById('end_date');
+
+    function validateDates() {
+        var startDate = new Date(startDateInput.value);
+        var endDate = new Date(endDateInput.value);
+
+        if (startDate && endDate && startDate > endDate) {
+            endDateInput.value = "";
+        }
+    }
+
+    startDateInput.addEventListener('blur', validateDates);
+    endDateInput.addEventListener('blur', validateDates);
+
+    document.querySelector('form').addEventListener('submit', function(event) {
+        // Obtén los valores de los campos
+        var start_date = document.getElementById('start_date').value;
+        var end_date = document.getElementById('end_date').value;
+        
+        // Conviértelos a objetos Date para comparar
+        var startDate = start_date ? new Date(start_date) : null;
+        var endDate = end_date ? new Date(end_date) : null;
+
+        // Validación de fechas
+        if (startDate && endDate && startDate > endDate) {
+            endDateInput.value = "";
+        }
+
+    });
+    
+  </script>
+
+{% endblock %}
