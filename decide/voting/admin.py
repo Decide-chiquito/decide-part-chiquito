@@ -170,7 +170,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Voting)
 class VotingAdmin(ModelAdmin):
-    list_display = ('name', 'start_date', 'end_date','method','seats')
+    list_display = ('id','name', 'start_date', 'end_date','method','seats')
 
     readonly_fields = ('start_date', 'end_date', 'pub_key',
                        'tally', 'postproc')
