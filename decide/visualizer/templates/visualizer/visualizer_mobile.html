@@ -13,19 +13,19 @@
 
         <h1 class="voting-title">[[ voting.id ]] - [[ voting.name ]]</h1>
         
-        <button class="open-modal-button" id="openModalButton">Ver descripción</button>
+        <button class="open-modal-button" id="openModalButton">{% trans 'Ver descripción' %}</button>
 
         <div id="myModal" class="modal">
             <div class="modal-content">
                 <span class="close" id="closeModalButton">&times;</span>
                 <p v-if="voting.desc">[[ voting.desc ]]</p>
-                <p v-else>No hay descripción.</p>
+                <p v-else>{% trans 'No hay descripción.' %}</p>
             </div>
         </div>
 
         <div v-if="!voting.start_date || !voting.end_date" class="center-box">
-            <p v-if="!voting.start_date">Votación no comenzada</p>
-            <p v-else="!voting.end_date">Votación en curso</p>
+            <p v-if="!voting.start_date">{% trans 'Votación no comenzada' %}</p>
+            <p v-else="!voting.end_date">{% trans 'Votación en curso' %}</p>
         </div>
         <div v-if="!voting.start_date || !voting.end_date">
             <p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
@@ -33,18 +33,18 @@
         
         <div v-if="voting.start_date && voting.end_date">
             <div class="finished-box">
-                <p>Votación finalizada</p>
+                <p>{% trans 'Votación finalizada' %}</p>
             </div>
-            <h2 class="results-text">Resultados de la votación:</h2>
+            <h2 class="results-text">{% trans 'Resultados de la votación:' %}</h2>
             <div>
-                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="seats-text">- Escaños: [[voting.seats]] -</h3>
+                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="seats-text">{% trans '- Escaños:' %} [[voting.seats]] -</h3>
  
                 <div class="mobile-table">
                    <div v-for="opt in voting.postproc" :key="opt.number" class="mobile-table-row">
                         <div class="option-text">[[opt.option]]</div>
-                        <div v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'" class="table-text">Puntuación: [[opt.postproc]]</div>
-                        <div class="table-text-muted">Votos: [[opt.votes]]</div>
-                        <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="table-text">Escaños: [[opt.deputies]]</div>
+                        <div v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'" class="table-text">{% trans 'Puntuación:' %} [[opt.postproc]]</div>
+                        <div class="table-text-muted">{% trans 'Votos:' %} [[opt.votes]]</div>
+                        <div v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'" class="table-text">{% trans 'Escaños:' %} [[opt.deputies]]</div>
                         <div class='graph-mobile'>
                             <div class='graph-bar-mobile' :style='{width: (opt.votes / maxVotes) * 100 + "%", backgroundColor: getRandomColor()}'> </div>
                         </div>

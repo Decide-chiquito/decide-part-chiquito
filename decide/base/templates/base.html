@@ -1,6 +1,6 @@
 <html>
     {% load static %}
-    
+    {% load i18n %}
     <!DOCTYPE html>
     <head>
         <meta charset="utf-8" />
@@ -11,12 +11,12 @@
             <div class="title">
                     <div class="column">
                         <span class="title-decide">Decide</span>
-                        <button class="button-ticket" onclick="button_go_to_route('/ticket/add-ticket/')">Report Incidence</button>
+                        <button class="button-ticket" onclick="button_go_to_route('/ticket/add-ticket/')">{% trans 'Reportar Incidencia' %}</button>
                     </div>
                 
                 <div class="subtitle">
                     <p>
-                        Bienvenido a Decide, el sistema de votaciones online implementado por el grupo decide-part-chiquito.
+                        {% trans 'Bienvenido a Decide, el sistema de votaciones online implementado por el grupo decide-part-chiquito.' %}
                     </p>
                 </div>
             </div>

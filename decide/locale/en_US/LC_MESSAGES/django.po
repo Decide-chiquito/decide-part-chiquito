@@ -1,0 +1,739 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-18 02:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: base/templates/base.html:14
+msgid "Reportar Incidencia"
+msgstr "Report Incident"
+
+#: base/templates/base.html:19
+msgid ""
+"Bienvenido a Decide, el sistema de votaciones online implementado por el "
+"grupo decide-part-chiquito."
+msgstr "Welcome to Decide, the online voting system implemented by the decide-part-chiquito group."
+
+#: base/templates/initial.html:13
+msgid ""
+"Elige la opcion deseada en la casilla correspondiente y clickea para acceder"
+msgstr "Choose the desired option in the corresponding box and click to access"
+
+#: base/templates/initial.html:18
+msgid "Administrador"
+msgstr "Administrator"
+
+#: base/templates/initial.html:19 base/templates/initial.html:24
+#: base/templates/initial.html:30 base/templates/initial.html:51
+#: base/templates/initial_mobile.html:50 base/templates/initial_mobile.html:56
+#: base/templates/initial_mobile.html:61 base/templates/initial_mobile.html:67
+#: base/templates/initial_mobile.html:73 base/templates/initial_mobile.html:87
+#: base/templates/initial_mobile.html:100
+msgid "Acceder"
+msgstr "Access"
+
+#: base/templates/initial.html:23
+msgid "Registro"
+msgstr "Sign up"
+
+#: base/templates/initial.html:29
+msgid "Editar perfil"
+msgstr "Edit profile"
+
+#: base/templates/initial.html:36 base/templates/initial.html:38
+#: base/templates/initial_mobile.html:60
+#: booth/templates/booth/booth_mobile.html:81
+#: users/templates/users/login.html:21
+#: users/templates/users/login_mobile.html:16
+msgid "Cerrar sesión"
+msgstr "Logout"
+
+#: base/templates/initial.html:41 base/templates/initial.html:43
+#: base/templates/initial_mobile.html:55
+#: booth/templates/booth/booth_mobile.html:48
+#: users/templates/registration/cert_login_mobile.html:63
+#: users/templates/users/edit_profile.html:20
+#: users/templates/users/edit_profile_mobile.html:18
+#: users/templates/users/login.html:14
+#: users/templates/users/login_mobile.html:22
+#: users/templates/users/login_mobile.html:42
+msgid "Iniciar sesión"
+msgstr "Sign in"
+
+#: base/templates/initial.html:50
+msgid "Enviar email"
+msgstr "Send email"
+
+#: base/templates/initial.html:55 base/templates/initial_mobile.html:78
+msgid "Cabina"
+msgstr "Booth"
+
+#: base/templates/initial.html:56 base/templates/initial.html:61
+msgid "Lista"
+msgstr "List"
+
+#: base/templates/initial.html:60 base/templates/initial_mobile.html:91
+msgid "Resultados"
+msgstr "Visualizer"
+
+#: base/templates/initial.html:65
+msgid "Aviso"
+msgstr "Notice"
+
+#: base/templates/initial.html:67
+msgid "Acceso"
+msgstr "Access"
+
+#: base/templates/initial.html:74 base/templates/initial_mobile.html:104
+msgid "census"
+msgstr "census"
+
+#: base/templates/initial.html:75 base/templates/initial_mobile.html:105
+msgid "Importar"
+msgstr "Import"
+
+#: base/templates/initial.html:81
+msgid "Crear"
+msgstr "Create"
+
+#: base/templates/initial.html:90
+msgid ""
+"Para aquellos que necesitan o prefieren utilizar la navegación basada en "
+"URL, aquí les brindamos los diferentes puntos de acceso:"
+msgstr "For those who need or prefer to use URL-based navigation, here are the different access points:"
+
+#: base/templates/initial_mobile.html:40
+msgid "DECIDE, el sistema de votaciones por decide-part-chiquito"
+msgstr "DECIDE, the decide-part-chiquito voting system"
+
+#: base/templates/initial_mobile.html:44
+msgid "- Acceso al sistema -"
+msgstr "- Access to the system -"
+
+#: base/templates/initial_mobile.html:72
+msgid "edit profile"
+msgstr "edit profile"
+
+#: base/templates/initial_mobile.html:81 base/templates/initial_mobile.html:94
+msgid "Elige"
+msgstr "Choose"
+
+#: base/templates/initial_mobile.html:110
+msgid "Create"
+msgstr "Create"
+
+#: base/templates/initial_mobile.html:115
+msgid "- Puntos de acceso a través de URL -"
+msgstr "- Access points via URL -"
+
+#: booth/templates/booth/booth.html:27
+msgid "Cerrar Sesión"
+msgstr "Logout"
+
+#: booth/templates/booth/booth.html:34
+#: users/templates/registration/cert_login.html:23
+#: users/templates/users/login.html:41
+msgid "Iniciar Sesión"
+msgstr "Sign in"
+
+#: booth/templates/booth/booth.html:82
+msgid "¡Debes iniciar sesión para poder acceder a la votación!"
+msgstr "You must log in to be able to access the vote!"
+
+#: booth/templates/booth/booth.html:92
+#: visualizer/templates/visualizer/visualizer.html:49
+msgid "Votación de tipo SI/NO"
+msgstr "YES/NO type voting"
+
+#: booth/templates/booth/booth.html:99
+msgid "Sí"
+msgstr "Yes"
+
+#: booth/templates/booth/booth.html:105 store/models.py:20
+msgid "Vote"
+msgstr "Vota"
+
+#: booth/templates/booth/booth.html:108
+#: visualizer/templates/visualizer/visualizer.html:322
+#: voting/templates/csv_upload.html:51
+msgid "Volver"
+msgstr "Back"
+
+#: booth/templates/booth/booth.html:215
+#: booth/templates/booth/booth_mobile.html:185
+msgid "Congratulations. Your vote has been sent"
+msgstr "Congratulations. Your vote has been sent"
+
+#: booth/templates/booth/booth.html:219
+#: booth/templates/booth/booth_mobile.html:189
+msgid "Error: "
+msgstr "Error:"
+
+#: booth/templates/booth/booth_mobile.html:45
+msgid "Inicia sesión para votar"
+msgstr "Sign in to vote"
+
+#: booth/templates/booth/booth_mobile.html:55
+#: visualizer/templates/visualizer/visualizer_mobile.html:16
+msgid "Ver descripción"
+msgstr "See description"
+
+#: booth/templates/booth/booth_mobile.html:75
+msgid "Votar"
+msgstr "Vote"
+
+#: booth/templates/booth/listBooth.html:15
+#: visualizer/templates/visualizer/listVisualizer.html:18
+msgid "Accesso"
+msgstr "Access"
+
+#: census/models.py:16 mixnet/models.py:16 store/models.py:10
+msgid "voting_id"
+msgstr "voting_id"
+
+#: census/models.py:17 store/models.py:11
+msgid "voter_id"
+msgstr "voter_id"
+
+#: census/models.py:49
+msgid "Census"
+msgstr "Census"
+
+#: census/views.py:28
+msgid "Error try to create census"
+msgstr "Error try to create census"
+
+#: census/views.py:29
+msgid "Census created"
+msgstr "Census created"
+
+#: census/views.py:43
+msgid "Voters deleted from census"
+msgstr "Voters deleted from census"
+
+#: decide/settings.py:192 local_settings.deploy.py:135
+msgid "Spanish"
+msgstr "Spanish"
+
+#: decide/settings.py:193 local_settings.deploy.py:136
+msgid "English"
+msgstr "English"
+
+#: store/models.py:17
+msgid "voted"
+msgstr "voted"
+
+#: ticket/templates/add-ticket.html:17
+msgid "Nuevo ticket"
+msgstr "New ticket"
+
+#: ticket/templates/add-ticket.html:25
+msgid "Back"
+msgstr "Back"
+
+#: ticket/templates/add-ticket.html:29
+msgid "Enviar Ticket"
+msgstr "Send Ticket"
+
+#: users/templates/registration/cert_login.html:12
+#: users/templates/users/login.html:44
+#: users/templates/users/login_mobile.html:49
+msgid "Iniciar sesión con Certificado Digital"
+msgstr "Login with Digital Certificate"
+
+#: users/templates/registration/cert_login.html:25
+msgid "Volver a la página inicial"
+msgstr "Come back to initial page"
+
+#: users/templates/registration/cert_login_mobile.html:41
+msgid "Iniciar sesión con certificado digital"
+msgstr "Login with Digital Certificate"
+
+#: users/templates/registration/cert_login_mobile.html:48
+msgid "Fichero de certificado"
+msgstr "Certificate file"
+
+#: users/templates/registration/cert_login_mobile.html:49
+msgid "Seleccionar"
+msgstr "Choose"
+
+#: users/templates/registration/cert_login_mobile.html:54
+msgid "No hay ningún archivo seleccionado"
+msgstr "There is no file selected"
+
+#: users/templates/registration/cert_login_mobile.html:57
+msgid "Contraseña del certificado"
+msgstr "Certificate Password"
+
+#: users/templates/registration/change_password_form.html:60
+msgid "Cambio de Contraseña"
+msgstr "Change of password"
+
+#: users/templates/registration/change_password_form.html:66
+#: users/templates/registration/make_petition_form.html:103
+msgid "Por favor, corrige los siguientes errores."
+msgstr "Please fix the following errors."
+
+#: users/templates/registration/change_password_form.html:70
+msgid "transNueva contraseña:"
+msgstr "New Password:"
+
+#: users/templates/registration/change_password_form.html:81
+msgid "Confirmar nueva contraseña:"
+msgstr "Confirm new password:"
+
+#: users/templates/registration/change_password_form.html:91
+#: users/templates/registration/password_email.html:14
+msgid "Cambiar Contraseña"
+msgstr "Change Password"
+
+#: users/templates/registration/make_petition_form.html:97
+#: users/templates/registration/password_email.html:11
+msgid "Solicitud de Nueva Contraseña"
+msgstr "New Password Request"
+
+#: users/templates/registration/make_petition_form.html:107
+msgid "Correo electrónico:"
+msgstr "Email:"
+
+#: users/templates/registration/make_petition_form.html:117
+#: users/templates/registration/make_petition_form_mobile.html:25
+msgid "Enviar solicitud"
+msgstr "Send request"
+
+#: users/templates/registration/make_petition_form_mobile.html:13
+#: users/templates/users/login_mobile.html:44
+msgid "Recuperar contraseña"
+msgstr "Recover password"
+
+#: users/templates/registration/make_petition_form_mobile.html:19
+#: users/templates/users/edit_profile.html:47
+#: users/templates/users/edit_profile_mobile.html:49
+msgid "Correo electrónico"
+msgstr "Email"
+
+#: users/templates/registration/password_email.html:12
+msgid "Hola"
+msgstr "Hello"
+
+#: users/templates/registration/password_email.html:13
+msgid ""
+"Recibes este correo porque has solicitado restablecer tu contraseña en "
+"nuestro sitio. Haz clic en el siguiente enlace para cambiar tu contraseña:"
+msgstr "You are receiving this email because you have requested to reset your password on our site. Click the following link to change your password:"
+
+#: users/templates/registration/password_email.html:15
+msgid ""
+"Si no has solicitado este restablecimiento de contraseña, puedes ignorar "
+"este correo electrónico y tu contraseña permanecerá sin cambios."
+msgstr "If you have not requested this password reset, you can ignore "
+"this email and your password will remain unchanged."
+
+#: users/templates/registration/password_email.html:16
+msgid "Gracias,"
+msgstr "tanks"
+
+#: users/templates/registration/password_email.html:17
+msgid "El equipo de Decide"
+msgstr "The Decide team"
+
+#: users/templates/registration/petition_new_password_error.html:6
+msgid "Error de verificación"
+msgstr "Verification error"
+
+#: users/templates/registration/petition_new_password_error.html:12
+msgid "Error de solicitud de nueva contraseña"
+msgstr "New password request error"
+
+#: users/templates/registration/petition_new_password_error.html:13
+msgid ""
+"Ha ocurrido un error al solicitar la nueva contraseña. Por favor, intenta "
+"nuevamente más tarde."
+msgstr "An error occurred while requesting the new password. Please try again later."
+
+#: users/templates/registration/register_fail.html:5
+msgid "Fallo en el registro"
+msgstr "Registration failure"
+
+#: users/templates/registration/register_success.html:5
+msgid "Registrado con exito"
+msgstr "Successfully registered"
+
+#: users/templates/registration/register_success.html:6
+msgid "Redirigiendo a la pagina principal..."
+msgstr "Redirecting to the main page..."
+
+#: users/templates/users/edit_profile.html:19
+#: users/templates/users/edit_profile.html:28
+#: users/templates/users/edit_profile_mobile.html:29
+msgid "Editar datos de usuario"
+msgstr "Edit user data"
+
+#: users/templates/users/edit_profile.html:24
+msgid ""
+"No puedes acceder a la edición de perfil de usuario siendo administrador."
+msgstr "You cannot access user profile editing as an administrator."
+
+#: users/templates/users/edit_profile.html:32
+#: users/templates/users/edit_profile_mobile.html:34
+#: users/templates/users/login_mobile.html:28
+#: users/templates/users/register.html:24
+msgid "Nombre de usuario"
+msgstr "Username"
+
+#: users/templates/users/edit_profile.html:37
+#: users/templates/users/edit_profile_mobile.html:39
+msgid "Nombre"
+msgstr "Name"
+
+#: users/templates/users/edit_profile.html:42
+#: users/templates/users/edit_profile_mobile.html:44
+msgid "Apellidos"
+msgstr "Last Name"
+
+#: users/templates/users/edit_profile.html:54
+#: users/templates/users/edit_profile_mobile.html:54
+msgid "Actualizar datos"
+msgstr "Update dates"
+
+#: users/templates/users/edit_profile_mobile.html:15
+msgid "Inicia sesión para poder editar tu perfil"
+msgstr "Log in to edit your profile"
+
+#: users/templates/users/edit_profile_mobile.html:24
+msgid "No puedes editar tus datos siendo administrador."
+msgstr "You cannot edit your data as an administrator."
+
+#: users/templates/users/login.html:16
+msgid "¿No tienes cuenta?"
+msgstr "You do not have an account?"
+
+#: users/templates/users/login.html:16
+#: users/templates/users/register_mobile.html:34
+msgid "Registrarte"
+msgstr "Sign up"
+
+#: users/templates/users/login.html:30
+msgid "Nombre de usuario:"
+msgstr "Username:"
+
+#: users/templates/users/login.html:35
+#: users/templates/users/login_mobile.html:33
+#: users/templates/users/register.html:28
+#: users/templates/users/register_mobile.html:22
+msgid "Contraseña"
+msgstr "Password"
+
+#: users/templates/users/login.html:42
+msgid "¿Olvidó su contraseña?"
+msgstr "Forgot your password?"
+
+#: users/templates/users/login.html:43
+#: users/templates/users/login_mobile.html:48
+msgid "Iniciar sesión con Google"
+msgstr "Sign in with Google"
+
+#: users/templates/users/login_mobile.html:38
+msgid "Regístrate"
+msgstr "Sign up"
+
+#: users/templates/users/notice.html:14
+msgid "Notificaciones de las votaciones"
+msgstr "Voting notifications"
+
+#: users/templates/users/notice.html:21
+msgid "Filtrado:"
+msgstr "Filter:"
+
+#: users/templates/users/notice.html:27
+msgid "Filtrado"
+msgstr "Filter"
+
+#: users/templates/users/notice.html:36
+msgid "Estado de la votación:"
+msgstr "Voting status:"
+
+#: users/templates/users/notice.html:38
+msgid "¡Ya has votado!"
+msgstr "You've already voted!"
+
+#: users/templates/users/notice.html:40
+msgid "Aún no has votado"
+msgstr "You haven't voted yet"
+
+#: users/templates/users/notice.html:47
+msgid "No está asociado con ningún aviso de votación."
+msgstr "It is not associated with any voting notice."
+
+#: users/templates/users/register.html:15
+msgid "user registration"
+msgstr "user registration"
+
+#: users/templates/users/register.html:32
+msgid "Confirmar contraseña"
+msgstr "Confitm password"
+
+#: users/templates/users/register.html:36
+#: users/templates/users/register_mobile.html:30
+msgid "email(opcional)"
+msgstr "mail(optional)"
+
+#: users/templates/users/register.html:39
+msgid "Registrate"
+msgstr "Sign up"
+
+#: users/templates/users/register_mobile.html:13
+msgid "Registrarse"
+msgstr "Sign up"
+
+#: users/views.py:55
+msgid "Nombre de usuario y contraseña son obligatorios."
+msgstr "Username and password are required."
+
+#: users/views.py:57
+msgid "Username and password are required."
+msgstr "Username and password are required."
+
+#: users/views.py:61
+msgid "Las contraseñas no coinciden."
+msgstr "Passwords do not match."
+
+#: users/views.py:63
+msgid "The passwords do not match."
+msgstr "The passwords do not match."
+
+#: users/views.py:70
+msgid "Successful registration. You are now registered."
+msgstr "Successful registration. You are now registered."
+
+#: users/views.py:73 users/views.py:269 users/views.py:271
+msgid "El nombre de usuario ya está en uso."
+msgstr "The username is already in use."
+
+#: users/views.py:75
+msgid "The username is already in use."
+msgstr "The username is already in use."
+
+#: users/views.py:100 users/views.py:222
+msgid "Credenciales inválidas"
+msgstr "invalid credentials"
+
+#: users/views.py:102
+msgid "invalid credentials"
+msgstr "invalid credentials"
+
+#: users/views.py:121
+msgid "No existe un usuario con ese correo electrónico."
+msgstr "There is no user with that email."
+
+#: users/views.py:123
+msgid "There is no user with that email."
+msgstr "There is no user with that email."
+
+#: users/views.py:253 users/views.py:255
+msgid "El nombre de usuario es obligatorio."
+msgstr "Username is required."
+
+#: users/views.py:274
+msgid "You must be logged in to edit your profile."
+msgstr "You must be logged in to edit your profile."
+
+#: visualizer/templates/visualizer/listVisualizer.html:16
+msgid "Ver datos en directo"
+msgstr "View live data"
+
+#: visualizer/templates/visualizer/visualizer.html:50
+#: visualizer/templates/visualizer/visualizer_mobile.html:27
+msgid "Votación no comenzada"
+msgstr "Voting not started"
+
+#: visualizer/templates/visualizer/visualizer.html:51
+#: visualizer/templates/visualizer/visualizer_mobile.html:28
+msgid "Votación en curso"
+msgstr "Voting in progress"
+
+#: visualizer/templates/visualizer/visualizer.html:53
+msgid "Resultados:"
+msgstr "Result:"
+
+#: visualizer/templates/visualizer/visualizer.html:55
+#: visualizer/templates/visualizer/visualizer_mobile.html:47
+msgid "Escaños:"
+msgstr "Seats:"
+
+#: visualizer/templates/visualizer/visualizer.html:60
+msgid "Opción"
+msgstr "Option"
+
+#: visualizer/templates/visualizer/visualizer.html:61
+msgid "Puntuación"
+msgstr "Score"
+
+#: visualizer/templates/visualizer/visualizer.html:62
+msgid "Votos"
+msgstr "Votes"
+
+#: visualizer/templates/visualizer/visualizer.html:63
+msgid "Escaños"
+msgstr "Seats"
+
+#: visualizer/templates/visualizer/visualizer.html:88
+msgid "Votos en directo:"
+msgstr "Live votes:"
+
+#: visualizer/templates/visualizer/visualizer_mobile.html:22
+msgid "No hay descripción."
+msgstr "There is no description."
+
+#: visualizer/templates/visualizer/visualizer_mobile.html:36
+msgid "Votación finalizada"
+msgstr "Voting finished"
+
+#: visualizer/templates/visualizer/visualizer_mobile.html:38
+msgid "Resultados de la votación:"
+msgstr "Voting results:"
+
+#: visualizer/templates/visualizer/visualizer_mobile.html:40
+msgid "- Escaños:"
+msgstr "- Seats:"
+
+#: visualizer/templates/visualizer/visualizer_mobile.html:45
+msgid "Puntuación:"
+msgstr "Score:"
+
+#: visualizer/templates/visualizer/visualizer_mobile.html:46
+msgid "Votos:"
+msgstr "Votes:"
+
+#: voting/admin.py:77
+msgid "Select exactly 2 votes."
+msgstr "Select exactly 2 votes."
+
+#: voting/admin.py:81
+msgid "The select votes are the same."
+msgstr "The select votes are the same."
+
+#: voting/admin.py:87
+msgid "Both votes have a census"
+msgstr "Both votes have a census"
+
+#: voting/admin.py:89
+msgid "The census of both votes are empty"
+msgstr "The census of both votes are empty"
+
+#: voting/admin.py:99 voting/admin.py:109
+msgid "census successfully copied from {} to {}."
+msgstr "census successfully copied from {} to {}."
+
+#: voting/admin.py:111
+msgid "Errorr in copying the census: {}"
+msgstr "Errorr in copying the census: {}"
+
+#: voting/admin.py:113
+msgid "Copy the census to other voting"
+msgstr "Copy the census to other voting"
+
+#: voting/admin.py:124
+msgid "New voting available"
+msgstr "New voting available"
+
+#: voting/admin.py:137 voting/views.py:100
+msgid "Voting tallied"
+msgstr "Voting tallied"
+
+#: voting/models.py:21
+msgid "type"
+msgstr "type"
+
+#: voting/models.py:54
+msgid "Question"
+msgstr "Question"
+
+#: voting/models.py:58 voting/models.py:78
+msgid "question"
+msgstr "Question"
+
+#: voting/models.py:59
+msgid "number"
+msgstr "number"
+
+#: voting/models.py:60
+msgid "option"
+msgstr "option"
+
+#: voting/models.py:63
+msgid "QuestionOption"
+msgstr "QuestionOption"
+
+#: voting/models.py:76
+msgid "name"
+msgstr "name"
+
+#: voting/models.py:80
+msgid "start_date"
+msgstr "start_date"
+
+#: voting/models.py:81
+msgid "end_date"
+msgstr "end_date"
+
+#: voting/models.py:86
+msgid "tally"
+msgstr "tally"
+
+#: voting/models.py:96
+msgid "method"
+msgstr "method"
+
+#: voting/models.py:98
+msgid "seats"
+msgstr "seats"
+
+#: voting/models.py:101
+msgid "Voting"
+msgstr "Voting"
+
+#: voting/views.py:71
+msgid "Voting already started"
+msgstr "Voting already started"
+
+#: voting/views.py:76
+msgid "Voting started"
+msgstr "Voting started"
+
+#: voting/views.py:79 voting/views.py:90
+msgid "Voting is not started"
+msgstr "Voting is not started"
+
+#: voting/views.py:82
+msgid "Voting already stopped"
+msgstr "Voting already stopped"
+
+#: voting/views.py:87
+msgid "Voting stopped"
+msgstr "Voting stopped"
+
+#: voting/views.py:93
+msgid "Voting is not stopped"
+msgstr "Voting is not stopped"
+
+#: voting/views.py:96
+msgid "Voting already tallied"
+msgstr "Voting already tallied"
+
+#: voting/views.py:102
+msgid "Action not found, try with start, stop or tally"
+msgstr "Action not found, try with start, stop or tally"

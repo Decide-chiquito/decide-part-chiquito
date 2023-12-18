@@ -46,21 +46,21 @@
         <!-- Navbar -->
         <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
-            <h2 v-if="voting.question.type == 'YESNO'">Votación de tipo SI/NO</h2>
-            <h2 v-if="!voting.start_date">Votación no comenzada</h2>
-            <h2 v-else-if="!voting.end_date">Votación en curso</h2>
+            <h2 v-if="voting.question.type == 'YESNO'">{% trans 'Votación de tipo SI/NO' %}</h2>
+            <h2 v-if="!voting.start_date">{% trans 'Votación no comenzada' %}</h2>
+            <h2 v-else-if="!voting.end_date">{% trans 'Votación en curso' %}</h2>
             <div v-else>
-                <h2 class="heading">Resultados:</h2>
+                <h2 class="heading">{% trans 'Resultados:' %}</h2>
 
-                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños: [[voting.seats]] </h3>
+                <h3 v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">{% trans 'Escaños:' %} [[voting.seats]] </h3>
 
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>Opción</th>
-                            <th v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">Puntuación</th>
-                            <th>Votos</th>
-                            <th v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">Escaños</th>
+                            <th>{% trans 'Opción' %}</th>
+                            <th v-if="voting.method != 'DHONDT' && voting.method != 'WEBSTER'">{% trans 'Puntuación' %}</th>
+                            <th>{% trans 'Votos' %}</th>
+                            <th v-if="voting.method == 'DHONDT' || voting.method == 'WEBSTER'">{% trans 'Escaños' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,7 +85,7 @@
             </div>
 
             {% if live_tally %}
-                <h2 class="heading" style="color: red;">Votos en directo:</h2>
+                <h2 class="heading" style="color: red;">{% trans 'Votos en directo:' %}</h2>
                 <div class="pies">
                     <div class="pie" id="pieChart1"></div>
                     <div class="pie" id="pieChart2"></div>

@@ -24,14 +24,14 @@
                     <li class="nav-item">
                         <form method="post" action="{% url 'users:logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-secondary" style="text-decoration: none; color: white;">Logout</button>
+                            <button type="submit" class="btn btn-secondary" style="text-decoration: none; color: white;">{% trans 'Cerrar Sesión' %}</button>
                         </form>
                     </li>
                     {% else %}
                     <li class="nav-item">
                         <!-- Button trigger modal -->
                         <a href="/users/login/" class="btn btn-secondary"  style="text-decoration: none; color: white;">
-                            {% trans "Login" %}
+                            {% trans 'Iniciar Sesión' %}
                         </a>
                     </li>
                     {% endif %}
@@ -78,7 +78,7 @@
                 <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
             </svg>
             <div class="ms-2">
-                {% trans 'You must log in to be able to access the voting!' %}
+                {% trans '¡Debes iniciar sesión para poder acceder a la votación!' %}
             </div>
         </div>
         {% endif %}
@@ -88,14 +88,14 @@
         <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
-            <h2 v-if="voting.question.type == 'YESNO'">Votación de tipo SI/NO</h2>
+            <h2 v-if="voting.question.type == 'YESNO'">{% trans 'Votación de tipo SI/NO' %}</h2>
             <form v-for="opt in voting.question.options" :key="opt.number" class="form-voting">
                 <div class="form-group">
                     <input type="radio" v-model="selected"
                                 :id="'q' + opt.number"
                                 name="question"
                                 :value="opt.number">
-                        <p v-if="opt.option == 'Yes'">Sí</p>
+                        <p v-if="opt.option == 'Yes'">{% trans 'Sí' %}</p>
                             <p v-else>[[opt.option]]</p>
                 </div>
             </form>

@@ -10,19 +10,19 @@
 {% block content %}
     <div id="app-visualizer">
 
-        <h1 class="register-title-mobile">Recuperar contraseña</h1>
+        <h1 class="register-title-mobile">{% trans 'Recuperar contraseña' %}</h1>
 
         <form method="post" class="form-mobile">
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="{{ form.email.id_for_label }}" class="label-mobile">Correo electrónico</label>
+                <label for="{{ form.email.id_for_label }}" class="label-mobile">{% trans 'Correo electrónico' %}</label>
                 <input type="text" name="email" placeholder="usuario@dominio.com" required="" id="id_email" class="form-control">
             </div>
 
             <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
 
-            <button type="submit" class="btn-mobile">Enviar solicitud</button>
+            <button type="submit" class="btn-mobile">{% trans 'Enviar solicitud' %}</button>
           </form>
 
     </div>

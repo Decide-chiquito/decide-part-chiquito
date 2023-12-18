@@ -94,17 +94,17 @@
     <div class="row justify-content-center">
       <div class="col-md-10">
         <div class="card">
-          <div class="card-header">Solicitud de Nueva Contraseña</div>
+          <div class="card-header">{% trans 'Solicitud de Nueva Contraseña' %}</div>
           <div class="card-body">
             <form method="post" class="password-reset-form">
               {% csrf_token %}
               {% if form.errors %}
                 <div class="alert alert-danger">
-                  <strong>Error:</strong> Por favor, corrige los siguientes errores.
+                  <strong>Error:</strong> {% trans 'Por favor, corrige los siguientes errores.' %}
                 </div>
               {% endif %}
               <div class="form-group">
-                <label for="{{ form.email.id_for_label }}">Correo electrónico:</label>
+                <label for="{{ form.email.id_for_label }}">{% trans 'Correo electrónico:'%}</label>
                 {{ form.email }}
                 {% if form.email.errors %}
                   <ul class="errorlist">
@@ -114,7 +114,7 @@
                   </ul>
                 {% endif %}
               </div>
-              <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+              <button type="submit" class="btn btn-primary">{% trans 'Enviar solicitud' %}</button>
             </form>
           </div>
         </div>

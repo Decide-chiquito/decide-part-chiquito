@@ -42,17 +42,17 @@
 
         {% if not user.is_authenticated %}
 
-            <h1 class="voting-title">Inicia sesión para votar</h1>
+            <h1 class="voting-title">{% trans 'Inicia sesión para votar' %}</h1>
 
             <div class="login-container-mobile">
-                <a href="/users/login/" class="btn-mobile">Iniciar sesión</a>
+                <a href="/users/login/" class="btn-mobile">{% trans 'Iniciar sesión' %}</a>
             </div>
 
         {% else %}
 
             <h1 class="voting-title">[[ voting.id ]] - [[ voting.name ]]</h1>
             
-            <button class="open-modal-button" id="openModalButton">Ver descripción</button>
+            <button class="open-modal-button" id="openModalButton">{% trans 'Ver descripción' %}</button>
 
             <div id="myModal" class="modal">
                 <div class="modal-content">
@@ -72,13 +72,13 @@
                     </div>
                 </form>
 
-                <button class="btn-mobile" v-on:click="decideSend">Votar</button>
+                <button class="btn-mobile" v-on:click="decideSend">{% trans 'Votar' %}</button>
 
                 <div class="subtitle-line-mobile"></div>
 
                 <form method="post" action="{% url 'users:logout' %}" class="logout-mobile">
                     {% csrf_token %}
-                    <button type="submit" class="btn-mobile">Cerrar sesión</button>
+                    <button type="submit" class="btn-mobile">{% trans 'Cerrar sesión' %}</button>
                 </form>
             </div>
 

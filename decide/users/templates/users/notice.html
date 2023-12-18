@@ -11,20 +11,20 @@
 {% endblock extrahead %}
 
 {% block content %}
-  <h1 class="voting-title">Notificaciones de las votaciones</h1>
+  <h1 class="voting-title">{% trans 'Notificaciones de las votaciones' %}</h1>
   
   <form method="get" action="{% url 'users:notice' %}">
     <div class="form-group">
       <input type="text" id="name" name="name" class="form-filter" placeholder="Buscar" value="{{ request.GET.name }}">
     </div>
     <div class="columna">
-      <label for="date" class="form-label">Filtrado:</label>
+      <label for="date" class="form-label">{% trans 'Filtrado:' %}</label>
       <div id="date" class="input-group">
         <input type="date" id="start_date" name="start_date" class="form-filter" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.start_date }}">
         <input type="date" id="end_date" name="end_date" class="form-filter" min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.end_date }}">
       </div>
     </div>
-    <button type="submit">{% trans 'Filter' %}</button>
+    <button type="submit">{% trans 'Filtrado' %}</button>
   </form>
 
 
@@ -33,18 +33,18 @@
       {% for info in voting_info %}
         <div class="voting-card" onclick="redirigir({{ info.voting_id }}, {{ info.has_voted_str }}, '{{ info.status }}')">
           <h3>{{ info.voting_name }}</h3>
-          <p><strong>Estado de la votación:</strong> {{ info.status }}</p>
+          <p><strong>{% trans 'Estado de la votación:' %}</strong> {{ info.status }}</p>
           {% if info.has_voted %}
-            <p><strong>¡Ya has votado!</strong></p>
+            <p><strong>{% trans '¡Ya has votado!' %}</strong></p>
           {% else %}
-            <p><strong>Aún no has votado</strong></p>
+            <p><strong>{% trans 'Aún no has votado' %}</strong></p>
           {% endif %}
         </div>
 
       {% endfor %}
     </div>
   {% else %}
-    <p>{% trans 'You are not associated with any voting notices.' %}</p>
+    <p>{% trans 'No está asociado con ningún aviso de votación.' %}</p>
   {% endif %}
 
   <script>

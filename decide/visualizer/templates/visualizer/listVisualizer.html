@@ -13,9 +13,9 @@
             </div class="row">    
                 <h2>{{visualizer.name}}</h2>
                 {% if visualizer.end_date == None  %}
-                    <p style="color: red;">Ver datos en directo</p>
+                    <p style="color: red;">{% trans 'Ver datos en directo' %}</p>
                 {% endif %}
-                <a class="button"  href='/visualizer/{{visualizer.id}}'>{% trans 'Access'%}</a>       
+                <a class="button"  href='/visualizer/{{visualizer.id}}'>{% trans 'Accesso'%}</a>       
             </div>
         </div>
     </div>

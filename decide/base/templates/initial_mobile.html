@@ -37,82 +37,82 @@
 
 {% block content %}
 
-<h2 class="subtitle-mobile">DECIDE, el sistema de votaciones por decide-part-chiquito</h2>
+<h2 class="subtitle-mobile">{% trans 'DECIDE, el sistema de votaciones por decide-part-chiquito' %}</h2>
 
 <div class="subtitle-line-mobile"></div>
 
-<p class="access-text-mobile">- Acceso al sistema -</p>
+<p class="access-text-mobile">{% trans '- Acceso al sistema -' %}</p>
 
 <div class="contents-mobile">
 
     <div class="card-mobile">
         <label for="admin" class="label-mobile">admin</label>
-        <button class="button-mobile" onclick="go_to_route('/admin/')">Acceder</button>
+        <button class="button-mobile" onclick="go_to_route('/admin/')">{% trans 'Acceder' %}</button>
     </div>
 
     {% if not user.is_authenticated %}
         <div class="card-mobile">
-            <label for="login" class="label-mobile">login</label>
-            <button class="button-mobile" onclick="go_to_route('/users/login/')">Acceder</button>
+            <label for="login" class="label-mobile">{% trans 'Iniciar sesión' %}</label>
+            <button class="button-mobile" onclick="go_to_route('/users/login/')">{% trans 'Acceder' %}</button>
         </div>
     {% else %}
         <div class="card-mobile">
-            <label for="logout" class="label-mobile">logout</label>
-            <button class="button-mobile" onclick="go_to_route('/users/logout/')">Acceder</button>
+            <label for="logout" class="label-mobile">{% trans 'Cerrar sesión' %}</label>
+            <button class="button-mobile" onclick="go_to_route('/users/logout/')">{% trans 'Acceder' %}</button>
         </div>
     {% endif %}
     
     <div class="card-mobile">
         <label for="register" class="label-mobile">register</label>
-        <button class="button-mobile" onclick="go_to_route('/users/register/')">Acceder</button>
+        <button class="button-mobile" onclick="go_to_route('/users/register/')">{% trans 'Acceder' %}</button>
     </div>
 
     {% if user.is_authenticated and not user.is_superuser %}
         <div class="card-mobile">
-            <label for="edit-profile" class="label-mobile">edit profile</label>
-            <button class="button-mobile" onclick="go_to_route('/users/edit-profile/')">Acceder</button>
+            <label for="edit-profile" class="label-mobile">{% trans 'edit profile' %}</label>
+            <button class="button-mobile" onclick="go_to_route('/users/edit-profile/')">{% trans 'Acceder' %}</button>
         </div>
     {% endif %}
     
     <div class="card-mobile">
-        <label for="booth" class="label-mobile">booth</label>
+        <label for="booth" class="label-mobile">{% trans 'Cabina' %}</label>
         <div class="select-mobile">
             <select id="booth" name="booth">
-                <option value="" selected>Elige</option>
+                <option value="" selected>{% trans 'Elige' %}</option>
                 {% for voting in voting_enabled %}
                 <option value="{{voting.id}}">{{voting.name}}</option>
                 {% endfor %}
             </select>
         </div>
-        <button class="button-mobile" onclick="go_to_route('/booth/', 'booth')">Acceder</button>
+        <button class="button-mobile" onclick="go_to_route('/booth/', 'booth')">{% trans 'Acceder' %}</button>
     </div>
     
     <div class="card-mobile">
-        <label for="visualizer" class="label-mobile">visualizer</label>
+        <label for="visualizer" class="label-mobile">{% trans 'Resultados'%}</label>
         <div class="select-mobile">
             <select id="visualizer" name="visualizer">
-                <option value="" selected>Elige</option>
+                <option value="" selected>{% trans 'Elige' %}</option>
                 {% for voting in voting_finished %}
                 <option value="{{voting.id}}">{{voting.name}}</option>
                 {% endfor %}
             </select>
         </div>
-        <button class="button-mobile" onclick="go_to_route('/visualizer/', 'visualizer')">Acceder</button>
+        <button class="button-mobile" onclick="go_to_route('/visualizer/', 'visualizer')">{% trans 'Acceder' %}</button>
     </div>
 
     <div class="card-mobile">
-        <label for="census" class="label-mobile">census</label>
-        <button class="button-mobile" onclick="go_to_route('/admin/voting/voting/upload-csv/')">Importar</button>
+        <label for="census" class="label-mobile">{% trans 'census'%}</label>
+        <button class="button-mobile" onclick="go_to_route('/admin/voting/voting/upload-csv/')">{% trans 'Importar' %}</button>
     </div>
 
     <div class="card-mobile">
         <label for="ticket" class="label-mobile">Ticket</label>
-        <button class="button-mobile" onclick="go_to_route('/ticket/add-ticket/')">Create</button>
+        <button class="button-mobile" onclick="go_to_route('/ticket/add-ticket/')">{% trans 'Create' %}</button>
     </div>
 
     <div class="subtitle-line-mobile"></div>
 
-    <p class="access-text-mobile">- Puntos de acceso a través de URL -</p>
+    <p class="access-text-mobile">{% trans '- Puntos de acceso a través de URL -' %}</p>
 
     <div class="urls-list-mobile">
     <ul class="points-mobile">

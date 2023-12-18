@@ -10,75 +10,75 @@
     <div class="info">
         
         <p>
-            {% trans 'Choose the desired option in the corresponding box and click on Access to go to it'%}
+            {% trans 'Elige la opcion deseada en la casilla correspondiente y clickea para acceder' %}
         </p>
     </div>
 
     <div class="row">
-        <label for="admin" class="label">{% trans 'Admin'%}</label>
-        <button class="button" onclick="go_to_route('/admin/')">{% trans 'Access'%}</button>
+        <label for="admin" class="label">{% trans 'Administrador' %}</label>
+        <button class="button" onclick="go_to_route('/admin/')">{% trans 'Acceder' %}</button>
     </div>
 
     <div class="row">
-        <label for="register" class="label">register</label>
-        <button class="button" onclick="go_to_route('/users/register/')">{% trans 'Access'%}</button>
+        <label for="register" class="label">{% trans 'Registro' %}</label>
+        <button class="button" onclick="go_to_route('/users/register/')">{% trans 'Acceder' %}</button>
     </div>
 
     {% if user.is_authenticated and not user.is_superuser %}
         <div class="row">
-            <label for="edit-profile" class="label">edit profile</label>
-            <button class="button" onclick="go_to_route('/users/edit-profile/')">{% trans 'Access'%}</button>
+            <label for="edit-profile" class="label">{% trans 'Editar perfil' %}</label>
+            <button class="button" onclick="go_to_route('/users/edit-profile/')">{% trans 'Acceder' %}</button>
         </div>
     {% endif %}
 
     <div class="row">
         {% if user.is_authenticated %}
-        <label for="logout" class="label">Logout</label>
+        <label for="logout" class="label">{% trans 'Cerrar sesión' %}</label>
         <a  class="button" href="/users/logout/">
-            Logout
+            {% trans 'Cerrar sesión' %}
         </a>
         {% else %}
-        <label for="login" class="label">Login</label>
+        <label for="login" class="label">{% trans 'Iniciar sesión' %}</label>
         <a  class="button" href="/users/login/">
-            Login
+            {% trans 'Iniciar sesión' %}
         </a>
         {%endif%}
         
     </div>
 
     <div class="row">
-        <label for="mailer" class="label">send email</label>
-        <button class="button" onclick="go_to_route('/mailer/')">Acceder</button>
+        <label for="mailer" class="label">{% trans 'Enviar email' %}</label>
+        <button class="button" onclick="go_to_route('/mailer/')">{% trans 'Acceder' %}</button>
     </div>
 
     <div class="row">
-        <label for="voting" class="label">Booth</label>
-        <button class="button" onclick=" button_go_to_route('booth/listActiveVoting/')">List</button>
+        <label for="voting" class="label">{% trans 'Cabina' %}</label>
+        <button class="button" onclick=" button_go_to_route('booth/listActiveVoting/')">{% trans 'Lista' %}</button>
     </div>
 
     <div class="row">
-        <label for="voting" class="label">Visualizer</label>
-        <button class="button" onclick=" button_go_to_route('visualizer/listVisualizer/')">List</button>
+        <label for="voting" class="label">{% trans 'Resultados'%}</label>
+        <button class="button" onclick=" button_go_to_route('visualizer/listVisualizer/')">{% trans 'Lista' %}</button>
     </div>
     {% if user.is_authenticated %}
         <div class="row">
-            <label for="notice" class="label">Notice</label>
+            <label for="notice" class="label">{% trans 'Aviso' %}</label>
             <a class="button" href="/users/notice">
-                Acceso
+                {% trans 'Acceso' %}
             </a>
         </div>
     {%endif%}
 
     {% if user.is_superuser %}
         <div class="row">
-            <label for="census" class="label">census</label>
-            <button class="button" onclick=" button_go_to_route('admin/voting/voting/upload-csv/')">Importar</button>
+            <label for="census" class="label">{% trans 'census' %}</label>
+            <button class="button" onclick=" button_go_to_route('admin/voting/voting/upload-csv/')">{% trans 'Importar' %}</button>
         </div>
     {% endif %}
 
     <div class="row">
         <label for="ticket" class="label">Ticket</label>
-        <button class="button" onclick=" button_go_to_route('ticket/add-ticket/')">Create</button>
+        <button class="button" onclick=" button_go_to_route('ticket/add-ticket/')">{% trans 'Crear' %}</button>
     </div>
     
     
@@ -87,7 +87,7 @@
 </div>
 <div class="urls-list">
 
-    <label class="poster">{% trans 'For those who need or prefer to use URL-based navigation, here we provide the different access points:'%}</label>
+    <label class="poster">{% trans 'Para aquellos que necesitan o prefieren utilizar la navegación basada en URL, aquí les brindamos los diferentes puntos de acceso:' %}</label>
    <ul>
 
        {% for url in url_patterns %}

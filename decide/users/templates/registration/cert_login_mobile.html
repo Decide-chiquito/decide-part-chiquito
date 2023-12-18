@@ -38,29 +38,29 @@
 {% block content %}
     <div id="app-visualizer">
 
-        <h1 class="register-title-mobile">Iniciar sesión con certificado digital</h1>
+        <h1 class="register-title-mobile">{% trans 'Iniciar sesión con certificado digital' %}</h1>
 
         <form id="id_form" method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             <div class="card-container-mobile">
                 <div class="card-mobile">
-                    <label class="label-mobile">Fichero de certificado</label>
-                    <label class="button-mobile">Seleccionar
+                    <label class="label-mobile">{% trans 'Fichero de certificado' %}</label>
+                    <label class="button-mobile">{% trans 'Seleccionar' %}
                         <input class="hidden-mobile" type="file" name="cert_file" required="" id="id_cert_file" onchange="updateFileInfo()">
                     </label>
                 </div>
 
-                <p class="file-name-mobile" id="file-info">No hay ningún archivo seleccionado</p>
+                <p class="file-name-mobile" id="file-info">{% trans 'No hay ningún archivo seleccionado' %}</p>
 
                 <div class="form-group">
-                    <label for="id_cert_password" class="label-mobile">Contraseña del certificado</label>
+                    <label for="id_cert_password" class="label-mobile">{% trans 'Contraseña del certificado' %}</label>
                     <input type="password" name="cert_password" required="" id="id_cert_password" class="form-control">
                 </div>
 
                 <p class="error-mobile" id="error-message-mobile">{{ error }}</p>
             
-                <button type="submit" class="btn-mobile">Iniciar sesión</button>
+                <button type="submit" class="btn-mobile">{% trans 'Iniciar sesión' %}</button>
 
             </div>
         </form>

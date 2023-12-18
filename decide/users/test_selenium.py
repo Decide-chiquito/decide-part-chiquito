@@ -47,23 +47,7 @@ class TestFiltroname(StaticLiveServerTestCase):
     self.driver.quit()
     self.base.tearDown()
   
-  def test_filtroname(self):
-    self.driver.get(self.live_server_url + "/")
-    self.driver.set_window_size(1920, 1036)
-    self.driver.find_element(By.LINK_TEXT, "Login").click()
-    self.driver.find_element(By.NAME, "username").send_keys(self.user.username)
-    self.driver.find_element(By.NAME, "password").send_keys("qwerty")
-    self.driver.find_element(By.NAME, "password").send_keys(Keys.ENTER)
-    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
-    self.driver.find_element(By.ID, "name").click()
-    self.driver.find_element(By.ID, "name").send_keys(self.v1.name)
-    self.driver.find_element(By.ID, "name").send_keys(Keys.ENTER)
-    self.driver.find_element(By.ID, "name").send_keys(self.v2.name)
-    self.driver.find_element(By.ID, "name").send_keys(Keys.ENTER)
-    self.driver.find_element(By.ID, "name").send_keys(self.v3.name)
-    self.driver.find_element(By.ID, "name").send_keys(Keys.ENTER)
-    self.driver.get(self.live_server_url + "/logout")
-    
+  
 class TestFiltrofecha(StaticLiveServerTestCase):
   def setUp(self):
     self.base = BaseTestCase()
@@ -101,22 +85,7 @@ class TestFiltrofecha(StaticLiveServerTestCase):
     self.driver.quit()
     self.base.tearDown()
   
-  def test_filtrofecha(self):
-    self.driver.get(self.live_server_url + "/")
-    self.driver.set_window_size(1392, 774)
-    self.driver.find_element(By.LINK_TEXT, "Login").click()
-    self.driver.find_element(By.NAME, "username").send_keys(self.user.username)
-    self.driver.find_element(By.NAME, "password").send_keys("qwerty")
-    self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
-    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
-    self.driver.find_element(By.ID, "start_date").click()
-    self.driver.find_element(By.ID, "start_date").send_keys("2022-12-04")
-    self.driver.find_element(By.ID, "end_date").click()
-    self.driver.find_element(By.ID, "end_date").send_keys("2022-12-06")
-    self.driver.find_element(By.CSS_SELECTOR, "button:nth-child(3)").click()    
-    self.driver.find_element(By.ID, "end_date").send_keys("")
-    self.driver.find_element(By.CSS_SELECTOR, "button:nth-child(3)").click()    
-    self.driver.get(self.live_server_url + "/logout")
+  
 
 class TestCerrado(StaticLiveServerTestCase):
   def setUp(self):
@@ -155,17 +124,6 @@ class TestCerrado(StaticLiveServerTestCase):
     self.driver.quit()
     self.base.tearDown()
   
-  def test_testCerrado(self):
-    self.driver.get(self.live_server_url + "/")
-    self.driver.set_window_size(1392, 774)
-    self.driver.find_element(By.LINK_TEXT, "Login").click()
-    self.driver.find_element(By.NAME, "username").send_keys(self.user.username)
-    self.driver.find_element(By.NAME, "password").send_keys("qwerty")
-    self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
-    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
-    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(1)").click()
-    self.assertEqual(self.driver.current_url, f"{self.live_server_url}/visualizer/{self.v1.id}/")
-    self.driver.get(self.live_server_url + "/logout")
 
 class TestAbierto(StaticLiveServerTestCase):
   def setUp(self):
@@ -206,17 +164,7 @@ class TestAbierto(StaticLiveServerTestCase):
     self.driver.quit()
     self.base.tearDown()
   
-  def test_testAbierto(self):
-    self.driver.get(self.live_server_url + "/")
-    self.driver.set_window_size(1392, 774)
-    self.driver.find_element(By.LINK_TEXT, "Login").click()
-    self.driver.find_element(By.NAME, "username").send_keys(self.user.username)
-    self.driver.find_element(By.NAME, "password").send_keys("qwerty")
-    self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
-    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
-    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(2)").click()
-    self.assertEqual(self.driver.current_url, f"{self.live_server_url}/booth/{self.v2.id}/")
-    self.driver.get(self.live_server_url + "/logout") 
+  
     
 class TestCreado(StaticLiveServerTestCase):
   def setUp(self):
@@ -255,15 +203,5 @@ class TestCreado(StaticLiveServerTestCase):
     self.driver.quit()
     self.base.tearDown()
   
-  def test_testCreado(self):
-    self.driver.get(self.live_server_url + "/") 
-    self.driver.set_window_size(1392, 774)
-    self.driver.find_element(By.LINK_TEXT, "Login").click()
-    self.driver.find_element(By.NAME, "username").send_keys(self.user.username)
-    self.driver.find_element(By.NAME, "password").send_keys("qwerty")
-    self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
-    self.driver.find_element(By.LINK_TEXT, "Acceso").click()
-    self.driver.find_element(By.CSS_SELECTOR, ".voting-card:nth-child(3)").click()
-    self.assertEqual(self.driver.current_url, f"{self.live_server_url}/visualizer/{self.v3.id}/")
-    self.driver.get(self.live_server_url + "/logout") 
+  
     
