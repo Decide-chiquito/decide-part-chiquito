@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
+from django.core.exceptions import MultipleObjectsReturned
 from django.conf import settings
 
 from django.http import HttpResponseRedirect
@@ -376,4 +377,7 @@ class NoticeView(TemplateView):
             return vote.voted is not None
         except Vote.DoesNotExist:
             # Si no se encuentra un voto para esta votación y usuario, no ha votado
+            return False
+        except MultipleObjectsReturned:
+            # Manejar la situación de múltiples objetos devueltos 
             return False
