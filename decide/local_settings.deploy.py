@@ -1,6 +1,7 @@
 import os 
 import dj_database_url
 from django.utils.translation import gettext_lazy as _
+from decouple import config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
