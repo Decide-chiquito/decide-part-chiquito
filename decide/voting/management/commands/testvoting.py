@@ -31,8 +31,9 @@ class Command(BaseCommand):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -51,20 +52,28 @@ class Command(BaseCommand):
 
     def store_votes(self, v):
         voters = list(Census.objects.filter(voting_id=v.id))
-        voter = voters.pop()
+        if not voters:
+            raise ValueError("No hay votantes disponibles para la votación.")
+
         clear = {}
-        for opt in v.question.options.all():
+        for opt in v.questions.first().options.all():  # Asegurándonos de obtener las opciones de la primera pregunta
             clear[opt.number] = 0
-            for i in range(random.randint(0, 5)):
+            for _ in range(min(4, len(voters))):  # Limitar la iteración al número de votantes disponibles
                 a, b = self.encrypt_msg(opt.number, v)
+                voter = voters.pop()  # Obtener un votante
                 data = {
                     'voting': v.id,
                     'voter': voter.voter_id,
-                    'vote': { 'a': a, 'b': b },
+                    'vote': {'a': a, 'b': b},
                 }
                 clear[opt.number] += 1
-                voter = voters.pop()
+                user = self.get_or_create_user(voter.voter_id)
+                self.login(user=user.username)
                 mods.post('store', json=data)
+
+                if not voters:  # Si no hay más votantes, salir del bucle
+                    break
+
         return clear
 
     def handle(self, *args, **options):
@@ -87,8 +96,14 @@ class Command(BaseCommand):
         tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
 
         print("Result:")
-        for q in v.question.options.all():
-            print(" * {}: {} tally votes / {} emitted votes".format(q, tally.get(q.number, 0), clear.get(q.number, 0)))
+        for question in v.questions.all():
+            for option in question.options.all():
+                print(" * {}: {} tally votes / {} emitted votes".format(
+                    option.option,  
+                    tally.get(option.number, 0),
+                    clear.get(option.number, 0)
+                ))
+
 
         print("")
         print("Postproc Result:")

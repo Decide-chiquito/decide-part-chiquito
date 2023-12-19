@@ -16,7 +16,7 @@ class StoreView(generics.ListAPIView):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('voting_id', 'voter_id')
+    filterset_fields = ('voting_id', 'question_id', 'voter_id')
 
     def get(self, request):
         self.permission_classes = (UserIsStaff,)
@@ -27,14 +27,20 @@ class StoreView(generics.ListAPIView):
         """
          * voting: id
          * voter: id
-         * vote: { "a": int, "b": int }
+         * token: token
+         * votes: [ { "questionId": id, "vote": { "a": int, "b": int } } ]
         """
 
         vid = request.data.get('voting')
+        uid = request.data.get('voter')
+        votes_list = request.data.get('votes')
+
         voting = mods.get('voting', params={'id': vid})
+
         if not voting or not isinstance(voting, list):
             # print("por aqui 35")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+
         start_date = voting[0].get('start_date', None)
         # print ("Start date: "+  start_date)
         end_date = voting[0].get('end_date', None)
@@ -45,12 +51,6 @@ class StoreView(generics.ListAPIView):
         if not_started or is_closed:
             #print("por aqui 42")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
-
-        uid = request.data.get('voter')
-        vote = request.data.get('vote')
-
-        if not vid or not uid or not vote:
-            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         # validating voter
         # if request.auth:
@@ -68,20 +68,38 @@ class StoreView(generics.ListAPIView):
         if perms.status_code == 401:
             # print("por aqui 65")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        if voting[0].get('single_vote'):
+            existing_votes = Vote.objects.filter(voting_id=vid, voter_id=uid)
+            if existing_votes.exists():
+                return Response(
+                    {},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+    
+        for vote_data in votes_list:
+            question_id = vote_data.get('questionId')
+            vote = vote_data.get('vote')
 
-        a = vote.get("a")
-        b = vote.get("b")
+            if not vid or not uid or not vote:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        defs = { "a": a, "b": b }
-        v, _ = Vote.objects.get_or_create(voting_id=vid, voter_id=uid,
-                                          defaults=defs)
-        v.a = a
-        v.b = b
+            if not question_id or not vote:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        v.save()
+            a = vote.get("a")
+            b = vote.get("b")
 
-        return  Response({})
+            defs = { "a": a, "b": b }
+            v, created = Vote.objects.get_or_create(voting_id=vid, voter_id=uid, question_id=question_id,
+                                                    defaults=defs)
+            if not created:
+                # Si el voto ya existe, actualiza los valores
+                v.a = a
+                v.b = b
+                v.save()
 
+        return Response({'success': 'Votes were successfully submitted.'}, status=status.HTTP_200_OK)
 class StoreDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (UserIsStaff,)
 

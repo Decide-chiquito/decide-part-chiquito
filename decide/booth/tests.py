@@ -43,7 +43,7 @@ class ListActiveBoothTests(TestCase):
     def test_logged_in_with_census_no_active_booth(self):
         q = Question(desc='test question1')
         q.save()
-        voting = Voting.objects.create(id=1,name="vting1",desc="desc1",question=q,start_date=timezone.now(), end_date=timezone.now() - timedelta(days=1),
+        voting = Voting.objects.create(id=1,name="vting1",desc="desc1",questions=[q],start_date=timezone.now(), end_date=timezone.now() - timedelta(days=1),
                                        method='IDENTITY',seats=10)
         Census.objects.create(voter_id=self.user.id, voting_id=voting.id)
         self.client.force_login(self.user)
@@ -53,7 +53,7 @@ class ListActiveBoothTests(TestCase):
     def test_logged_in_with_census_and_active_booth(self):
         q = Question(desc='test question2')
         q.save()
-        voting = Voting.objects.create(id=2,name="vting2",desc="desc1",question=q,start_date=timezone.now(), end_date=None,
+        voting = Voting.objects.create(id=2,name="vting2",desc="desc1",questions=[q],start_date=timezone.now(), end_date=None,
                                        method='IDENTITY',seats=10)
         Census.objects.create(voter_id=self.user.id, voting_id=voting.id)
         self.client.force_login(self.user)
