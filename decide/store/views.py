@@ -68,6 +68,14 @@ class StoreView(generics.ListAPIView):
         if perms.status_code == 401:
             # print("por aqui 65")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        if voting[0].get('single_vote'):
+            existing_votes = Vote.objects.filter(voting_id=vid, voter_id=uid)
+            if existing_votes.exists():
+                return Response(
+                    {},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
     
         for vote_data in votes_list:
             question_id = vote_data.get('questionId')
