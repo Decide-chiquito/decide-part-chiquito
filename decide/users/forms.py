@@ -64,10 +64,12 @@ class CertificateLoginForm(forms.Form):
 
             if '-' in cert_json['subject']:
                 subject_name = cert_json['subject'].split('-')[0].strip()
+                subject_name_without_spaces = subject_name.replace(" ", "")
             else:
                 subject_name = cert_json['subject'].strip()
+                subject_name_without_spaces = subject_name.replace(" ", "")
 
-            user, _ = User.objects.get_or_create(username=subject_name)
+            user, _ = User.objects.get_or_create(username=subject_name_without_spaces)
 
             return user
 
