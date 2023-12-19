@@ -87,27 +87,34 @@
         {% if user.is_authenticated %}
         <div class="navigator">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
-            <h2>[[ voting.question.desc ]]</h2>
-            <h2 v-if="voting.question.type == 'YESNO'">Votación de tipo SI/NO</h2>
-            <form v-for="opt in voting.question.options" :key="opt.number" class="form-voting">
-                <div class="form-group">
-                    <input type="radio" v-model="selected"
-                                :id="'q' + opt.number"
-                                name="question"
-                                :value="opt.number">
+            
+            <!-- Iterar sobre las preguntas -->
+            <div v-for="question in voting.questions" :key="question.id">
+                <h2>[[ question.desc ]]</h2>
+                <h4 v-if="question.type == 'YESNO'">Votación de tipo SI/NO</h4>
+                <!-- Iterar sobre las opciones de la pregunta actual -->
+                <form class="form-voting">
+                    <div class="form-group" v-for="opt in question.options" :key="opt.number">
+                        <input type="radio" v-model="selected[question.id]"
+                               :id="'q' + question.id + '-' + opt.number"
+                               :name="'question' + question.id"
+                               :value="opt.number">
                         <p v-if="opt.option == 'Yes'">Sí</p>
-                            <p v-else>[[opt.option]]</p>
-                </div>
-            </form>
+                        <p v-else>[[opt.option]]</p>
+                    </div>
+                </form>
+            </div>
+        
             <div class="options">
-                <button class="btn btn-primary mt-3" v-on:click="decideSend">
+                <!-- El botón de enviar debería estar fuera del bucle de preguntas -->
+                <button class="btn btn-primary mt-3" v-on:click="decideSend($event)">
                     {% trans "Vote" %}
                 </button>
                 <button class="btn btn-primary mt-3" v-on:click="comeBack">
                     {% trans "Volver" %}
                 </button>
             </div>
-        </div>
+        </div>        
         {% endif %}
 
     </div>
@@ -140,7 +147,7 @@
             data() {
                 return {
                     voting: voting,
-                    selected: "",
+                    selected: {},
                     successVote: false,
                     alertShow: false,
                     alertMsg: "",
@@ -193,28 +200,41 @@
                             }
                         });
                 },
-                decideEncrypt() {
-                    var bigmsg = BigInt.fromJSONObject(this.selected.toString());
+                decideEncrypt(questionId) {
+                    var bigmsg = BigInt.fromJSONObject(this.selected[questionId].toString());
                     var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
                     return cipher;
                 },
                 decideSend(evt) {
                     evt.preventDefault();
-                    var v = this.decideEncrypt();
-                    var data = {
-                        vote: {a: v.alpha.toString(), b: v.beta.toString()},
+
+                    let votesData = {
                         voting: this.voting.id,
-                        voter: {{user.id}},
-                        token: '{{request.session.session_key|safe}}',
+                        voter: {{ user.id }},
+                        token: '{{ request.session.session_key|safe }}',
+                        votes: []
+                    };
+
+                    for (let questionId in this.selected) {
+                        let cipher = this.decideEncrypt(questionId);
+                        votesData.votes.push({
+                            questionId: questionId,
+                            vote: {
+                                a: cipher.alpha.toString(),
+                                b: cipher.beta.toString()
+                            }
+                        });
                     }
-                    this.postData("{% url "gateway" "store" "/" %}", data)
+
+                    // Envía todas las respuestas en un solo lote
+                    this.postData("{% url 'gateway' 'store' '/' %}", votesData)
                         .then(data => {
                             this.successVote = true;
                             this.alertShow = false;
                             this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
                         })
                         .catch(error => {
-                            this.succesVote = false;
+                            this.successVote = false;
                             this.showAlert("danger", '{% trans "Error: " %}' + error);
                         });
                 },

@@ -8,6 +8,8 @@ from auditlog.models import AuditlogHistoryField
 from base import mods
 from base.models import Auth, Key
 
+from datetime import datetime
+
 
 class Question(models.Model):
     desc = models.TextField()
@@ -18,7 +20,7 @@ class Question(models.Model):
         ('YESNO',"Yes/No"),
     )
 
-    type = models.CharField(max_length=8,choices=VOTE_TYPE,default='IDENTITY',verbose_name=_("type"))
+    type = models.CharField(max_length=8,choices=VOTE_TYPE,default='MULTIPLE',verbose_name=_("type"))
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -62,20 +64,19 @@ class QuestionOption(models.Model):
     class Meta:
         verbose_name=_("QuestionOption")
 
-    def save(self, *args, **kwargs):
+    def save(self,*args,**kwargs):
         if not self.number:
             self.number = self.question.options.count() + 2
-        return super().save(*args, **kwargs)
+        return super(QuestionOption,self).save(*args,**kwargs)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
     
-
-
 class Voting(models.Model):
     name = models.CharField(max_length=200,verbose_name=_("name"))
     desc = models.TextField(blank=True, null=True)
-    question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE,verbose_name=_("question"))
+
+    questions = models.ManyToManyField(Question, related_name='voting',verbose_name=_("questions"))
 
     start_date = models.DateTimeField(blank=True, null=True,verbose_name=_("start_date"))
     end_date = models.DateTimeField(blank=True, null=True,verbose_name=_("end_date"))
@@ -96,6 +97,8 @@ class Voting(models.Model):
     method = models.CharField(max_length=8,choices=VOTE_METHODS,default='IDENTITY',verbose_name=_("method"))
 
     seats = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("seats"))
+
+    single_vote = models.BooleanField(default=False,verbose_name=_("single_vote"))
     
     class Meta:
         verbose_name=_("Voting")
@@ -116,113 +119,169 @@ class Voting(models.Model):
         self.save()
 
     def get_votes(self, token=''):
-        # gettings votes from store
-        votes = mods.get('store', params={'voting_id': self.id}, HTTP_AUTHORIZATION='Token ' + token)
-        # anon votes
-        votes_format = []
-        vote_list = []
-        for vote in votes:
-            for info in vote:
-                if info == 'a':
-                    votes_format.append(vote[info])
-                if info == 'b':
-                    votes_format.append(vote[info])
-            vote_list.append(votes_format)
+
+        votes_by_question = {}
+
+        for question in self.questions.all():
+
+            question_votes = mods.get('store', params={'voting_id': self.id, 'question_id': question.id}, HTTP_AUTHORIZATION='Token ' + token)
             votes_format = []
-        return vote_list
+            votes_list = []
+
+            for vote in question_votes:
+                for info in vote:
+                    if info == "a":
+                        votes_format.append(vote['a'])
+                    elif info == "b":
+                        votes_format.append(vote['b'])
+                votes_list.append(votes_format)
+                votes_format = []
+
+            votes_by_question[question.id] = votes_list
+
+        return votes_by_question
     
     def live_tally(self, token=''):
-        votes = self.get_votes(token)
+        votes_by_question = self.get_votes(token)
+        tally_results = {}
+        postproc_results = []
 
-        auth = self.auths.first()
         shuffle_url = "/shuffle/{}/".format(self.id)
         decrypt_url = "/decrypt/{}/".format(self.id)
-        auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
-        data = { "msgs": votes }
-        response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=data,
-                response=True)
-        data = {"msgs": response.json()}
-        response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=data,
-                response=True)
 
-        tally = response.json()
-        if(type(tally) is list):
-            options = self.question.options.all()
+        for question_id, question_votes in votes_by_question.items():
+            auth = self.auths.first()
+            auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+
+            # Realizar la mezcla (shuffle) para los votos de esta pregunta
+            shuffle_data = {"msgs": question_votes}
+
+            shuffle_response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=shuffle_data, response=True)
+
+            if shuffle_response.status_code != 200:
+                # TODO: manage error
+                continue
+            # Realizar la descifrado (decrypt) para los votos de esta pregunta
+            decrypt_data = {"msgs": shuffle_response.json()}
+            decrypt_response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=decrypt_data, response=True)
+            if decrypt_response.status_code != 200:
+                # TODO: manage error
+                continue
+            
+            question_tally = decrypt_response.json()
+            tally_results[question_id] = question_tally
+
+            question = Question.objects.get(id=question_id)
+            options = question.options.all()
             opts = []
+
             for opt in options:
+                # Contar los votos para cada opción según el tipo de votación
                 if self.method == 'IDENTITY':
-                    votes = tally.count(opt.number)
+                    votes = question_tally.count(opt.number)
                 elif self.method == 'DHONDT':
-                    votes = tally.count(opt.number)
+                    votes = question_tally.count(opt.number)
                 elif self.method == 'WEBSTER':
-                    votes = tally.count(opt.number)
+                    votes = question_tally.count(opt.number)
                 else:
                     votes = 0
+
                 opts.append({
                     'option': opt.option,
                     'number': opt.number,
                     'votes': votes
                 })
-            data = { 'method': self.method, 'options': opts, 'seats': self.seats }
+
+            # Realizar el post-procesamiento para esta pregunta
+            data = {'method': self.method, 'options': opts, 'seats': self.seats}
             postp = mods.post('postproc', json=data)
-        return postp
+
+            postproc_results.append({
+                'question_id': question_id,
+                'postproc': postp,
+            })
+        
+        self.tally = tally_results
+        self.postproc = postproc_results
+        self.save()
+
+        return postproc_results
 
     def tally_votes(self, token=''):
         '''
         The tally is a shuffle and then a decrypt
         '''
+        
+        votes_by_question = self.get_votes(token)
+        tally_results = {}
 
-        votes = self.get_votes(token)
-
-        auth = self.auths.first()
         shuffle_url = "/shuffle/{}/".format(self.id)
         decrypt_url = "/decrypt/{}/".format(self.id)
-        auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
-        # first, we do the shuffle
-        data = { "msgs": votes }
-        response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=data,
-                response=True)
-        if response.status_code != 200:
-            # TODO: manage error
-            pass
-        # then, we can decrypt that
-        data = {"msgs": response.json()}
-        response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=data,
-                response=True)
 
-        if response.status_code != 200:
-            # TODO: manage error
-            pass
-        self.tally = response.json()
+        for question_id, question_votes in votes_by_question.items():
+            auth = self.auths.first()
+            auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+
+            # Realizar la mezcla (shuffle) para los votos de esta pregunta
+            shuffle_data = {"msgs": question_votes}
+
+            shuffle_response = mods.post('mixnet', entry_point=shuffle_url, baseurl=auth.url, json=shuffle_data, response=True)
+
+            if shuffle_response.status_code != 200:
+                # TODO: manage error
+                continue
+            # Realizar la descifrado (decrypt) para los votos de esta pregunta
+            decrypt_data = {"msgs": shuffle_response.json()}
+            decrypt_response = mods.post('mixnet', entry_point=decrypt_url, baseurl=auth.url, json=decrypt_data, response=True)
+            if decrypt_response.status_code != 200:
+                # TODO: manage error
+                continue
+            # Guardar los resultados del tally para esta pregunta
+            tally_results[question_id] = decrypt_response.json()
+        self.tally = tally_results
         self.save()
-
         self.do_postproc()
 
-
     def do_postproc(self):
-        tally = self.tally
-        if(type(tally) is list):
-            options = self.question.options.all()
-            opts = []
-            for opt in options:
-                if self.method == 'IDENTITY':
-                    votes = tally.count(opt.number)
-                elif self.method == 'DHONDT':
-                    votes = tally.count(opt.number)
-                elif self.method == 'WEBSTER':
-                    votes = tally.count(opt.number)    
-                else:
-                    votes = 0
-                opts.append({
-                    'option': opt.option,
-                    'number': opt.number,
-                    'votes': votes
+        if isinstance(self.tally, dict):
+            postproc_results = []
+
+            for question_id, question_tally in self.tally.items():
+
+                # Obtener las opciones para la pregunta actual
+                question = Question.objects.get(id=question_id)
+                options = question.options.all()
+                opts = []
+
+                for opt in options:
+                    # Contar los votos para cada opción según el tipo de votación
+                    if self.method == 'IDENTITY':
+                        votes = question_tally.count(opt.number)
+                    elif self.method == 'DHONDT':
+                        votes = question_tally.count(opt.number)
+                    elif self.method == 'WEBSTER':
+                        votes = question_tally.count(opt.number)
+                    else:
+                        votes = 0
+
+                    opts.append({
+                        'option': opt.option,
+                        'number': opt.number,
+                        'votes': votes
+                    })
+
+                # Realizar el post-procesamiento para esta pregunta
+                data = {'method': self.method, 'options': opts, 'seats': self.seats}
+                postp = mods.post('postproc', json=data)
+
+                postproc_results.append({
+                    'question_id': question_id,
+                    'postproc': postp,
                 })
-            data = { 'method': self.method, 'options': opts, 'seats': self.seats }
-            postp = mods.post('postproc', json=data)
-            self.postproc = postp
+
+            # Guardar los resultados del post-procesamiento para cada pregunta
+            self.postproc = postproc_results
             self.save()
-        
 
     def __str__(self):
         return self.name

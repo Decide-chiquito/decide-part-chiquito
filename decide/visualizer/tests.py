@@ -2,6 +2,13 @@ from django.test import TestCase
 from base.tests import BaseTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
+from voting.models import Voting, Question, QuestionOption
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from django.utils import timezone
+from selenium.webdriver.support.ui import WebDriverWait
+import time
+from selenium.webdriver.support import expected_conditions as EC
 from django.conf import settings
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -43,65 +50,113 @@ class VisualizerTestCase(StaticLiveServerTestCase):
         super().tearDown()
         self.driver.quit()
         self.base.tearDown()
-
-
-    def test_simpleVisualizer(self):
-        q = Question(desc='test question')
-        q.save()
-        v = Voting(name='test voting', question=q)
-        v.save()
-        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
-        vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Votación no comenzada")
-
     
     def test_dhondt_voting_visualizer(self):
+
         q = Question(desc='test question')
         q.save()
+    
         data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
+            {
+                "postproc": [
+                    {
+                        "votes": 2,
+                        "number": 1,
+                        "option": "Option 1",
+                        "postproc": 2
+                    },
+                    {
+                        "votes": 0,
+                        "number": 2,
+                        "option": "Option 2",
+                        "postproc": 0
+                    }
+                ],
+                "question_id": q.pk
+            }
         ]
-        v = Voting(name='test voting', question=q, method='DHONDT',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+
+        v = Voting(
+            name='test voting', 
+            method='DHONDT', 
+            seats=100, 
+            start_date=timezone.now(), 
+            end_date=timezone.now(), 
+            postproc=data)
         v.save()
+        v.questions.add(q)
         self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
+        self.assertIn("Resultados:", vState, f"Votación no contiene el texto esperado: {vState}")
+        vState= self.driver.find_element(By.ID,"container2-" + str(q.pk)).text
         self.assertTrue(vState)
 
     def test_webster_voting_visualizer(self):
+
         q = Question(desc='test question')
         q.save()
+    
         data = [
-            { 'option': 'Option 2', 'number': 2, 'votes': 1, 'deputies': 20 },
-            { 'option': 'Option 1', 'number': 1, 'votes': 0, 'deputies': 0 },
+            {
+                "postproc": [
+                    {
+                        "votes": 2,
+                        "number": 1,
+                        "option": "Option 1",
+                        "postproc": 2
+                    },
+                    {
+                        "votes": 0,
+                        "number": 2,
+                        "option": "Option 2",
+                        "postproc": 0
+                    }
+                ],
+                "question_id": q.pk
+            }
         ]
-        v = Voting(name='test voting', question=q, method='WEBSTER',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+
+        v = Voting(name='test voting', method='WEBSTER',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
+        v.questions.add(q)
         self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container2").text
+        self.assertIn("Resultados:", vState, f"Votación no contiene el texto esperado: {vState}")
+        vState= self.driver.find_element(By.ID,"container2-" + str(q.pk)).text
         self.assertTrue(vState)
 
     def test_identity_voting_visualizer(self):
+
         q = Question(desc='test question')
         q.save()
+    
         data = [
-            { 'option': 'Option 1', 'number': 1, 'votes': 5, 'postproc': 5 },
-            { 'option': 'Option 5', 'number': 5, 'votes': 5, 'postproc': 5 },
-            { 'option': 'Option 3', 'number': 3, 'votes': 3, 'postproc': 3 },
-            { 'option': 'Option 4', 'number': 4, 'votes': 2, 'postproc': 2 },
-            { 'option': 'Option 6', 'number': 6, 'votes': 1, 'postproc': 1 },
-            { 'option': 'Option 2', 'number': 2, 'votes': 0, 'postproc': 0 },
+            {
+                "postproc": [
+                    {
+                        "votes": 2,
+                        "number": 1,
+                        "option": "Option 1",
+                        "postproc": 2
+                    },
+                    {
+                        "votes": 0,
+                        "number": 2,
+                        "option": "Option 2",
+                        "postproc": 0
+                    }
+                ],
+                "question_id": q.pk
+            }
         ]
-        v = Voting(name='test voting', question=q, method='IDENTITY',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+
+        v = Voting(name='test voting', method='IDENTITY',seats=100,start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
+        v.questions.add(q)
         self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
-        self.assertTrue(vState, "Resultados")
-        vState= self.driver.find_element(By.ID,"container").text
+        self.assertIn("Resultados:", vState, f"Votación no contiene el texto esperado: {vState}")
+        vState= self.driver.find_element(By.ID,"container-" + str(q.pk)).text
         self.assertTrue(vState)
 
 class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
@@ -133,8 +188,9 @@ class LiveStaticticsSeleniumTests(StaticLiveServerTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -220,8 +276,9 @@ class LiveStaticticsBaseTests(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', question=q)
+        v = Voting(name='test voting')
         v.save()
+        v.questions.add(q)
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -236,8 +293,9 @@ class LiveStaticticsBaseTests(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting',method='DHONDT', question=q, seats=100)
+        v = Voting(name='test voting',method='DHONDT', seats=100)
         v.save()
+        v.questions.add(q)
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -252,8 +310,9 @@ class LiveStaticticsBaseTests(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting',method='WEBSTER', question=q, seats=100)
+        v = Voting(name='test voting',method='WEBSTER', seats=100)
         v.save()
+        v.questions.add(q)
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -279,24 +338,30 @@ class LiveStaticticsBaseTests(BaseTestCase):
 
     def store_votes(self, v):
         voters = list(Census.objects.filter(voting_id=v.id))
-        voter = voters.pop()
+        if not voters:
+            raise ValueError("No hay votantes disponibles para la votación.")
 
         clear = {}
-        for opt in v.question.options.all():
+        for opt in v.questions.first().options.all():  # Asegurándonos de obtener las opciones de la primera pregunta
             clear[opt.number] = 0
-            for _ in range(4):
+            for _ in range(min(4, len(voters))):  # Limitar la iteración al número de votantes disponibles
                 a, b = self.encrypt_msg(opt.number, v)
+                voter = voters.pop()  # Obtener un votante
                 data = {
                     'voting': v.id,
                     'voter': voter.voter_id,
-                    'vote': { 'a': a, 'b': b },
+                    'vote': {'a': a, 'b': b},
                 }
                 clear[opt.number] += 1
                 user = self.get_or_create_user(voter.voter_id)
                 self.login(user=user.username)
-                voter = voters.pop()
                 mods.post('store', json=data)
+
+                if not voters:  # Si no hay más votantes, salir del bucle
+                    break
+
         return clear
+
     
     def test_liveStaticticsIdentity(self):
         
@@ -381,7 +446,7 @@ class ListVisualizerTests(TestCase):
     def test_logged_in_with_census_and_voting(self):
         q = Question(desc='test question1')
         q.save()
-        voting = Voting.objects.create(id=1,name="vting1",desc="desc1",question=q,start_date=timezone.now(), end_date=timezone.now() - timedelta(days=1),
+        voting = Voting.objects.create(id=1,name="vting1",desc="desc1",questions=[q],start_date=timezone.now(), end_date=timezone.now() - timedelta(days=1),
                                        method='IDENTITY',seats=10)
         Census.objects.create(voter_id=self.user.id, voting_id=voting.id)
         self.client.force_login(self.user)
@@ -411,8 +476,9 @@ class VisualizerQuestionYesNoTestCase(StaticLiveServerTestCase):
             { 'option': 'No', 'number': 1, 'votes': 1 },
             { 'option': 'Yes', 'number': 2,'votes': 2 },
         ]
-        v = Voting(name='test voting', question=q, method='IDENTITY',start_date=timezone.now(),end_date=timezone.now(),postproc=data)
+        v = Voting(name='test voting', method='IDENTITY',start_date=timezone.now(),end_date=timezone.now(),postproc=data)
         v.save()
+        v.questions.add(q)
         response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
         vState= self.driver.find_element(By.TAG_NAME,"h2").text
         self.assertTrue(vState, "Resultados")

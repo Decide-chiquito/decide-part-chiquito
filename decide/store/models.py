@@ -9,6 +9,7 @@ class Vote(models.Model):
     
     voting_id = models.PositiveIntegerField(verbose_name=_("voting_id"))
     voter_id = models.PositiveIntegerField(verbose_name=_("voter_id"))
+    question_id = models.PositiveIntegerField(verbose_name=_("question_id"))
     history = AuditlogHistoryField()
 
     a = BigBigField()

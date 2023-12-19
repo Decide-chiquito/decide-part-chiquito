@@ -79,6 +79,7 @@ class Shuffle(APIView):
 
         msgs = request.data.get("msgs", [])
         pk = request.data.get("pk", None)
+
         if pk:
             p, g, y = pk["p"], pk["g"], pk["y"]
         else:
@@ -90,8 +91,10 @@ class Shuffle(APIView):
             "msgs": msgs,
             "pk": { "p": p, "g": g, "y": y },
         }
+
         # chained call to the next auth to gen the key
         resp = mn.chain_call("/shuffle/{}/".format(voting_id), data)
+
         if resp:
             msgs = resp
 

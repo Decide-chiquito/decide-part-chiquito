@@ -37,9 +37,11 @@ class BoothView(TemplateView):
             voting = r[0]
 
             yesno = [{'number': 2, 'option': 'Yes'}, {'number': 1, 'option': 'No'}]
-            voting['question']['type'] = 'MULTIPLE'
-            if r[0]['question']['options'] == yesno:
-                voting['question']['type'] = 'YESNO'
+            for question in voting['questions']:
+                question['type'] = 'MULTIPLE'
+                if question['options'] == yesno:
+                    question['type'] = 'YESNO'
+
             context['voting'] = json.dumps(voting)
 
             context['is_mobile'] = self.request.user_agent.is_mobile
@@ -54,7 +56,7 @@ class BoothView(TemplateView):
 def listActiveBooth(request):
     if request.user.is_authenticated:
         censos=Census.objects.filter(voter_id=request.user.id)
-        booths=[];
+        booths=[]
         for censo in censos:
             boothsMyCenso=Voting.objects.filter(id=censo.voting_id)
             for booth in boothsMyCenso:

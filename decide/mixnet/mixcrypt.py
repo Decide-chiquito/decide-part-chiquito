@@ -184,7 +184,9 @@ class MixCrypt:
             k = self.k
 
         a, b = map(int, cipher)
+
         a1, b1 = map(int, self.encrypt(1, k=k))
+
         p = int(k.p)
 
         return ((a * a1) % p, (b * b1) % p)
@@ -204,9 +206,12 @@ class MixCrypt:
         '''
 
         msgs2 = msgs.copy()
+
         perm = self.gen_perm(len(msgs))
         for i, p in enumerate(perm):
+
             m = msgs[p]
+
             nm = self.reencrypt(m, pubkey)
             msgs2[i] = nm
 

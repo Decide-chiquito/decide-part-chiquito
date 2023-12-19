@@ -28,8 +28,9 @@ class CensusTestCase(BaseTestCase):
         self.user.save()
         question = Question(desc="What is your question?")
         question.save()
-        self.voting = Voting(id=100, name="Test Voting", question=question)
+        self.voting = Voting(id=100, name="Test Voting")
         self.voting.save()
+        self.voting.questions.add(question)
         self.census = Census(voting_id=1, voter_id=1)
         self.census.save()
 
