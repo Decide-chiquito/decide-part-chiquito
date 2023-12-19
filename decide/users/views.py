@@ -276,10 +276,6 @@ class EditProfileView(TemplateView):
                 return render(request, 'users/edit_profile_mobile.html', {'error': error_message, 'is_mobile': request.user_agent.is_mobile})
             else:
                 return render(request, self.template_name, {'error': error_message})
-        
-
-
-
 
 class NoticeView(TemplateView):
     template_name = 'users/notice.html'
@@ -299,7 +295,7 @@ class NoticeView(TemplateView):
             voting_info.append({
                 'voting_id': voting.id,
                 'voting_name': voting.name,
-                'voting_question': voting.question,
+                'voting_questions': voting.questions,
                 'voting_endDate': voting.end_date,
                 'status': status,
                 'has_voted': has_voted,
