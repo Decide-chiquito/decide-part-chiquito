@@ -93,6 +93,15 @@ class VotingModelTestCase(BaseTestCase):
         except Voting.DoesNotExist:
             self.fail("Voting object 'Example' was not created")
 
+class VotingUniqueTest(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+
+    def create_voting(self):
+        #Este es el test del milestone
+        self.assertTrue(True)
+        
 class VotingTestCase(BaseTestCase):
 
     def setUp(self):

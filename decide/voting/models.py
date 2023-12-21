@@ -97,7 +97,7 @@ class Voting(models.Model):
     method = models.CharField(max_length=8,choices=VOTE_METHODS,default='IDENTITY',verbose_name=_("method"))
 
     seats = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("seats"))
-
+    #TODO: Her el cambio
     single_vote = models.BooleanField(default=False,verbose_name=_("single_vote"))
     
     class Meta:
