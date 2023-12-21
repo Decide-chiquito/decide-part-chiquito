@@ -248,6 +248,7 @@ class EditProfileView(TemplateView):
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             email = request.POST.get('email')
+            #Aqui haria el cambio
 
             if not username:
                 if request.user_agent.is_mobile:

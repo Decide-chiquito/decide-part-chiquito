@@ -541,3 +541,22 @@ class MobileTestCase(StaticLiveServerTestCase):
         
         os.remove(ruta_archivo_canonica)
         self.assertFalse(os.path.exists(ruta_archivo_canonica))
+
+
+class EmailConfirmationTest(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.headless = True
+        self.driver = webdriver.Chrome(options=chrome_options)
+        super().setUp()
+
+    def tearDown(self):
+        self.driver.quit()
+        super().tearDown()
+        self.base.tearDown()
+
+    def test_emailConfirmation(self):
+        self.assertTrue(true)
